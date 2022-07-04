@@ -43,12 +43,12 @@ def handle_help(message):
 
 def handle_vlist(message):
     vids = try_vconn().vlist()
-    bot.reply_to(message, str(vids))
+    bot.reply_to(message, "VList: %s" % ', '.join(map(str(vids))))
 
 
 def handle_vstate(message):
     state = try_vhost(data['vhost']).State()
-    bot.reply_to(message, str(state))
+    bot.reply_to(message, "State: %d" % state)
 
 
 def main():
