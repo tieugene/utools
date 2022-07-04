@@ -17,8 +17,8 @@ HELP = '''Commands available:
 # var
 data: dict
 bot: telebot.TeleBot
-vconn: virt.VConn
-vhost: virt.VHost
+vconn: virt.VConn = None
+vhost: virt.VHost = None
 
 
 def handle_help(message):
