@@ -9,7 +9,7 @@ from helper import pre, log, virt
 # const
 HELP = '''Commands available:
 /help: this page
-/vlist: list vhosts'''
+/vlist: vlist vhosts'''
 # var
 bot: telebot.TeleBot
 vconn: virt.VConn
@@ -23,7 +23,7 @@ def handle_help(message):
 def handle_vlist(message):
     global vconn
     vconn = virt.VConn()
-    vids = vconn.list()
+    vids = vconn.vlist()
     bot.reply_to(message, str(vids))
 
 

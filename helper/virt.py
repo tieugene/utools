@@ -8,7 +8,7 @@ from . import exc
 
 class VConn(object):
     """libvirt.virtConnect proxy"""
-    __conn: libvirt.virtConnect
+    __conn = None  # : libvirt.virtConnect
 
     def __init__(self):
         try:
@@ -17,20 +17,20 @@ class VConn(object):
             raise exc.YAPBKVMErrorError("Failed to open connection to the hypervisor")
 
     @property
-    def conn(self) -> libvirt.virtConnect:
+    def conn(self):  # -> libvirt.virtConnect:
         return self.__conn
 
-    def list(self) -> list[id]:
+    def vlist(self):  # -> list[id]:
         try:
             return self.__conn.listDomainsID()
         except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Failed list vhosts")
+            raise exc.YAPBKVMErrorError("Failed vlist vhosts")
 
 
 class VHost(object):
     """libvirt.virtDomain proxy"""
     state: int = None
-    __dom: libvirt.virDomain = None
+    __dom = None  # : libvirt.virDomain = None
 
     def __init__(self, vconn: VConn, name: str):
         """:todo: lookupByID(int)"""
@@ -53,13 +53,13 @@ class VHost(object):
     def Suspend(self):
         """Note: flush drives before"""
         try:
-            self.__dom.suspend()
+            return self.__dom.suspend()
         except libvirt.libvirtError:
             raise exc.YAPBKVMErrorError("Cannot suspend")
 
     def Resume(self):
         """Resume vhost if it was running before"""
         try:
-            self.__dom.resume()
+            return self.__dom.resume()
         except libvirt.libvirtError:
             raise exc.YAPBKVMErrorError("Cannot resume")
