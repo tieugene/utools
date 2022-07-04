@@ -39,7 +39,7 @@ class VHost(object):
         except libvirt.libvirtError:
             raise exc.YAPBKVMErrorError("Failed to find the main domain")
 
-    def getState(self):
+    def State(self) -> int:
         """Get vhost state.
         connection => domain => state
         TODO: commont try/exec block w/ libvirt exc handling
