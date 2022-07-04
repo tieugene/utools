@@ -21,28 +21,33 @@ vconn: virt.VConn = None
 vhost: virt.VHost = None
 
 
+def try_vconn() -> virt.VConn:
+    global vconn
+    if not vconn:
+        logging.debug("Try to create vconn")
+        vconn = virt.VConn()
+    return vconn
+
+
+def try_vhost(name: str) -> virt.VHost:
+    global vhost
+    if not vhost:
+        logging.debug("Try to create vhost")
+        vhost = virt.VHost(vconn, name)
+    return vhost
+
+
 def handle_help(message):
     bot.reply_to(message, HELP)
 
 
 def handle_vlist(message):
-    global vconn
-    if not vconn:
-        logging.debug("Try to create vconn")
-        vconn = virt.VConn()
-    vids = vconn.vlist()
+    vids = try_vconn().vlist()
     bot.reply_to(message, str(vids))
 
 
 def handle_vstate(message):
-    global vconn, vhost
-    if not vconn:
-        logging.debug("Try to create vconn")
-        vconn = virt.VConn()
-    if not vhost:
-        logging.debug("Try to open vhost")
-        vhost = virt.VHost(vconn, data['vhost'])
-    state = vhost.State()
+    state = try_vhost().State()
     bot.reply_to(message, str(state))
 
 
