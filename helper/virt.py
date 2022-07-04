@@ -1,8 +1,9 @@
-"""KVM vhost control"""
+"""KVM vhost control
+:todo: add logger"""
 # 2. 3rd
 import libvirt
 # 3. local
-import exc
+from . import exc
 
 
 class VConn(object):
