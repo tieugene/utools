@@ -29,13 +29,12 @@ class VConn(object):
 class VHost(object):
     """libvirt.virtDomain proxy"""
     state: int = None
-    __name: str = None
     __dom: libvirt.virDomain = None
 
     def __init__(self, vconn: VConn, name: str):
-        self.__name = name
+        """:todo: lookupByID(int)"""
         try:
-            self.__dom = vconn.conn.lookupByName(self.__name)
+            self.__dom = vconn.conn.lookupByName(name)
         except libvirt.libvirtError:
             raise exc.YAPBKVMErrorError("Failed to find the main domain")
 
