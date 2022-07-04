@@ -47,7 +47,7 @@ def handle_vlist(message):
 
 
 def handle_vstate(message):
-    state = try_vhost().State()
+    state = try_vhost(data['vhost']).State()
     bot.reply_to(message, str(state))
 
 
