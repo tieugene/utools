@@ -33,7 +33,7 @@ def try_vhost(name: str) -> virt.VHost:
     global vhost
     if not vhost:
         logging.debug("Try to create vhost")
-        vhost = virt.VHost(vconn, name)
+        vhost = virt.VHost(try_vconn(), name)
     return vhost
 
 
