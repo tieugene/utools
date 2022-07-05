@@ -1,5 +1,8 @@
 """KVM vhost control
 :todo: add logger"""
+# 1. std
+from typing import List
+import logging
 # 2. 3rd
 import libvirt
 # 3. local
@@ -17,26 +20,25 @@ STATE_NAME = (
 )
 
 
-class VConn(object):
-    """libvirt.virtConnect proxy
-    :todo: static class
-    """
-    __conn = None  # : libvirt.virtConnect
+class VConn:
+    """libvirt.virtConnect proxy"""
+    __conn: libvirt.virConnect = None
 
-    def __init__(self):
-        try:
-            self.__conn = libvirt.openReadOnly(None)  # localhost only
-        except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Failed to open connection to the hypervisor")
+    @staticmethod
+    def conn() -> libvirt.virConnect:
+        if not VConn.__conn:
+            logging.debug("Try opening VConn")
+            try:
+                VConn.__conn = libvirt.open(None)  # localhost only
+            except libvirt.libvirtError:
+                raise exc.YAPBKVMErrorError("Failed to open connection to the hypervisor")
+        return VConn.__conn
 
-    @property
-    def conn(self):  # -> libvirt.virtConnect:
-        return self.__conn
-
-    def vlist(self):  # -> list[int]:
+    @staticmethod
+    def vlist() -> List[int]:
         """:todo: shows all vhosts (listDefinedDomains())"""
         try:
-            return self.__conn.listDomainsID()
+            return VConn.conn().listDomainsID()
         except libvirt.libvirtError:
             raise exc.YAPBKVMErrorError("Failed vlist vhosts")
 
@@ -44,12 +46,12 @@ class VConn(object):
 class VHost(object):
     """libvirt.virtDomain proxy"""
     state: int = None
-    __dom = None  # : libvirt.virDomain = None
+    __dom: libvirt.virDomain = None
 
-    def __init__(self, vconn: VConn, name: str):
+    def __init__(self, name: str):
         """:todo: lookupByID(int)"""
         try:
-            self.__dom = vconn.conn.lookupByName(name)
+            self.__dom = VConn.conn().lookupByName(name)
         except libvirt.libvirtError:
             raise exc.YAPBKVMErrorError("Failed to find the main domain")
 

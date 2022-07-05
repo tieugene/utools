@@ -17,23 +17,14 @@ HELP = '''Commands available:
 # var
 data: dict
 bot: telebot.TeleBot
-vconn: virt.VConn = None
 vhost: virt.VHost = None
-
-
-def try_vconn() -> virt.VConn:
-    global vconn
-    if not vconn:
-        logging.debug("Try to create vconn")
-        vconn = virt.VConn()
-    return vconn
 
 
 def try_vhost(name: str) -> virt.VHost:
     global vhost
     if not vhost:
         logging.debug("Try to create vhost")
-        vhost = virt.VHost(try_vconn(), name)
+        vhost = virt.VHost(name)
     return vhost
 
 
@@ -42,7 +33,7 @@ def handle_help(message):
 
 
 def handle_vlist(message):
-    vids = try_vconn().vlist()
+    vids = virt.VConn.vlist()
     bot.reply_to(message, "VList: %s" % ', '.join(map(str, vids)))
 
 
