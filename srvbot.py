@@ -1,30 +1,33 @@
 #!/usr/bin/env python3
-
+"""Telegram bot to handle KVM host.
+:todo: handle_x into decorator
+"""
 # 1. std
 import sys
 import logging
 # 2. 3rd
 import telebot
-
 # 3. local
-from helper import pre, log, virt
+from helper import pre, log, virt, exc
 
 # const
 HELP = '''Commands available:
 /help: this page
-/vlist: vlist vhosts
-/vstate: vhost status'''
+/vlist: list vhosts
+/vactive: whether vhost is running
+/vstate: vhost status
+'''
 # var
 data: dict
 bot: telebot.TeleBot
 vhost: virt.VHost = None
 
 
-def try_vhost(name: str) -> virt.VHost:
+def __try_vhost() -> virt.VHost:
     global vhost
     if not vhost:
         logging.debug("Try to create vhost")
-        vhost = virt.VHost(name)
+        vhost = virt.VHost(data['vhost'])
     return vhost
 
 
@@ -33,13 +36,31 @@ def handle_help(message):
 
 
 def handle_vlist(message):
-    vids = virt.VConn.vlist()
-    bot.reply_to(message, "VList: %s" % ', '.join(map(str, vids)))
+    try:
+        responce = "VList: %s" % ', '.join(map(str, virt.VConn.vlist()))
+    except exc.YAPBKVMErrorError as e:
+        responce = "Err: " + str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
+
+
+def handle_vactive(message):
+    try:
+        responce = "Active: " + ("-", "+")[int(__try_vhost().isActive())]
+    except exc.YAPBKVMErrorError as e:
+        responce = "Err: " + str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
 
 
 def handle_vstate(message):
-    state = try_vhost(data['vhost']).State()
-    bot.reply_to(message, "State: %d (%s)" % (state, virt.STATE_NAME[state]))
+    try:
+        state = __try_vhost().State()
+        responce = "State: %d (%s)" % (state, virt.STATE_NAME[state])
+    except exc.YAPBKVMErrorError as e:
+        responce = "Err: " + str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
 
 
 def main():
@@ -58,6 +79,7 @@ def main():
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
     bot.register_message_handler(handle_help, commands=['help'])
     bot.register_message_handler(handle_vlist, commands=['vlist'])
+    bot.register_message_handler(handle_vactive, commands=['vactive'])
     bot.register_message_handler(handle_vstate, commands=['vstate'])
     # 4. go
     bot.infinity_polling()

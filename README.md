@@ -4,15 +4,15 @@ Telegram-based server helper bot
 
 ## Commands:
 - vhost (`libvirt.virtDomain.`, protected by default):
-  - [x] state (`state()`), pub
-  - [ ] ? (`isActive() -> bool`), pub
-  - [ ] reboot (`reboot()`, soft)
-  - [ ] reset (`reset()`, hard)
-  - [ ] resume (`resume()`)
-  - [ ] shutdown (`shutdown()`, soft)
-  - [ ] suspend (`suspend()`), confidential
-  - [ ] poweroff (`shutdownFlags(), destroy()`?)
-  - [ ] poweron (`create()`?)
+  - [ ] vactive (`isActive() -> bool`), pub
+  - [x] vstate (`state()`), pub
+  - [ ] vreboot (`reboot()`, soft)
+  - [ ] vreset (`reset()`, hard)
+  - [ ] vresume (`resume()`)
+  - [ ] vshutdown (`shutdown()`, soft)
+  - [ ] vsuspend (`suspend()`), confidential
+  - [ ] vpoweroff (`shutdownFlags(), destroy()`?)
+  - [ ] vpoweron (`create()`?)
 - itself:
   - [ ] reboot (`init 6`, `systemctl reboot`)
 

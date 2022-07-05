@@ -44,7 +44,9 @@ class VConn:
 
 
 class VHost(object):
-    """libvirt.virtDomain proxy"""
+    """libvirt.virtDomain proxy.
+    :todo: commont try/exec block w/ libvirt exc handling (decorator?)
+    """
     state: int = None
     __dom: libvirt.virDomain = None
 
@@ -52,30 +54,33 @@ class VHost(object):
         """:todo: lookupByID(int)"""
         try:
             self.__dom = VConn.conn().lookupByName(name)
-        except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Failed to find the main domain")
+        except libvirt.libvirtError as e:
+            raise exc.YAPBKVMErrorError(str(e))
+
+    def isActive(self) -> bool:
+        """Get vhost active."""
+        try:
+            return bool(self.__dom.isActive())
+        except libvirt.libvirtError as e:
+            raise exc.YAPBKVMErrorError(str(e))
 
     def State(self) -> int:
-        """Get vhost state.
-        connection => domain => state
-        TODO: commont try/exec block w/ libvirt exc handling
-        RTFM: https://libvirt.org/docs/libvirt-appdev-guide-python/en-US/html/libvirt_application_development_guide_using_python-Guest_Domains-Information-State.html
-        """
-        state, reason = self.__dom.state()  # [1, 5], [3, 1]
-        if state not in {libvirt.VIR_DOMAIN_RUNNING, libvirt.VIR_DOMAIN_PAUSED, libvirt.VIR_DOMAIN_SHUTOFF}:
-            raise exc.YAPBKVMErrorError("Vhost not run not paused nor shuted down")
-        return state
+        """Get vhost state."""
+        try:
+            return self.__dom.state()[0]  # state, reason: [1, 5], [3, 1]
+        except libvirt.libvirtError as e:
+            raise exc.YAPBKVMErrorError(str(e))
 
     def Suspend(self):
         """Note: flush drives before"""
         try:
             return self.__dom.suspend()
-        except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Cannot suspend")
+        except libvirt.libvirtError as e:
+            raise exc.YAPBKVMErrorError(str(e))
 
     def Resume(self):
         """Resume vhost if it was running before"""
         try:
             return self.__dom.resume()
-        except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Cannot resume")
+        except libvirt.libvirtError as e:
+            raise exc.YAPBKVMErrorError(str(e))
