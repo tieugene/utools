@@ -25,9 +25,9 @@ dnf install python3-virtualenv python3-libvirt
 ### CentOS all
 ```bash
 cd /opt
-python3 -m venv srvbot
-# or pyvenv --system-site-packages --symlinks srvbot
-source srvbot/bin/activate
+python3 -m venv pysandbox
+# or pyvenv --system-site-packages --symlinks pysandbox
+source pysandbox/bin/activate
 [pip install --upgrade pip]
 pip install pyTelegramBotAPI
 deactivate
@@ -37,7 +37,7 @@ deactivate
 
 ### 0.0.2:
 
-- [ ] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
+- [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
 - [ ] ACL
 - [ ] decorate helper.virt.VHost methods
 - [ ] decorate srvbot.handle_X

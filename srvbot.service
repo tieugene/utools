@@ -7,7 +7,7 @@ Type=simple
 User=nobody
 Group=nobody
 WorkingDirectory=/opt/pysandbox
-ExecStart=/opt/srvbot/bin/python3 srvbot/bot.py
+ExecStart=/opt/pysandbox/bin/python3 srvbot/bot.py
 Restart=on-abort
 
 Environment=VIRTUAL_ENV=/opt/pysandbox
