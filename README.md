@@ -15,8 +15,8 @@ Telegram-based server helper bot.
   - [x] reboot (`reboot()`, soft)
   - [x] reset (`reset()`, hard)
 - itself:
-  - [ ] selfreboot (`init 6`, `systemctl reboot`)
   - […] _list vhosts [`--inactive`]
+  - [ ] *selfreboot (`init 6`, `systemctl reboot`)*
 
 
 ## Install
@@ -43,15 +43,26 @@ deactivate
 ```
 
 ## ToDo:
+
+### 0.0.2:
+
 - […] state diagram
 - [ ] systemd unit
 - [ ] ACL
-- [ ] decorate helper.virt.VHost mathods
+- [ ] decorate helper.virt.VHost methods
 - [ ] decorate srvbot.handle_X
-- [ ] pre-action check (acts available; see below)
-- [ ] i18n+l10n
 - [ ] more logging
 - [ ] list inactive vhosts
+
+### 0.0.3:
+
+- [ ] i18n+l10n
+- [ ] pre-action check (acts available; see below)
+- [ ] configurable command names
+
+### x.y.z:
+
+- [ ] multi-vhost
 - [ ] *shortcuts (`vhost state <name>`)*
 
 ## State/Action
