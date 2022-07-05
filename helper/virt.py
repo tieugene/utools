@@ -55,32 +55,32 @@ class VHost(object):
         try:
             self.__dom = VConn.conn().lookupByName(name)
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError(str(e))
+            raise exc.YAPBKVMErrorError("Cannot find vhost '%s' (%s)" % (name, str(e)))
 
     def isActive(self) -> bool:
         """Get vhost active."""
         try:
             return bool(self.__dom.isActive())
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError(str(e))
+            raise exc.YAPBKVMErrorError("Cannot check vhost active (%s)" % str(e))
 
     def State(self) -> int:
         """Get vhost state."""
         try:
             return self.__dom.state()[0]  # state, reason: [1, 5], [3, 1]
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError(str(e))
+            raise exc.YAPBKVMErrorError("Cannot get vhost state (%s)" % str(e))
 
     def Suspend(self):
         """Note: flush drives before"""
         try:
             return self.__dom.suspend()
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError(str(e))
+            raise exc.YAPBKVMErrorError("Cannot suspend vhost (%s)" % str(e))
 
     def Resume(self):
         """Resume vhost if it was running before"""
         try:
             return self.__dom.resume()
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError(str(e))
+            raise exc.YAPBKVMErrorError("Cannot resume vhost (%s)" % str(e))
