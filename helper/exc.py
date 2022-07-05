@@ -19,8 +19,3 @@ class YAPBTextError(YAPBError):
 
     def __str__(self):
         return f"{self.name} error: {self.msg}"
-
-
-class YAPBKVMErrorError(YAPBTextError):
-    """KVM error"""
-    name = "Virt"

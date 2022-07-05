@@ -9,18 +9,24 @@ import logging
 # 2. 3rd
 import telebot
 # 3. local
-from helper import pre, log, virt, exc
+from helper import pre, log, virt
 
 # const
-HELP = '''Commands available:
+HELP = '''= Commands available: =
 /help, /?: this page
 /list: List vhosts
-/active: Check whether vhost is running
-/state: Get vhost status
-/start: Run vhost
-/suspend: Suspend vhost
-/resume: Resume vhost
+- Vhost control: -
+/active: Check whether is running
+/state: Get status
+/start: Run
+/suspend: Suspend
+/resume: Resume after suspend
+/reboot: Reboot (soft)
+/reset: Reset (hard)
+/shutdown: Shutdown (soft)
+/poweroff: Power Off (hard)
 '''
+CHECK = '✓'
 # var
 data: dict
 bot: telebot.TeleBot
@@ -42,7 +48,7 @@ def handle_help(message):
 def handle_list(message):
     try:
         responce = "VList: %s" % ', '.join(map(str, virt.VConn.list()))
-    except exc.YAPBKVMErrorError as e:
+    except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
@@ -50,8 +56,8 @@ def handle_list(message):
 
 def handle_active(message):
     try:
-        responce = "Active: " + ("-", "+")[int(__try_vhost().isActive())]
-    except exc.YAPBKVMErrorError as e:
+        responce = "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
+    except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
@@ -61,7 +67,7 @@ def handle_state(message):
     try:
         state = __try_vhost().State()
         responce = "State: %d (%s)" % (state, virt.STATE_NAME[state])
-    except exc.YAPBKVMErrorError as e:
+    except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
@@ -71,8 +77,19 @@ def handle_create(message):
     try:
         retcode = __try_vhost().Create()
         logging.debug(type(retcode))
-        responce = "Started: " + str(retcode)
-    except exc.YAPBKVMErrorError as e:
+        responce = "Start: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
+        responce = str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
+
+
+def handle_destroy(message):
+    try:
+        retcode = __try_vhost().Destroy()
+        logging.debug(type(retcode))
+        responce = "Destroy: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
@@ -82,8 +99,8 @@ def handle_suspend(message):
     try:
         retcode = __try_vhost().Suspend()
         logging.debug(type(retcode))
-        responce = "Suspended: " + str(retcode)
-    except exc.YAPBKVMErrorError as e:
+        responce = "Suspend: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
@@ -93,8 +110,41 @@ def handle_resume(message):
     try:
         retcode = __try_vhost().Resume()
         logging.debug(type(retcode))
-        responce = "Resumed: " + str(retcode)
-    except exc.YAPBKVMErrorError as e:
+        responce = "Resume: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
+        responce = str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
+
+
+def handle_shutdown(message):
+    try:
+        retcode = __try_vhost().ShutDown()
+        logging.debug(type(retcode))
+        responce = "Shutdown: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
+        responce = str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
+
+
+def handle_reboot(message):
+    try:
+        retcode = __try_vhost().Reboot()
+        logging.debug(type(retcode))
+        responce = "Reboot: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
+        responce = str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
+
+
+def handle_reset(message):
+    try:
+        retcode = __try_vhost().Reset()
+        logging.debug(type(retcode))
+        responce = "Reset: " + (str(retcode) if retcode else CHECK)
+    except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
@@ -108,6 +158,10 @@ HANDLERS = {  # TODO: mk help from this
     "start": handle_create,
     "suspend": handle_suspend,
     "resume": handle_resume,
+    "reboot": handle_reboot,
+    "reset": handle_reset,
+    "shutdown": handle_shutdown,
+    "poweroff": handle_destroy,
 }
 
 

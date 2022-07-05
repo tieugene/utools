@@ -9,14 +9,13 @@ state ShutOff
 state Crashed
 state PMSuspended
 
+ShutOff --> Running : Create
 Running --> Paused : Suspend
 Paused --> Running : Resume
-a --> b : ShutDown
-c --> d : ShutOff
-e --> f : Create
-g --> h : Reboot
-i --> j : Reset
-state Running
+Running --> ShutOff : ShutDown\n(soft)
+Running --> ShutOff : Destroy\n(hard)
+Running --> Running : Reboot\n(soft)
+Running --> Running : Reset\n(hard)
 
 }
 @enduml

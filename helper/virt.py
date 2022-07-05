@@ -7,6 +7,7 @@ import libvirt
 # 3. local
 from . import exc
 # const
+
 STATE_NAME = (
     "No state",
     "Running",
@@ -17,6 +18,11 @@ STATE_NAME = (
     "Crashed",
     "PMSuspended"
 )
+
+
+class YAPBKVMErrorError(exc.YAPBTextError):
+    """KVM error."""
+    name = "Virt"
 
 
 class VConn:
@@ -30,7 +36,7 @@ class VConn:
             try:
                 VConn.__conn = libvirt.open(None)  # localhost only
             except libvirt.libvirtError:
-                raise exc.YAPBKVMErrorError("Failed to open connection to the hypervisor")
+                raise YAPBKVMErrorError("Failed to open connection to the hypervisor")
         return VConn.__conn
 
     @staticmethod
@@ -39,7 +45,7 @@ class VConn:
         try:
             return VConn.conn().listDomainsID()
         except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Failed list vhosts")
+            raise YAPBKVMErrorError("Failed list vhosts")
 
 
 class VHost(object):
@@ -53,28 +59,35 @@ class VHost(object):
         try:
             self.__dom = VConn.conn().lookupByName(name)
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError("Cannot find vhost '%s' (%s)" % (name, str(e)))
+            raise YAPBKVMErrorError("Cannot find vhost '%s' (%s)" % (name, str(e)))
 
     def isActive(self) -> bool:
         """Get vhost active."""
         try:
             return bool(self.__dom.isActive())
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError("Cannot check vhost active (%s)" % str(e))
+            raise YAPBKVMErrorError("Cannot check vhost active (%s)" % str(e))
 
     def State(self) -> int:
         """Get vhost state."""
         try:
             return self.__dom.state()[0]  # state, reason: [1, 5], [3, 1]
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError("Cannot get vhost state (%s)" % str(e))
+            raise YAPBKVMErrorError("Cannot get vhost state (%s)" % str(e))
 
     def Create(self) -> int:
         """Power on vhost"""
         try:
             return self.__dom.create()
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError("Cannot start vhost (%s)" % str(e))
+            raise YAPBKVMErrorError("Cannot create vhost (%s)" % str(e))
+
+    def Destroy(self) -> int:
+        """Power off vhost (hard)"""
+        try:
+            return self.__dom.destroy()
+        except libvirt.libvirtError as e:
+            raise YAPBKVMErrorError("Cannot destroy vhost (%s)" % str(e))
 
     def Suspend(self) -> int:
         """Suspend vhost.
@@ -84,7 +97,7 @@ class VHost(object):
         try:
             return self.__dom.suspend()
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError("Cannot suspend vhost (%s)" % str(e))
+            raise YAPBKVMErrorError("Cannot suspend vhost (%s)" % str(e))
 
     def Resume(self) -> int:
         """Resume vhost after suspending
@@ -93,4 +106,31 @@ class VHost(object):
         try:
             return self.__dom.resume()
         except libvirt.libvirtError as e:
-            raise exc.YAPBKVMErrorError("Cannot resume vhost (%s)" % str(e))
+            raise YAPBKVMErrorError("Cannot resume vhost (%s)" % str(e))
+
+    def ShutDown(self) -> int:
+        """Shutdown vhost (soft)
+        :return: 0 if OK
+        """
+        try:
+            return self.__dom.shutdown()
+        except libvirt.libvirtError as e:
+            raise YAPBKVMErrorError("Cannot shutdown vhost (%s)" % str(e))
+
+    def Reboot(self) -> int:
+        """Reboot vhost (soft)
+        :return: 0 if OK
+        """
+        try:
+            return self.__dom.reboot()
+        except libvirt.libvirtError as e:
+            raise YAPBKVMErrorError("Cannot reboot vhost (%s)" % str(e))
+
+    def Reset(self) -> int:
+        """Reboot vhost (hard)
+        :return: 0 if OK
+        """
+        try:
+            return self.__dom.reset()
+        except libvirt.libvirtError as e:
+            raise YAPBKVMErrorError("Cannot reboot vhost (%s)" % str(e))
