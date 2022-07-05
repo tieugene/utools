@@ -4,10 +4,23 @@
 import libvirt
 # 3. local
 from . import exc
+# const
+STATE_NAME = (
+    "No state",
+    "Running",
+    "Blocked",
+    "Paused",
+    "ShutDown",
+    "ShutOff",
+    "Crashed",
+    "PMSuspended"
+)
 
 
 class VConn(object):
-    """libvirt.virtConnect proxy"""
+    """libvirt.virtConnect proxy
+    :todo: static class
+    """
     __conn = None  # : libvirt.virtConnect
 
     def __init__(self):
@@ -20,7 +33,8 @@ class VConn(object):
     def conn(self):  # -> libvirt.virtConnect:
         return self.__conn
 
-    def vlist(self):  # -> list[id]:
+    def vlist(self):  # -> list[int]:
+        """:todo: shows all vhosts (listDefinedDomains())"""
         try:
             return self.__conn.listDomainsID()
         except libvirt.libvirtError:

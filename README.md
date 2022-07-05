@@ -4,23 +4,23 @@ Telegram-based server helper bot
 
 ## Commands:
 - vhost (`libvirt.virtDomain.`, protected by default):
-  - ? (`isActive() -> bool`), pub
-  - reboot (`reboot()`, soft)
-  - reset (`reset()`, hard)
-  - resume (`resume()`)
-  - shutdown (`shutdown()`, soft)
-  - state (`state()`), pub
-  - suspend (`suspend()`), confidential
-  - poweroff (`shutdownFlags(), destroy()`?)
-  - poweron (`create()`?)
+  - [x] state (`state()`), pub
+  - [ ] ? (`isActive() -> bool`), pub
+  - [ ] reboot (`reboot()`, soft)
+  - [ ] reset (`reset()`, hard)
+  - [ ] resume (`resume()`)
+  - [ ] shutdown (`shutdown()`, soft)
+  - [ ] suspend (`suspend()`), confidential
+  - [ ] poweroff (`shutdownFlags(), destroy()`?)
+  - [ ] poweron (`create()`?)
 - itself:
-  - reboot (`init 6`, `systemctl reboot`)
+  - [ ] reboot (`init 6`, `systemctl reboot`)
 
 ## Features:
-- user ACL (cfg), TODO
-- single vhost only
-- _shortcuts (`vhost status <name>`)_
-- _list vhosts [`--inactive`] (`libvirt.virtConnect().listDomainsID()`)_
+- [ ] user ACL (cfg), TODO
+- [x] single vhost only
+- [ ] _shortcuts (`vhost status <name>`)_
+- [x] _list vhosts [`--inactive`] (`libvirt.virtConnect().listDomainsID()`)_
 
 ## Notes:
 - CentOS 7: python 3.6.8, ~~pytelegrambotapi~~ (3.7.6: ...): https://koji.fedoraproject.org/koji/taskinfo?taskID=89087861

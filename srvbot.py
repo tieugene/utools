@@ -48,7 +48,7 @@ def handle_vlist(message):
 
 def handle_vstate(message):
     state = try_vhost(data['vhost']).State()
-    bot.reply_to(message, "State: %d" % state)
+    bot.reply_to(message, "State: %d (%s)" % (state, virt.STATE_NAME[state]))
 
 
 def main():
