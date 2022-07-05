@@ -1,5 +1,4 @@
-"""KVM vhost control
-:todo: add logger"""
+"""KVM vhost control"""
 # 1. std
 from typing import List
 import logging
@@ -35,19 +34,18 @@ class VConn:
         return VConn.__conn
 
     @staticmethod
-    def vlist() -> List[int]:
+    def list() -> List[int]:
         """:todo: shows all vhosts (listDefinedDomains())"""
         try:
             return VConn.conn().listDomainsID()
         except libvirt.libvirtError:
-            raise exc.YAPBKVMErrorError("Failed vlist vhosts")
+            raise exc.YAPBKVMErrorError("Failed list vhosts")
 
 
 class VHost(object):
     """libvirt.virtDomain proxy.
     :todo: commont try/exec block w/ libvirt exc handling (decorator?)
     """
-    state: int = None
     __dom: libvirt.virDomain = None
 
     def __init__(self, name: str):
@@ -71,15 +69,27 @@ class VHost(object):
         except libvirt.libvirtError as e:
             raise exc.YAPBKVMErrorError("Cannot get vhost state (%s)" % str(e))
 
-    def Suspend(self):
-        """Note: flush drives before"""
+    def Create(self) -> int:
+        """Power on vhost"""
+        try:
+            return self.__dom.create()
+        except libvirt.libvirtError as e:
+            raise exc.YAPBKVMErrorError("Cannot start vhost (%s)" % str(e))
+
+    def Suspend(self) -> int:
+        """Suspend vhost.
+        :return: 0 if OK
+        :todo: flush drives before
+        """
         try:
             return self.__dom.suspend()
         except libvirt.libvirtError as e:
             raise exc.YAPBKVMErrorError("Cannot suspend vhost (%s)" % str(e))
 
-    def Resume(self):
-        """Resume vhost if it was running before"""
+    def Resume(self) -> int:
+        """Resume vhost after suspending
+        :return: 0 if OK
+        """
         try:
             return self.__dom.resume()
         except libvirt.libvirtError as e:

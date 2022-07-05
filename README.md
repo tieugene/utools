@@ -6,11 +6,11 @@ Telegram-based server helper bot
 - vhost (`libvirt.virtDomain.`, protected by default):
   - [x] active (`isActive() -> bool`), pub
   - [x] state (`state()`), pub
-  - [ ] suspend (`suspend()`), confidential
-  - [ ] resume (`resume()`)
+  - [x] poweron (`create()`)
+  - [x] suspend (`suspend()`), confidential
+  - [x] resume (`resume()`)
   - [ ] shutdown (`shutdown()`, soft)
   - [ ] shutoff (`shutdownFlags(), destroy()`?)
-  - [ ] poweron (`create()`?)
   - [ ] reboot (`reboot()`, soft)
   - [ ] reset (`reset()`, hard)
 - itself:
@@ -32,16 +32,27 @@ Telegram-based server helper bot
 
 ## Install
 
-### CentOS7
+### CentOS 7
 ```bash
-yum install python36-virtualenv
+yum install python36-virtualenv python36-libvirt
+```
+### CentOS 8
+```bash
+dnf install python3-virtualenv python3-libvirt
+```
+### CentOS all
+```bash
 cd /opt
-python3 -m venv srvbot  # or pyvenv --system-site-packages --symlinks srvbot
+python3 -m venv srvbot
+# or pyvenv --system-site-packages --symlinks srvbot
 source srvbot/bin/activate
 [pip install --upgrade pip]
-pip install pyTelegramBotAPI libvirt
+pip install pyTelegramBotAPI
 deactivate
 ```
 
-### CentOS8
-### All
+## ToDo:
+- [ ] auth
+- [ ] decorate virt.VHost mathods
+- [ ] decorate handle_X
+- [ ] state diagram

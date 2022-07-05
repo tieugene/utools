@@ -1,0 +1,22 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+state Running
+state Blocked
+state Paused
+state ShutDown
+state ShutOff
+state Crashed
+state PMSuspended
+
+Running --> Paused : Suspend
+Paused --> Running : Resume
+a --> b : ShutDown
+c --> d : ShutOff
+e --> f : Create
+g --> h : Reboot
+i --> j : Reset
+state Running
+
+}
+@enduml

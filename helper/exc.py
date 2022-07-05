@@ -23,3 +23,4 @@ class YAPBTextError(YAPBError):
 
 class YAPBKVMErrorError(YAPBTextError):
     """KVM error"""
+    name = "Virt"
