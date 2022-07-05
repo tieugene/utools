@@ -13,9 +13,9 @@ from helper import pre, log, virt, exc
 # const
 HELP = '''Commands available:
 /help: this page
-/vlist: list vhosts
-/vactive: whether vhost is running
-/vstate: vhost status
+/list: list vhosts
+/active: whether vhost is running
+/state: vhost status
 '''
 # var
 data: dict
@@ -35,7 +35,7 @@ def handle_help(message):
     bot.reply_to(message, HELP)
 
 
-def handle_vlist(message):
+def handle_list(message):
     try:
         responce = "VList: %s" % ', '.join(map(str, virt.VConn.vlist()))
     except exc.YAPBKVMErrorError as e:
@@ -44,7 +44,7 @@ def handle_vlist(message):
     bot.reply_to(message, responce)
 
 
-def handle_vactive(message):
+def handle_active(message):
     try:
         responce = "Active: " + ("-", "+")[int(__try_vhost().isActive())]
     except exc.YAPBKVMErrorError as e:
@@ -53,7 +53,7 @@ def handle_vactive(message):
     bot.reply_to(message, responce)
 
 
-def handle_vstate(message):
+def handle_state(message):
     try:
         state = __try_vhost().State()
         responce = "State: %d (%s)" % (state, virt.STATE_NAME[state])
@@ -61,6 +61,14 @@ def handle_vstate(message):
         responce = "Err: " + str(e)
         logging.error(responce)
     bot.reply_to(message, responce)
+
+
+HANDLERS = {
+    "help": handle_help,
+    "list": handle_list,
+    "active": handle_active,
+    "state": handle_state,
+}
 
 
 def main():
@@ -77,10 +85,8 @@ def main():
     log.setLogger(data.get('log', 5))
     # 3. setup tg-bot
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
-    bot.register_message_handler(handle_help, commands=['help'])
-    bot.register_message_handler(handle_vlist, commands=['vlist'])
-    bot.register_message_handler(handle_vactive, commands=['vactive'])
-    bot.register_message_handler(handle_vstate, commands=['vstate'])
+    for k, v in HANDLERS.items():
+        bot.register_message_handler(v, commands=[k] if isinstance(k, str) else k)
     # 4. go
     bot.infinity_polling()
 
