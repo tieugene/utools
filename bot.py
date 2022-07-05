@@ -32,6 +32,9 @@ data: dict
 bot: telebot.TeleBot
 vhost: virt.VHost = None
 
+# logger = telebot.logger
+# telebot.logger.setLevel(logging.DEBUG)
+
 
 def __try_vhost() -> virt.VHost:
     global vhost

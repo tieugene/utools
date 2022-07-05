@@ -1,0 +1,17 @@
+[Unit]
+Description=VHosts controlling tg bot
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nobody
+WorkingDirectory=/opt/pysandbox
+ExecStart=/opt/srvbot/bin/python3 srvbot/bot.py
+Restart=on-abort
+
+Environment=VIRTUAL_ENV=/opt/pysandbox
+Environment=PATH=$VIRTUAL_ENV/bin:$PATH
+
+[Install]
+WantedBy=multi-user.target

@@ -2,24 +2,15 @@
 
 Telegram-based server helper bot.
 
-## Commands:
+## Requirements
 
-- vhost (`libvirt.virtDomain.`, protected by default, 1 vhost only):
-  - [x] active (`isActive() -> bool`), pub
-  - [x] state (`state()`), pub
-  - [x] poweron (`create()`)
-  - [x] suspend (`suspend()`), confidential
-  - [x] resume (`resume()`)
-  - [x] shutdown (`shutdown()`, soft)
-  - [x] shutoff (`shutdownFlags(), destroy()`?)
-  - [x] reboot (`reboot()`, soft)
-  - [x] reset (`reset()`, hard)
-- itself:
-  - […] _list vhosts [`--inactive`]
-  - [ ] *selfreboot (`init 6`, `systemctl reboot`)*
-
+- python 3.6+
+- python-pyTelegramBotAPI
+- python-libvirt
 
 ## Install
+
+[RTFM](https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html)
 
 ### CentOS 7
 ```bash
@@ -46,13 +37,13 @@ deactivate
 
 ### 0.0.2:
 
-- […] state diagram
-- [ ] systemd unit
+- [ ] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
 - [ ] ACL
 - [ ] decorate helper.virt.VHost methods
 - [ ] decorate srvbot.handle_X
 - [ ] more logging
 - [ ] list inactive vhosts
+- […] state diagram
 
 ### 0.0.3:
 
@@ -79,12 +70,3 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 
 [^1]: Paused => Reboot == Reboot after Resume (delayed reboot)
 [^2]: Paused => Reset == Reset after Resume (delayed reset)
-
-## RTFM:
-
-- https://avalon.land/blog/it/telegram-bot-on-centos7/
-- https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html
-
-## misc
-
-Symbols: &times; &cross; &check; &hellip;
