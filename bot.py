@@ -244,6 +244,8 @@ def main():
             help_text[i].append(tip)
         bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub
+    print(user_acl)
+    print(cmd_acl)
     # 4. go
     bot.infinity_polling()
 
