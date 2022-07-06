@@ -43,7 +43,7 @@ deactivate
      - [x] /setjoingroups: Disable
      - [x] /setprivacy: Enable
      - [ ] /setcommands: 
-- […] decorate srvbot.handle_X
+- [x] decorate srvbot.handle_X
 - [ ] decorate helper.virt.VHost methods
 - [ ] more logging
 - [ ] list inactive vhosts
