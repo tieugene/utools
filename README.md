@@ -79,7 +79,6 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 
 Action | pub | prt | prv 
 -------|-----|-----|-----
-List   |  -  |  -  |  -
 Active |  +  |  +  |  +
 State  |  ?  |  +  |  +
 Suspend|  ?  |  +  |  +
@@ -89,6 +88,7 @@ Shutdwn|  -  |     |  +
 Reboot |  -  |     |  +
 Reset  |  -  |     |  -
 Destroy|  -  |     |  -
+List   |  -  |  -  |  -
 
 * Create == Power on
 * Destroy == Power off (hard)

@@ -17,24 +17,13 @@ from helper import pre, log, virt
 ACL_LEVELS = 4  # 0..3
 CHECK = '✓'
 WELCOME = "Welcome.\nSend '/help' for list available commends."
-HELP = '''/help: this page
-/active: Check whether is running
-/state: Get status
-/run: Run
-/suspend: Suspend
-/resume: Resume after suspend
-/reboot: Reboot (soft)
-/reset: Reset (hard)
-/shutdown: Shutdown (soft)
-/poweroff: Power Off (hard)
-/list: list all vhosts'''
-
 # var
 data: dict  # loaded config
 bot: telebot.TeleBot  # bot itself
 vhost: virt.VHost = None  # the vhost whto control to
-acl: dict = {}  # user.id -> ACL level
-help_text: list = []  # separate for each ACL level
+user_acl: dict = {}  # user.id -> ACL level
+cmd_acl: dict = {}   # cmd -> ACL level
+help_text: list = [[], [], [], []]  # separate for each ACL level
 
 
 class IEACLevel(enum.IntEnum):
@@ -49,8 +38,10 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
 
     @staticmethod
     def check(message: telebot.types.Message) -> bool:
-        logging.debug("can_use: " + message.text)
-        return message.from_user.id == 798758379
+        uid = message.from_user.id
+        cmd = message.text
+        logging.debug("can_use: uid=%d, cmd=%s" % (uid, cmd))
+        return True
 
 
 def __try_vhost() -> virt.VHost:
@@ -62,11 +53,14 @@ def __try_vhost() -> virt.VHost:
 
 
 def on_start(message):
-    bot.reply_to(message, WELCOME)
+    bot.send_message(message.chat.id, WELCOME)
 
 
 def on_help(message):
-    bot.reply_to(message, HELP)
+    uid = message.from_user.id
+    u_acl = user_acl[uid]
+    help_txt = help_text[u_acl]
+    bot.send_message(message.chat.id, '\n'.join(help_txt))
 
 
 def on_active(message):
@@ -75,7 +69,7 @@ def on_active(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_state(message):
@@ -85,7 +79,7 @@ def on_state(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_create(message):
@@ -96,7 +90,7 @@ def on_create(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_destroy(message):
@@ -107,7 +101,7 @@ def on_destroy(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_suspend(message):
@@ -118,7 +112,7 @@ def on_suspend(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_resume(message):
@@ -129,7 +123,7 @@ def on_resume(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_shutdown(message):
@@ -140,7 +134,7 @@ def on_shutdown(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_reboot(message):
@@ -151,7 +145,7 @@ def on_reboot(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_reset(message):
@@ -162,7 +156,7 @@ def on_reset(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
 
 
 def on_list(message):
@@ -171,30 +165,34 @@ def on_list(message):
     except virt.YAPBKVMErrorError as e:
         responce = str(e)
         logging.error(responce)
-    bot.reply_to(message, responce)
+    bot.send_message(message.chat.id, responce)
+
+
+def on_default(message: telebot.types.Message):
+    bot.send_message(message.chat.id, "Access denied")
 
 
 HANDLERS = {
     # TODO: mk help from this
-    # TODO: key: (func, desc, min ACL lvl)
-    "start": on_start,
-    "help": on_help,
-    "active": on_active,
-    "state": on_state,
-    "run": on_create,
-    "suspend": on_suspend,
-    "resume": on_resume,
-    "reboot": on_reboot,
-    "reset": on_reset,
-    "shutdown": on_shutdown,
-    "poweroff": on_destroy,
-    "list": on_list,
+    # TODO: key: (func, max acl lvl, desc)
+    "start": (on_start, 3, "Welcome message"),
+    "help": (on_help, 3, "This page"),
+    "active": (on_active, 3, "Check that is active"),
+    "state": (on_state, 3, "Get state"),
+    "suspend": (on_suspend, 2, "Suspend"),
+    "resume": (on_resume, 2, "Resume after suspend"),
+    "run": (on_create, 1, "Start (power up)"),
+    "shutdown": (on_shutdown, 1, "Shut down (soft power off)"),
+    "reboot": (on_reboot, 1, "Reboot (soft restart)"),
+    "reset": (on_reset, 0, "Reset (hard restart)"),
+    "kill": (on_destroy, 0, "Shut off (hard power off)"),
+    "list": (on_list, 0, "List vhost IDs"),
 }
 
 
 def main():
     """Main procedure."""
-    global data, bot
+    global data, bot, user_acl, cmd_acl, help_text
     # 1. load cfg
     try:
         data = pre.load_cfg('srvbot.json')
@@ -207,10 +205,18 @@ def main():
     if 'tglog' in data:
         # logger = telebot.logger
         telebot.logger.setLevel(data['tglog'])  # 0: NOTSET, 10: DEBUG, ..., 50: CRITICAL
-    # 3. setup tg-bot
+    # 3. setup ACL
+    for _id, _acl in data.get('acl', dict()):
+        user_acl[int(_id)] = _acl  # TODO: chk is_int, acl range
+    # 4. setup tg-bot
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
+    bot.add_custom_filter(CanUse())
     for k, v in HANDLERS.items():
-        bot.register_message_handler(v, commands=[k] if isinstance(k, str) else list(k))
+        cmd_acl[k] = v[1]
+        tip = "/%s: %s" % (k, v[2])
+        help_text[v[1]].append(tip)
+        bot.register_message_handler(v, commands=[k], can_use=True)
+    bot.register_message_handler(on_default)  # stub
     # 4. go
     bot.infinity_polling()
 
