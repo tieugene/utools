@@ -2,24 +2,15 @@
 
 Telegram-based server helper bot.
 
-## Commands:
+## Requirements
 
-- vhost (`libvirt.virtDomain.`, protected by default, 1 vhost only):
-  - [x] active (`isActive() -> bool`), pub
-  - [x] state (`state()`), pub
-  - [x] poweron (`create()`)
-  - [x] suspend (`suspend()`), confidential
-  - [x] resume (`resume()`)
-  - [x] shutdown (`shutdown()`, soft)
-  - [x] shutoff (`shutdownFlags(), destroy()`?)
-  - [x] reboot (`reboot()`, soft)
-  - [x] reset (`reset()`, hard)
-- itself:
-  - […] _list vhosts [`--inactive`]
-  - [ ] *selfreboot (`init 6`, `systemctl reboot`)*
-
+- python 3.6+
+- python-pyTelegramBotAPI
+- python-libvirt
 
 ## Install
+
+[RTFM](https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html)
 
 ### CentOS 7
 ```bash
@@ -34,36 +25,13 @@ dnf install python3-virtualenv python3-libvirt
 ### CentOS all
 ```bash
 cd /opt
-python3 -m venv srvbot
-# or pyvenv --system-site-packages --symlinks srvbot
-source srvbot/bin/activate
+python3 -m venv pysandbox
+# or pyvenv --system-site-packages --symlinks pysandbox
+source pysandbox/bin/activate
 [pip install --upgrade pip]
 pip install pyTelegramBotAPI
 deactivate
 ```
-
-## ToDo:
-
-### 0.0.2:
-
-- […] state diagram
-- [ ] systemd unit
-- [ ] ACL
-- [ ] decorate helper.virt.VHost methods
-- [ ] decorate srvbot.handle_X
-- [ ] more logging
-- [ ] list inactive vhosts
-
-### 0.0.3:
-
-- [ ] i18n+l10n
-- [ ] pre-action check (acts available; see below)
-- [ ] configurable command names
-
-### x.y.z:
-
-- [ ] multi-vhost
-- [ ] *shortcuts (`vhost state <name>`)*
 
 ## State/Action
 
@@ -77,14 +45,66 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
  6 | Crashed  |  …  |     |     |     |     |     |  
  7 | PBSuspend|     |     |     |     |     |     |  
 
+*ToDo: Paused <> PausedReboot <> PausedReset <> Destroy*
+
 [^1]: Paused => Reboot == Reboot after Resume (delayed reboot)
 [^2]: Paused => Reset == Reset after Resume (delayed reset)
 
-## RTFM:
+## ACL
 
-- https://avalon.land/blog/it/telegram-bot-on-centos7/
-- https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html
+Action | pub | prt | prv 
+-------|-----|-----|-----
+Active |  +  |  +  |  +
+State  |  ?  |  +  |  +
+Suspend|  ?  |  +  |  +
+Resume |  -  |     |  +
+Create |  -  |     |  +
+Shutdwn|  -  |     |  +
+Reboot |  -  |     |  +
+Reset  |  -  |     |  -
+Destroy|  -  |     |  -
+List   |  -  |  -  |  -
 
-## misc
+* Create == Power on
+* Destroy == Power off (hard)
+* Guest can nothing, Admin can everything
 
-Symbols: &times; &cross; &check; &hellip;
+## ToDo:
+
+### 0.0.3:
+
+Aim: extending
+
+- [ ] pre-action check (acts available; see below)
+- [ ] list inactive vhosts
+- [ ] i18n+l10n
+
+### x.y.z:
+
+Aim: expanding
+
+- [ ] configurable command names
+- [ ] multi-vhost
+- [ ] *shortcuts (`vhost state <name>`)*
+- [ ] *cmd_acl in cfg*
+- [ ] *user_acl as flag bits*
+- [ ] *or user x role x cmd*
+
+### BotFather:
+
+ - [x] /setjoingroups: Disable
+ - [x] /setprivacy: Enable
+ - [ ] /setcommands: 
+
+## Done
+
+### 0.0.2:
+
+Aim: make usable
+
+- [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
+- [x] ACL
+- [x] decorate srvbot.handle_X
+- [x] decorate helper.virt.VHost methods
+- [x] state diagram
+- [x] more logging
