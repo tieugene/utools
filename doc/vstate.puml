@@ -4,6 +4,8 @@
 state Running
 state Blocked
 state Paused
+state PausedReboot
+state PausedReset
 state ShutDown
 state ShutOff
 state Crashed
@@ -11,11 +13,17 @@ state PMSuspended
 
 ShutOff --> Running : Create
 Running --> Paused : Suspend
+Paused --> Paused : Suspend
 Paused --> Running : Resume
-Running --> ShutOff : ShutDown\n(soft)
-Running --> ShutOff : Destroy\n(hard)
-Running --> Running : Reboot\n(soft)
-Running --> Running : Reset\n(hard)
+Paused --> PausedReboot : Reboot
+PausedReboot --> Running : Resume
+Paused --> PausedReset : Reset
+PausedReset --> Running : Resume
+Paused --> ShutOff : Destroy
+Running --> ShutOff : ShutDown
+Running --> ShutOff : Destroy
+Running --> Running : Reboot
+Running --> Running : Reset
 
 }
 @enduml
