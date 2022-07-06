@@ -9,6 +9,8 @@ import sys
 import logging
 # 2. 3rd
 # noinspection PyPackageRequirements
+from typing import Optional
+
 import telebot
 # 3. local
 from helper import pre, log, virt
@@ -38,10 +40,19 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
 
     @staticmethod
     def check(message: telebot.types.Message) -> bool:
-        uid = message.from_user.id
-        cmd = message.text
-        logging.debug("can_use: uid=%d, cmd=%s" % (uid, cmd))
-        return True
+        """
+        Conditions:
+        - txt must be cmd (/...)
+        - cmd must be known (in cmd's ACL)
+        - user must be known (in user's ACL)
+        - user.ACL must be <= cmd.ACL
+        :param message:
+        :return: True if access ok
+        """
+        logging.debug("can_use: uid=%d, cmd=%s" % (message.from_user.id, message.text))
+        u_acl = _get_user_acl(message)
+        c_acl = _get_user_acl(message)
+        return u_acl is not None and c_acl is not None and u_acl <= c_acl
 
 
 def __try_vhost() -> virt.VHost:
@@ -52,126 +63,143 @@ def __try_vhost() -> virt.VHost:
     return vhost
 
 
-def on_start(message):
+def _get_user_acl(message: telebot.types.Message) -> Optional[int]:
+    return user_acl.get(message.from_user.id)
+
+
+def _get_cmd_acl(message: telebot.types.Message) -> Optional[int]:
+    return cmd_acl.get(message.text)
+
+
+def on_start(message: telebot.types.Message):
     bot.send_message(message.chat.id, WELCOME)
 
 
-def on_help(message):
-    uid = message.from_user.id
-    u_acl = user_acl[uid]
-    help_txt = help_text[u_acl]
-    logging.debug("Help: uid=%d, acl=%d" % (uid, u_acl))
-    # print(help_txt)
-    bot.send_message(message.chat.id, '\n'.join(help_txt))
+def on_help(message: telebot.types.Message):
+    bot.send_message(message.chat.id, '\n'.join(help_text[user_acl[message.from_user.id]]))
 
 
-def on_active(message):
+def on_active(message: telebot.types.Message):
     try:
-        responce = "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
+        response = "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_state(message):
+def on_state(message: telebot.types.Message):
     try:
         state = __try_vhost().State()
-        responce = "State: %d (%s)" % (state, virt.STATE_NAME[state])
+        response = "State: %d (%s)" % (state, virt.STATE_NAME[state])
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_create(message):
+def on_create(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Create()
         logging.debug(type(retcode))
-        responce = "Start: " + (str(retcode) if retcode else CHECK)
+        response = "Start: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_destroy(message):
+def on_destroy(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Destroy()
         logging.debug(type(retcode))
-        responce = "Destroy: " + (str(retcode) if retcode else CHECK)
+        response = "Destroy: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_suspend(message):
+def on_suspend(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Suspend()
         logging.debug(type(retcode))
-        responce = "Suspend: " + (str(retcode) if retcode else CHECK)
+        response = "Suspend: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_resume(message):
+def on_resume(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Resume()
         logging.debug(type(retcode))
-        responce = "Resume: " + (str(retcode) if retcode else CHECK)
+        response = "Resume: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_shutdown(message):
+def on_shutdown(message: telebot.types.Message):
     try:
         retcode = __try_vhost().ShutDown()
         logging.debug(type(retcode))
-        responce = "Shutdown: " + (str(retcode) if retcode else CHECK)
+        response = "Shutdown: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_reboot(message):
+def on_reboot(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Reboot()
         logging.debug(type(retcode))
-        responce = "Reboot: " + (str(retcode) if retcode else CHECK)
+        response = "Reboot: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_reset(message):
+def on_reset(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Reset()
         logging.debug(type(retcode))
-        responce = "Reset: " + (str(retcode) if retcode else CHECK)
+        response = "Reset: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
-def on_list(message):
+def on_list(message: telebot.types.Message):
     try:
-        responce = "VList: %s" % ', '.join(map(str, virt.VConn.list()))
+        response = "VList: %s" % ', '.join(map(str, virt.VConn.list()))
     except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.send_message(message.chat.id, responce)
+        response = str(e)
+        logging.error(response)
+    bot.send_message(message.chat.id, response)
 
 
 def on_default(message: telebot.types.Message):
-    bot.send_message(message.chat.id, "Access denied")
+    """Stub for unknow user, unknown command, access denied"""
+    user = message.from_user
+    if user.id not in user_acl:
+        logging.warning("Unknown user: %d - %s (username=%s, first_name=%s, last_name=%s)" % (
+            user.id,
+            user.full_name,
+            user.username,
+            user.first_name,
+            user.last_name
+        ))
+        bot.send_message(message.chat.id, "Брысь!")
+    elif message.text not in cmd_acl:
+        bot.send_message(message.chat.id, "Unknown command")
+    else:
+        bot.send_message(message.chat.id, "Access denied")
 
 
 HANDLERS = {
@@ -214,13 +242,12 @@ def main():
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
     bot.add_custom_filter(CanUse())
     for k, v in HANDLERS.items():
-        cmd_acl[k] = v[1]
+        cmd_acl['/'+k] = v[1]
         tip = "/%s: %s" % (k, v[2])
         for i in range(v[1]+1):
             help_text[i].append(tip)
         bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub
-    # print(help_text)
     # 4. go
     bot.infinity_polling()
 
