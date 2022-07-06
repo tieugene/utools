@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Telegram bot to handle KVM host.
-:todo: handle_x into decorator
-"""
+"""Telegram bot to handle KVM host."""
 # 1. std
 import enum
 import sys
@@ -99,93 +97,57 @@ def on_active(message: telebot.types.Message):
     return "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
 
 
+@on_action
 def on_state(message: telebot.types.Message):
-    try:
-        state = __try_vhost().State()
-        response = "State: %d (%s)" % (state, virt.STATE_NAME[state])
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    state = __try_vhost().State()
+    return "State: %d (%s)" % (state, virt.STATE_NAME[state])
 
 
+@on_action
 def on_create(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().Create()  # 0 if ok
-        response = "Start: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().Create()  # 0 if ok
+    return "Run: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_destroy(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().Destroy()
-        response = "Destroy: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().Destroy()
+    return "Kill: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_suspend(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().Suspend()
-        response = "Suspend: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().Suspend()
+    return "Suspend: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_resume(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().Resume()
-        response = "Resume: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().Resume()
+    return "Resume: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_shutdown(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().ShutDown()
-        response = "Shutdown: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().ShutDown()
+    return "Shutdown: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_reboot(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().Reboot()
-        response = "Reboot: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().Reboot()
+    return "Reboot: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_reset(message: telebot.types.Message):
-    try:
-        retcode = __try_vhost().Reset()
-        response = "Reset: " + (str(retcode) if retcode else CHECK)
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    retcode = __try_vhost().Reset()
+    return "Reset: " + (str(retcode) if retcode else CHECK)
 
 
+@on_action
 def on_list(message: telebot.types.Message):
-    try:
-        response = "VList: %s" % ', '.join(map(str, virt.VConn.list()))
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    return "VHosts: %s" % ', '.join(map(str, virt.VConn.list()))
 
 
 def on_default(message: telebot.types.Message):
