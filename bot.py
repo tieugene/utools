@@ -51,7 +51,7 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         """
         logging.debug("can_use: uid=%d, cmd=%s" % (message.from_user.id, message.text))
         u_acl = _get_user_acl(message)
-        c_acl = _get_user_acl(message)
+        c_acl = _get_cmd_acl(message)
         if u_acl is not None and c_acl is not None:
             logging.debug("u_acl=%d, c_acl=%d" % (u_acl, c_acl))
             return u_acl <= c_acl
@@ -244,8 +244,6 @@ def main():
             help_text[i].append(tip)
         bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub
-    print(user_acl)
-    print(cmd_acl)
     # 4. go
     bot.infinity_polling()
 
