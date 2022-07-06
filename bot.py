@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Telegram bot to handle KVM host.
 :todo: handle_x into decorator
-:todo: auth
 """
 # 1. std
 import enum
@@ -199,8 +198,6 @@ def on_default(message: telebot.types.Message):
 
 
 HANDLERS = {
-    # TODO: mk help from this
-    # TODO: key: (func, max acl lvl, desc)
     "start": (on_start, 3, "Welcome message"),
     "help": (on_help, 3, "This page"),
     "active": (on_active, 3, "Check that is active"),
@@ -227,10 +224,11 @@ def main():
     except pre.YAPBCfgLoadError as e:
         sys.exit(str(e))
     # 2. setup logger
-    log.setLogger(data.get('log', 5))
+    if 'log' in data:
+        log.setLogger(data['log'])
     if 'tglog' in data:
         # logger = telebot.logger
-        telebot.logger.setLevel(data['tglog'])  # 0: NOTSET, 10: DEBUG, ..., 50: CRITICAL
+        telebot.logger.setLevel(log.LOG_LEVEL[data['tglog']])
     # 3. setup ACL
     for _id, _acl in data.get('acl', dict()).items():
         user_acl[int(_id)] = _acl  # TODO: chk is_int, acl range
