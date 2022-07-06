@@ -79,19 +79,15 @@ class VHost(object):
         """Get vhost active."""
         return bool(self.__dom.isActive())
 
+    @try_libvirt("Cannot get vhost state")
     def State(self) -> int:
         """Get vhost state."""
-        try:
-            return self.__dom.state()[0]  # state, reason: [1, 5], [3, 1]
-        except libvirt.libvirtError as e:
-            raise YAPBKVMErrorError("Cannot get vhost state (%s)" % str(e))
+        return self.__dom.state()[0]  # state, reason: [1, 5], [3, 1]
 
+    @try_libvirt("Cannot create vhost")
     def Create(self) -> int:
         """Power on vhost"""
-        try:
-            return self.__dom.create()
-        except libvirt.libvirtError as e:
-            raise YAPBKVMErrorError("Cannot create vhost (%s)" % str(e))
+        return self.__dom.create()
 
     def Destroy(self) -> int:
         """Power off vhost (hard)"""
