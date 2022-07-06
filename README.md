@@ -39,6 +39,10 @@ deactivate
 
 - [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
 - [ ] ACL
+  - BotFather:
+     - /setjoingroups: Disable
+     - /setprivacy: Enable
+     - /setcommands: 
 - [ ] decorate helper.virt.VHost methods
 - [ ] decorate srvbot.handle_X
 - [ ] more logging
@@ -70,3 +74,22 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 
 [^1]: Paused => Reboot == Reboot after Resume (delayed reboot)
 [^2]: Paused => Reset == Reset after Resume (delayed reset)
+
+## ACL
+
+Action | pub | prt | prv 
+-------|-----|-----|-----
+List   |  -  |  -  |  -
+Active |  +  |  +  |  +
+State  |  ?  |  +  |  +
+Suspend|  ?  |  +  |  +
+Resume |  -  |     |  +
+Create |  -  |     |  +
+Shutdwn|  -  |     |  +
+Reboot |  -  |     |  +
+Reset  |  -  |     |  -
+Destroy|  -  |     |  -
+
+* Create == Power on
+* Destroy == Power off (hard)
+* Guest can nothing, Admin can everything

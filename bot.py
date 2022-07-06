@@ -4,36 +4,53 @@
 :todo: auth
 """
 # 1. std
+import enum
 import sys
 import logging
 # 2. 3rd
+# noinspection PyPackageRequirements
 import telebot
 # 3. local
 from helper import pre, log, virt
 
 # const
-HELP = '''= Commands available: =
-/help, /?: this page
-/list: List vhosts
-- Vhost control: -
+ACL_LEVELS = 4  # 0..3
+CHECK = '✓'
+WELCOME = "Welcome.\nSend '/help' for list available commends."
+HELP = '''/help: this page
 /active: Check whether is running
 /state: Get status
-/start: Run
+/run: Run
 /suspend: Suspend
 /resume: Resume after suspend
 /reboot: Reboot (soft)
 /reset: Reset (hard)
 /shutdown: Shutdown (soft)
 /poweroff: Power Off (hard)
-'''
-CHECK = '✓'
-# var
-data: dict
-bot: telebot.TeleBot
-vhost: virt.VHost = None
+/list: list all vhosts'''
 
-# logger = telebot.logger
-# telebot.logger.setLevel(logging.DEBUG)
+# var
+data: dict  # loaded config
+bot: telebot.TeleBot  # bot itself
+vhost: virt.VHost = None  # the vhost whto control to
+acl: dict = {}  # user.id -> ACL level
+help_text: list = []  # separate for each ACL level
+
+
+class IEACLevel(enum.IntEnum):
+    Admin = 0
+    Private = 1
+    Protected = 2
+    Public = 3
+
+
+class CanUse(telebot.custom_filters.SimpleCustomFilter):
+    key = 'can_use'
+
+    @staticmethod
+    def check(message: telebot.types.Message) -> bool:
+        logging.debug("can_use: " + message.text)
+        return message.from_user.id == 798758379
 
 
 def __try_vhost() -> virt.VHost:
@@ -44,20 +61,15 @@ def __try_vhost() -> virt.VHost:
     return vhost
 
 
-def handle_help(message):
+def on_start(message):
+    bot.reply_to(message, WELCOME)
+
+
+def on_help(message):
     bot.reply_to(message, HELP)
 
 
-def handle_list(message):
-    try:
-        responce = "VList: %s" % ', '.join(map(str, virt.VConn.list()))
-    except virt.YAPBKVMErrorError as e:
-        responce = str(e)
-        logging.error(responce)
-    bot.reply_to(message, responce)
-
-
-def handle_active(message):
+def on_active(message):
     try:
         responce = "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
     except virt.YAPBKVMErrorError as e:
@@ -66,7 +78,7 @@ def handle_active(message):
     bot.reply_to(message, responce)
 
 
-def handle_state(message):
+def on_state(message):
     try:
         state = __try_vhost().State()
         responce = "State: %d (%s)" % (state, virt.STATE_NAME[state])
@@ -76,7 +88,7 @@ def handle_state(message):
     bot.reply_to(message, responce)
 
 
-def handle_create(message):
+def on_create(message):
     try:
         retcode = __try_vhost().Create()
         logging.debug(type(retcode))
@@ -87,7 +99,7 @@ def handle_create(message):
     bot.reply_to(message, responce)
 
 
-def handle_destroy(message):
+def on_destroy(message):
     try:
         retcode = __try_vhost().Destroy()
         logging.debug(type(retcode))
@@ -98,7 +110,7 @@ def handle_destroy(message):
     bot.reply_to(message, responce)
 
 
-def handle_suspend(message):
+def on_suspend(message):
     try:
         retcode = __try_vhost().Suspend()
         logging.debug(type(retcode))
@@ -109,7 +121,7 @@ def handle_suspend(message):
     bot.reply_to(message, responce)
 
 
-def handle_resume(message):
+def on_resume(message):
     try:
         retcode = __try_vhost().Resume()
         logging.debug(type(retcode))
@@ -120,7 +132,7 @@ def handle_resume(message):
     bot.reply_to(message, responce)
 
 
-def handle_shutdown(message):
+def on_shutdown(message):
     try:
         retcode = __try_vhost().ShutDown()
         logging.debug(type(retcode))
@@ -131,7 +143,7 @@ def handle_shutdown(message):
     bot.reply_to(message, responce)
 
 
-def handle_reboot(message):
+def on_reboot(message):
     try:
         retcode = __try_vhost().Reboot()
         logging.debug(type(retcode))
@@ -142,7 +154,7 @@ def handle_reboot(message):
     bot.reply_to(message, responce)
 
 
-def handle_reset(message):
+def on_reset(message):
     try:
         retcode = __try_vhost().Reset()
         logging.debug(type(retcode))
@@ -153,18 +165,30 @@ def handle_reset(message):
     bot.reply_to(message, responce)
 
 
-HANDLERS = {  # TODO: mk help from this
-    ("help", '?'): handle_help,
-    "list": handle_list,
-    "active": handle_active,
-    "state": handle_state,
-    "start": handle_create,
-    "suspend": handle_suspend,
-    "resume": handle_resume,
-    "reboot": handle_reboot,
-    "reset": handle_reset,
-    "shutdown": handle_shutdown,
-    "poweroff": handle_destroy,
+def on_list(message):
+    try:
+        responce = "VList: %s" % ', '.join(map(str, virt.VConn.list()))
+    except virt.YAPBKVMErrorError as e:
+        responce = str(e)
+        logging.error(responce)
+    bot.reply_to(message, responce)
+
+
+HANDLERS = {
+    # TODO: mk help from this
+    # TODO: key: (func, desc, min ACL lvl)
+    "start": on_start,
+    "help": on_help,
+    "active": on_active,
+    "state": on_state,
+    "run": on_create,
+    "suspend": on_suspend,
+    "resume": on_resume,
+    "reboot": on_reboot,
+    "reset": on_reset,
+    "shutdown": on_shutdown,
+    "poweroff": on_destroy,
+    "list": on_list,
 }
 
 
@@ -180,6 +204,9 @@ def main():
         sys.exit(str(e))
     # 2. setup logger
     log.setLogger(data.get('log', 5))
+    if 'tglog' in data:
+        # logger = telebot.logger
+        telebot.logger.setLevel(data['tglog'])  # 0: NOTSET, 10: DEBUG, ..., 50: CRITICAL
     # 3. setup tg-bot
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
     for k, v in HANDLERS.items():
