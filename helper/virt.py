@@ -1,5 +1,6 @@
 """KVM vhost control"""
 # 1. std
+import functools
 from typing import List
 import logging
 # 2. 3rd
@@ -48,6 +49,16 @@ class VConn:
             raise YAPBKVMErrorError("Failed list vhosts")
 
 
+def try_libvirt(func: callable, reason: str):
+    @functools.wraps(func)
+    def wrapper(ref):
+        try:
+            return func(ref)
+        except libvirt.libvirtError as e:
+            raise YAPBKVMErrorError("%s (%s)" % (reason, str(e)))
+    return wrapper
+
+
 class VHost(object):
     """libvirt.virtDomain proxy.
     :todo: commont try/exec block w/ libvirt exc handling (decorator?)
@@ -61,12 +72,10 @@ class VHost(object):
         except libvirt.libvirtError as e:
             raise YAPBKVMErrorError("Cannot find vhost '%s' (%s)" % (name, str(e)))
 
+    @try_libvirt("Cannot check vhost active")
     def isActive(self) -> bool:
         """Get vhost active."""
-        try:
-            return bool(self.__dom.isActive())
-        except libvirt.libvirtError as e:
-            raise YAPBKVMErrorError("Cannot check vhost active (%s)" % str(e))
+        return bool(self.__dom.isActive())
 
     def State(self) -> int:
         """Get vhost state."""

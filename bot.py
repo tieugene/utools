@@ -84,7 +84,7 @@ def on_action(func: callable):
     @functools.wraps(func)
     def wrapper(message: telebot.types.Message):
         try:
-            response = func(message)
+            response = func(message)  # FIXME: func not requires message
         except virt.YAPBKVMErrorError as e:
             response = str(e)
             logging.error(response)
