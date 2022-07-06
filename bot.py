@@ -6,6 +6,7 @@
 import enum
 import sys
 import logging
+import functools
 # 2. 3rd
 # noinspection PyPackageRequirements
 from typing import Optional
@@ -81,13 +82,21 @@ def on_help(message: telebot.types.Message):
     bot.send_message(message.chat.id, '\n'.join(help_text[user_acl[message.from_user.id]]))
 
 
+def on_action(func: callable):
+    @functools.wraps(func)
+    def wrapper(message: telebot.types.Message):
+        try:
+            response = func(message)
+        except virt.YAPBKVMErrorError as e:
+            response = str(e)
+            logging.error(response)
+        bot.send_message(message.chat.id, response)
+    return wrapper
+
+
+@on_action
 def on_active(message: telebot.types.Message):
-    try:
-        response = "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
-    except virt.YAPBKVMErrorError as e:
-        response = str(e)
-        logging.error(response)
-    bot.send_message(message.chat.id, response)
+    return "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
 
 
 def on_state(message: telebot.types.Message):
