@@ -52,7 +52,10 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         logging.debug("can_use: uid=%d, cmd=%s" % (message.from_user.id, message.text))
         u_acl = _get_user_acl(message)
         c_acl = _get_user_acl(message)
-        return u_acl is not None and c_acl is not None and u_acl <= c_acl
+        if u_acl is not None and c_acl is not None:
+            logging.debug("u_acl=%d, c_acl=%d" % (u_acl, c_acl))
+            return u_acl <= c_acl
+        return False
 
 
 def __try_vhost() -> virt.VHost:
@@ -100,8 +103,7 @@ def on_state(message: telebot.types.Message):
 
 def on_create(message: telebot.types.Message):
     try:
-        retcode = __try_vhost().Create()
-        logging.debug(type(retcode))
+        retcode = __try_vhost().Create()  # 0 if ok
         response = "Start: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
@@ -112,7 +114,6 @@ def on_create(message: telebot.types.Message):
 def on_destroy(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Destroy()
-        logging.debug(type(retcode))
         response = "Destroy: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
@@ -123,7 +124,6 @@ def on_destroy(message: telebot.types.Message):
 def on_suspend(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Suspend()
-        logging.debug(type(retcode))
         response = "Suspend: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
@@ -134,7 +134,6 @@ def on_suspend(message: telebot.types.Message):
 def on_resume(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Resume()
-        logging.debug(type(retcode))
         response = "Resume: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
@@ -145,7 +144,6 @@ def on_resume(message: telebot.types.Message):
 def on_shutdown(message: telebot.types.Message):
     try:
         retcode = __try_vhost().ShutDown()
-        logging.debug(type(retcode))
         response = "Shutdown: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
@@ -156,7 +154,6 @@ def on_shutdown(message: telebot.types.Message):
 def on_reboot(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Reboot()
-        logging.debug(type(retcode))
         response = "Reboot: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
@@ -167,7 +164,6 @@ def on_reboot(message: telebot.types.Message):
 def on_reset(message: telebot.types.Message):
     try:
         retcode = __try_vhost().Reset()
-        logging.debug(type(retcode))
         response = "Reset: " + (str(retcode) if retcode else CHECK)
     except virt.YAPBKVMErrorError as e:
         response = str(e)
