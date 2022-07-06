@@ -49,9 +49,9 @@ class VConn:
             raise YAPBKVMErrorError("Failed list vhosts")
 
 
-def try_libvirt(func: callable, reason: str):
+def try_libvirt(func: callable):
     @functools.wraps(func)
-    def wrapper(ref):
+    def wrapper(ref, reason: str):
         try:
             return func(ref)
         except libvirt.libvirtError as e:
