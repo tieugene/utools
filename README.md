@@ -33,44 +33,6 @@ pip install pyTelegramBotAPI
 deactivate
 ```
 
-## ToDo:
-
-### 0.0.2:
-
-Aim: make usable
-
-- [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
-- [x] ACL
-- [x] decorate srvbot.handle_X
-- [x] decorate helper.virt.VHost methods
-- [x] state diagram
-- [ ] more logging
-
-### 0.0.3:
-
-Aim: extending
-
-- [ ] pre-action check (acts available; see below)
-- [ ] list inactive vhosts
-- [ ] i18n+l10n
-
-### x.y.z:
-
-Aim: expanding
-
-- [ ] configurable command names
-- [ ] multi-vhost
-- [ ] *shortcuts (`vhost state <name>`)*
-- [ ] *cmd_acl in cfg*
-- [ ] *user_acl as flag bits*
-- [ ] *or user x role x cmd*
-
-### BotFather:
-
- - [x] /setjoingroups: Disable
- - [x] /setprivacy: Enable
- - [ ] /setcommands: 
-
 ## State/Action
 
 st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst 
@@ -106,3 +68,43 @@ List   |  -  |  -  |  -
 * Create == Power on
 * Destroy == Power off (hard)
 * Guest can nothing, Admin can everything
+
+## ToDo:
+
+### 0.0.3:
+
+Aim: extending
+
+- [ ] pre-action check (acts available; see below)
+- [ ] list inactive vhosts
+- [ ] i18n+l10n
+
+### x.y.z:
+
+Aim: expanding
+
+- [ ] configurable command names
+- [ ] multi-vhost
+- [ ] *shortcuts (`vhost state <name>`)*
+- [ ] *cmd_acl in cfg*
+- [ ] *user_acl as flag bits*
+- [ ] *or user x role x cmd*
+
+### BotFather:
+
+ - [x] /setjoingroups: Disable
+ - [x] /setprivacy: Enable
+ - [ ] /setcommands: 
+
+## Done
+
+### 0.0.2:
+
+Aim: make usable
+
+- [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
+- [x] ACL
+- [x] decorate srvbot.handle_X
+- [x] decorate helper.virt.VHost methods
+- [x] state diagram
+- [x] more logging

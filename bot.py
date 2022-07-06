@@ -7,8 +7,6 @@ import logging
 import functools
 # 2. 3rd
 # noinspection PyPackageRequirements
-from typing import Optional
-
 import telebot
 # 3. local
 from helper import pre, log, virt
