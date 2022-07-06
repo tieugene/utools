@@ -47,12 +47,15 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         :param message:
         :return: True if access ok
         """
-        logging.debug("can_use: uid=%d, cmd=%s" % (message.from_user.id, message.text))
-        u_acl = _get_user_acl(message)
-        c_acl = _get_cmd_acl(message)
-        if u_acl is not None and c_acl is not None:
-            logging.debug("u_acl=%d, c_acl=%d" % (u_acl, c_acl))
-            return u_acl <= c_acl
+        user = message.from_user
+        _uid = user.id
+        _cmd = message.text
+        logging.debug("can_use: uid=%d, cmd=%s" % (_uid, _cmd))
+        u_acl = user_acl.get(_uid)
+        c_acl = cmd_acl.get(_cmd)
+        if u_acl is not None and c_acl is not None and u_acl <= c_acl:
+            logging.info("Call %s by %d (%s)" % (_cmd, _uid, user.full_name))
+            return True
         return False
 
 
@@ -62,14 +65,6 @@ def __try_vhost() -> virt.VHost:
         logging.debug("Try to create vhost")
         vhost = virt.VHost(data['vhost'])
     return vhost
-
-
-def _get_user_acl(message: telebot.types.Message) -> Optional[int]:
-    return user_acl.get(message.from_user.id)
-
-
-def _get_cmd_acl(message: telebot.types.Message) -> Optional[int]:
-    return cmd_acl.get(message.text)
 
 
 def on_start(message: telebot.types.Message):
@@ -84,7 +79,7 @@ def on_action(func: callable):
     @functools.wraps(func)
     def wrapper(message: telebot.types.Message):
         try:
-            response = func(message)  # FIXME: func not requires message
+            response = func(message)
         except virt.YAPBKVMErrorError as e:
             response = str(e)
             logging.error(response)
@@ -93,60 +88,60 @@ def on_action(func: callable):
 
 
 @on_action
-def on_active(message: telebot.types.Message):
+def on_active(_: telebot.types.Message):
     return "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
 
 
 @on_action
-def on_state(message: telebot.types.Message):
+def on_state(_: telebot.types.Message):
     state = __try_vhost().State()
     return "State: %d (%s)" % (state, virt.STATE_NAME[state])
 
 
 @on_action
-def on_create(message: telebot.types.Message):
+def on_create(_: telebot.types.Message):
     retcode = __try_vhost().Create()  # 0 if ok
     return "Run: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_destroy(message: telebot.types.Message):
+def on_destroy(_: telebot.types.Message):
     retcode = __try_vhost().Destroy()
     return "Kill: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_suspend(message: telebot.types.Message):
+def on_suspend(_: telebot.types.Message):
     retcode = __try_vhost().Suspend()
     return "Suspend: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_resume(message: telebot.types.Message):
+def on_resume(_: telebot.types.Message):
     retcode = __try_vhost().Resume()
     return "Resume: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_shutdown(message: telebot.types.Message):
+def on_shutdown(_: telebot.types.Message):
     retcode = __try_vhost().ShutDown()
     return "Shutdown: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_reboot(message: telebot.types.Message):
+def on_reboot(_: telebot.types.Message):
     retcode = __try_vhost().Reboot()
     return "Reboot: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_reset(message: telebot.types.Message):
+def on_reset(_: telebot.types.Message):
     retcode = __try_vhost().Reset()
     return "Reset: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_list(message: telebot.types.Message):
+def on_list(_: telebot.types.Message):
     return "VHosts: %s" % ', '.join(map(str, virt.VConn.list()))
 
 
@@ -165,6 +160,7 @@ def on_default(message: telebot.types.Message):
     elif message.text not in cmd_acl:
         bot.send_message(message.chat.id, "Unknown command")
     else:
+        logging.warning("Access denied: %s by %d (%s)" % (message.text, user.id, user.full_name))
         bot.send_message(message.chat.id, "Access denied")
 
 
