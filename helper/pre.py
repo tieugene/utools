@@ -18,7 +18,7 @@ def cli():
 
 
 def load_cfg(fname: str) -> Optional[dict]:
-    """Load config (near > ~ > /etc)
+    """Load config (pwd > ~ > /etc)
     :return: Config loaded
     """
     for d in ('.', os.path.expanduser('~/.config'), '/etc'):
