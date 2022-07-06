@@ -60,7 +60,8 @@ def on_help(message):
     uid = message.from_user.id
     u_acl = user_acl[uid]
     help_txt = help_text[u_acl]
-    bot.send_message(message.chat.id, '\n'.join(help_txt))
+    print(help_txt)
+    bot.send_message(message.chat.id, "Help will be there")  # '\n'.join(help_txt)
 
 
 def on_active(message):
