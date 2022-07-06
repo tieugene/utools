@@ -43,8 +43,8 @@ Aim: make usable
 - [x] ACL
 - [x] decorate srvbot.handle_X
 - [x] decorate helper.virt.VHost methods
+- [x] state diagram
 - [ ] more logging
-- […] state diagram
 
 ### 0.0.3:
 
@@ -53,10 +53,12 @@ Aim: extending
 - [ ] pre-action check (acts available; see below)
 - [ ] list inactive vhosts
 - [ ] i18n+l10n
-- [ ] configurable command names
 
 ### x.y.z:
 
+Aim: expanding
+
+- [ ] configurable command names
 - [ ] multi-vhost
 - [ ] *shortcuts (`vhost state <name>`)*
 - [ ] *cmd_acl in cfg*
@@ -80,6 +82,8 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
  5 | ShutOff  |  1  |  ×  |  ×  |  ×  |  ×  |  ×  |  ×
  6 | Crashed  |  …  |     |     |     |     |     |  
  7 | PBSuspend|     |     |     |     |     |     |  
+
+*ToDo: Paused <> PausedReboot <> PausedReset <> Destroy*
 
 [^1]: Paused => Reboot == Reboot after Resume (delayed reboot)
 [^2]: Paused => Reset == Reset after Resume (delayed reset)
