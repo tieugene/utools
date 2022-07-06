@@ -61,6 +61,7 @@ Aim: extending
 - [ ] *shortcuts (`vhost state <name>`)*
 - [ ] *cmd_acl in cfg*
 - [ ] *user_acl as flag bits*
+- [ ] *or user x role x cmd*
 
 ### BotFather:
 
