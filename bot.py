@@ -206,7 +206,7 @@ def main():
         # logger = telebot.logger
         telebot.logger.setLevel(data['tglog'])  # 0: NOTSET, 10: DEBUG, ..., 50: CRITICAL
     # 3. setup ACL
-    for _id, _acl in data.get('acl', dict()):
+    for _id, _acl in data.get('acl', dict()).items():
         user_acl[int(_id)] = _acl  # TODO: chk is_int, acl range
     # 4. setup tg-bot
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
