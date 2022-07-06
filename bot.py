@@ -60,6 +60,7 @@ def on_help(message):
     uid = message.from_user.id
     u_acl = user_acl[uid]
     help_txt = help_text[u_acl]
+    logging.debug("Help: uid=%d, acl=%d" % (uid, u_acl))
     # print(help_txt)
     bot.send_message(message.chat.id, '\n'.join(help_txt))
 
@@ -218,6 +219,7 @@ def main():
         help_text[v[1]].append(tip)
         bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub
+    print(help_text)
     # 4. go
     bot.infinity_polling()
 
