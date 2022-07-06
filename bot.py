@@ -60,8 +60,8 @@ def on_help(message):
     uid = message.from_user.id
     u_acl = user_acl[uid]
     help_txt = help_text[u_acl]
-    print(help_txt)
-    bot.send_message(message.chat.id, "Help will be there")  # '\n'.join(help_txt)
+    # print(help_txt)
+    bot.send_message(message.chat.id, '\n'.join(help_txt))
 
 
 def on_active(message):
@@ -216,7 +216,7 @@ def main():
         cmd_acl[k] = v[1]
         tip = "/%s: %s" % (k, v[2])
         help_text[v[1]].append(tip)
-        bot.register_message_handler(v, commands=[k], can_use=True)
+        bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub
     # 4. go
     bot.infinity_polling()
