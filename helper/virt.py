@@ -50,7 +50,7 @@ class VConn:
 
 
 def try_libvirt(reason: str):
-    def decorator_try_libvirt(func: callable)
+    def decorator_try_libvirt(func: callable):
         @functools.wraps(func)
         def wrapper(ref):
             try:
