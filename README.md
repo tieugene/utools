@@ -37,28 +37,37 @@ deactivate
 
 ### 0.0.2:
 
+Aim: make usable
+
 - [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
 - [x] ACL
-  - BotFather:
-     - [x] /setjoingroups: Disable
-     - [x] /setprivacy: Enable
-     - [ ] /setcommands: 
 - [x] decorate srvbot.handle_X
-- [ ] decorate helper.virt.VHost methods
+- [x] decorate helper.virt.VHost methods
 - [ ] more logging
-- [ ] list inactive vhosts
 - […] state diagram
 
 ### 0.0.3:
 
-- [ ] i18n+l10n
+Aim: extending
+
 - [ ] pre-action check (acts available; see below)
+- [ ] list inactive vhosts
+- [ ] i18n+l10n
 - [ ] configurable command names
 
 ### x.y.z:
 
 - [ ] multi-vhost
 - [ ] *shortcuts (`vhost state <name>`)*
+- [ ] *cmd_acl in cfg*
+- [ ] *user_acl as flag bits*
+- [ ] *or user x role x cmd*
+
+### BotFather:
+
+ - [x] /setjoingroups: Disable
+ - [x] /setprivacy: Enable
+ - [ ] /setcommands: 
 
 ## State/Action
 
