@@ -216,10 +216,11 @@ def main():
     for k, v in HANDLERS.items():
         cmd_acl[k] = v[1]
         tip = "/%s: %s" % (k, v[2])
-        help_text[v[1]].append(tip)
+        for i in range(v[1]+1):
+            help_text[i].append(tip)
         bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub
-    print(help_text)
+    # print(help_text)
     # 4. go
     bot.infinity_polling()
 
