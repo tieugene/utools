@@ -42,7 +42,7 @@ Aim: make usable
 - [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
 - [x] ACL
 - [x] decorate srvbot.handle_X
-- […] decorate helper.virt.VHost methods
+- [x] decorate helper.virt.VHost methods
 - [ ] more logging
 - […] state diagram
 
