@@ -26,9 +26,8 @@ help_text: list = [[], [], [], []]  # separate for each ACL level
 
 class IEACLevel(enum.IntEnum):
     Admin = 0
-    Private = 1
-    Protected = 2
-    Public = 3
+    Mgr = 1
+    User = 2
 
 
 class CanUse(telebot.custom_filters.SimpleCustomFilter):
@@ -163,18 +162,18 @@ def on_default(message: telebot.types.Message):
 
 
 HANDLERS = {
-    "start": (on_start, 3, "Welcome message"),
-    "help": (on_help, 3, "This page"),
-    "active": (on_active, 3, "Check that is active"),
-    "state": (on_state, 3, "Get state"),
-    "suspend": (on_suspend, 2, "Suspend"),
-    "resume": (on_resume, 2, "Resume after suspend"),
-    "run": (on_create, 1, "Start (power up)"),
-    "shutdown": (on_shutdown, 1, "Shut down (soft power off)"),
-    "reboot": (on_reboot, 1, "Reboot (soft restart)"),
-    "reset": (on_reset, 0, "Reset (hard restart)"),
-    "kill": (on_destroy, 0, "Shut off (hard power off)"),
-    "list": (on_list, 0, "List vhost IDs"),
+    "start": (on_start, IEACLevel.User, "Welcome message"),
+    "help": (on_help, IEACLevel.User, "This page"),
+    "ask": (on_state, IEACLevel.User, "Get state"),
+    "stop": (on_suspend, IEACLevel.User, "Suspend (pause)"),
+    "resume": (on_resume, IEACLevel.Mgr, "Resume after suspend"),
+    "run": (on_create, IEACLevel.Mgr, "Power on"),
+    "shutdown": (on_shutdown, IEACLevel.Mgr, "Shut down (soft power off)"),
+    "reboot": (on_reboot, IEACLevel.Mgr, "Reboot (soft restart)"),
+    "reset": (on_reset, IEACLevel.Admin, "Reset (hard restart)"),
+    "kill": (on_destroy, IEACLevel.Admin, "Shut off (hard power off)"),
+    "active": (on_active, IEACLevel.Admin, "Check vhost is active"),
+    "list": (on_list, IEACLevel.Admin, "List vhost IDs"),
 }
 
 
@@ -201,9 +200,9 @@ def main():
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
     bot.add_custom_filter(CanUse())
     for k, v in HANDLERS.items():
-        cmd_acl['/'+k] = v[1]
+        cmd_acl['/'+k] = v[1].value
         tip = "/%s: %s" % (k, v[2])
-        for i in range(v[1]+1):
+        for i in range(v[1].value + 1):
             help_text[i].append(tip)
         bot.register_message_handler(v[0], commands=[k], can_use=True)
     bot.register_message_handler(on_default)  # stub

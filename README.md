@@ -52,6 +52,8 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 
 ## ACL
 
+### Ver. 1
+
 Action | pub | prt | prv 
 -------|-----|-----|-----
 Active |  +  |  +  |  +
@@ -65,9 +67,36 @@ Reset  |  -  |     |  -
 Destroy|  -  |     |  -
 List   |  -  |  -  |  -
 
-* Create == Power on
-* Destroy == Power off (hard)
-* Guest can nothing, Admin can everything
+Notes:
+
+- Create == Power on
+- Destroy == Power off (hard)
+- Guest can nothing, Admin can everything
+
+### Ver .2
+
+Action | usr | pwr | adm 
+-------|-----|-----|-----
+State  |  +  |  +  |  +
+Suspend|  +  |  +  |  +
+Resume |  -  |  +  |  +
+Create |  -  |  +  |  +
+Shutdwn|  -  |  +  |  +
+Reboot |  -  |  +  |  +
+Active |  -  |  +  |  +
+Reset  |  -  |  -  |  +
+Destroy|  -  |  -  |  +
+List   |  -  |  -  |  +
+
+* *usr*: Ordinary user
+* *pwr*: Power user
+* *adm*: Admin
+
+Renames:
+
+- Suspend = stop
+- Resume = start
+- State = ask
 
 ## ToDo:
 
