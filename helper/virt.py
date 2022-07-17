@@ -7,17 +7,6 @@ import logging
 import libvirt
 # 3. local
 from . import exc
-# const
-STATE_NAME = (
-    "No state",
-    "Running",
-    "Blocked",
-    "Paused",
-    "ShutDown",
-    "ShutOff",
-    "Crashed",
-    "PMSuspended"
-)
 
 
 class YAPBKVMErrorError(exc.YAPBTextError):
