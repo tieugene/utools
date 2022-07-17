@@ -52,20 +52,20 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 
 ### Actions
 
-- Active
 - State
 - Suspend
 - Resume
-- Create
 - Shutdwn
+- Create
 - Reboot
 - Reset
 - Destroy
+- Active
 - List
 
 ## ToDo:
 
-### x.y.z:
+### 0.0.4:
 
 Aim: expanding
 
