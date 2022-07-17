@@ -1,2 +1,3 @@
+appdirs
 pytelegrambotapi
 libvirt-python
