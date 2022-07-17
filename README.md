@@ -50,74 +50,29 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 [^1]: Paused => Reboot == Reboot after Resume (delayed reboot)
 [^2]: Paused => Reset == Reset after Resume (delayed reset)
 
-## ACL
+### Actions
 
-### Ver. 1
-
-Action | pub | prt | prv 
--------|-----|-----|-----
-Active |  +  |  +  |  +
-State  |  ?  |  +  |  +
-Suspend|  ?  |  +  |  +
-Resume |  -  |     |  +
-Create |  -  |     |  +
-Shutdwn|  -  |     |  +
-Reboot |  -  |     |  +
-Reset  |  -  |     |  -
-Destroy|  -  |     |  -
-List   |  -  |  -  |  -
-
-Notes:
-
-- Create == Power on
-- Destroy == Power off (hard)
-- Guest can nothing, Admin can everything
-
-### Ver .2
-
-Action | usr | pwr | adm 
--------|-----|-----|-----
-State  |  +  |  +  |  +
-Suspend|  +  |  +  |  +
-Resume |  -  |  +  |  +
-Create |  -  |  +  |  +
-Shutdwn|  -  |  +  |  +
-Reboot |  -  |  +  |  +
-Active |  -  |  +  |  +
-Reset  |  -  |  -  |  +
-Destroy|  -  |  -  |  +
-List   |  -  |  -  |  +
-
-* *usr*: Ordinary user
-* *pwr*: Power user
-* *adm*: Admin
-
-Renames:
-
-- Suspend = stop
-- Resume = start
-- State = ask
+- Active
+- State
+- Suspend
+- Resume
+- Create
+- Shutdwn
+- Reboot
+- Reset
+- Destroy
+- List
 
 ## ToDo:
-
-### 0.0.3:
-
-Aim: extending
-
-- [ ] pre-action check (acts available; see below)
-- [ ] list inactive vhosts
-- [ ] i18n+l10n
 
 ### x.y.z:
 
 Aim: expanding
 
-- [ ] configurable command names
+- [ ] pre-action check (acts available; see below)
+- [ ] list inactive vhosts
 - [ ] multi-vhost
 - [ ] *shortcuts (`vhost state <name>`)*
-- [ ] *cmd_acl in cfg*
-- [ ] *user_acl as flag bits*
-- [ ] *or user x role x cmd*
 
 ### BotFather:
 
@@ -137,6 +92,14 @@ Aim: make usable
 - [x] decorate helper.virt.VHost methods
 - [x] state diagram
 - [x] more logging
+
+### 0.0.3:
+
+Aim: extending
+
+- [x] configurable command aliases
+- [x] configurable ACL
+- [x] i18n+l10n
 
 ## i18n
 

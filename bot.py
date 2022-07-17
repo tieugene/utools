@@ -28,13 +28,13 @@ STATE_NAME = (
     _("PM Suspended")
 )
 # var
-data: dict                      # loaded config
-bot: telebot.TeleBot            # bot itself
-vhost: virt.VHost               # the vhost what control to
-alias2cmd: dict[str, str]       # alias -> cmd
-users: set[int] = set()         # registered users
-cmd_acl: dict[str, set] = {}    # cmd -> users
-help_text: dict[str, str] = {}  # cmd -> help string
+data: dict              # loaded config
+bot: telebot.TeleBot    # bot itself
+vhost: virt.VHost       # the vhost what control to
+alias2cmd: dict         # alias:str -> cmd:str
+users: set = set()      # registered users (set[int])
+cmd_acl: dict = {}      # cmd:str -> users:set
+help_text: dict = {}    # cmd -> help string
 # TODO: cmd enum
 
 
