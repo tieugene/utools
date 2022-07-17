@@ -52,6 +52,8 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 
 ## ACL
 
+### Ver. 1
+
 Action | pub | prt | prv 
 -------|-----|-----|-----
 Active |  +  |  +  |  +
@@ -65,9 +67,36 @@ Reset  |  -  |     |  -
 Destroy|  -  |     |  -
 List   |  -  |  -  |  -
 
-* Create == Power on
-* Destroy == Power off (hard)
-* Guest can nothing, Admin can everything
+Notes:
+
+- Create == Power on
+- Destroy == Power off (hard)
+- Guest can nothing, Admin can everything
+
+### Ver .2
+
+Action | usr | pwr | adm 
+-------|-----|-----|-----
+State  |  +  |  +  |  +
+Suspend|  +  |  +  |  +
+Resume |  -  |  +  |  +
+Create |  -  |  +  |  +
+Shutdwn|  -  |  +  |  +
+Reboot |  -  |  +  |  +
+Active |  -  |  +  |  +
+Reset  |  -  |  -  |  +
+Destroy|  -  |  -  |  +
+List   |  -  |  -  |  +
+
+* *usr*: Ordinary user
+* *pwr*: Power user
+* *adm*: Admin
+
+Renames:
+
+- Suspend = stop
+- Resume = start
+- State = ask
 
 ## ToDo:
 
@@ -108,3 +137,11 @@ Aim: make usable
 - [x] decorate helper.virt.VHost methods
 - [x] state diagram
 - [x] more logging
+
+## i18n
+
+1. Prepare: `xgettext -o locale/srvbot.pot bot.py`
+2. Mk l10n: `cp locale/srvbot.pot locale/ru/LC_MESSAGES/srvbot.po`
+3. Translate (`poedit`)
+4. update: `msgmerge -U locale/ru/LC_MESSAGES/srvbot.po locale/srvbot.pot`
+5. Compile: `msgfmt -o locale/ru/LC_MESSAGES/srvbot.mo locale/ru/LC_MESSAGES/srvbot.po`

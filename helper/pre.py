@@ -1,6 +1,11 @@
 """Pre-work jobs - handle config and/or CLI"""
+# 1. std
+import os
+import sys
 import json
 import os.path
+# 2. 3rd
+import appdirs
 # 3. local
 from typing import Optional
 
@@ -18,10 +23,14 @@ def cli():
 
 
 def load_cfg(fname: str) -> Optional[dict]:
-    """Load config (pwd > ~ > /etc)
+    """Load config (sibling > ~ > /etc)
     :return: Config loaded
     """
-    for d in ('.', os.path.expanduser('~/.config'), '/etc'):
+    # FIXME: abspath(.), appdirs.user_config_dir, appdirs.site_config_dir
+    for d in (
+            os.path.abspath(os.path.dirname(sys.argv[0])),
+            appdirs.user_config_dir(),   # ~/.config
+            appdirs.site_config_dir()):  # /etc
         fpath = os.path.join(d, fname)
         if not os.path.exists(fpath):  # or handle FileNotFoundError
             continue
