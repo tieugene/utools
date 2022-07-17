@@ -216,7 +216,7 @@ def main():
     alias2cmd = data.get('alias', dict())
     cmd2alias: dict = dict(map(reversed, alias2cmd.items()))
     # 4. setup tg-bot
-    bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
+    bot = telebot.TeleBot(data['token'], parse_mode=None)
     bot.add_custom_filter(CanUse())
     for cmd, v in HANDLERS.items():
         func, lvl, desc = v
