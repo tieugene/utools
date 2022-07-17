@@ -20,7 +20,7 @@ data: dict  # loaded config
 bot: telebot.TeleBot  # bot itself
 vhost: virt.VHost = None  # the vhost what control to
 user_acl: dict = {}     # user.id -> ACL level
-cmd_acl: dict = {}      # /cmd -> ACL level (FIXME:
+cmd_acl: dict = {}      # cmd -> ACL level (FIXME:
 alias_cmd: dict         # alias -> cmd
 help_text: list = [[], [], [], []]  # separate for each ACL level
 
@@ -45,15 +45,16 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         :param message:
         :return: True if access ok
         """
-        user = message.from_user
-        _uid = user.id
-        _cmd = message.text  # FIXME: alias
-        logging.debug("can_use: uid=%d, cmd=%s" % (_uid, _cmd))
-        u_acl = user_acl.get(_uid)
-        c_acl = cmd_acl.get(_cmd)
-        if u_acl is not None and c_acl is not None and u_acl <= c_acl:
-            logging.info("Call %s by %d (%s)" % (_cmd, _uid, user.full_name))
-            return True
+        if message.text.startswith('/'):  # commands only
+            user = message.from_user
+            _uid = user.id
+            _cmd = message.text[1:]  # FIXME: alias
+            logging.debug("can_use: uid=%d, cmd=%s" % (_uid, _cmd))
+            u_acl = user_acl.get(_uid)
+            c_acl = cmd_acl.get(_cmd)
+            if u_acl is not None and c_acl is not None and u_acl <= c_acl:
+                logging.info("Call %s by %d (%s)" % (_cmd, _uid, user.full_name))
+                return True
         return False
 
 
@@ -203,7 +204,7 @@ def main():
     bot.add_custom_filter(CanUse())
     for cmd, v in HANDLERS.items():
         func, lvl, desc = v
-        cmd_acl['/'+cmd] = lvl.value  # set command ACL (cmd => min user lvl)  # FIXME: _alias
+        cmd_acl[cmd] = lvl.value  # set command ACL (cmd => min user lvl)  # FIXME: _alias
         tip = "/%s: %s" % (cmd, desc)  # cmd help string
         for i in range(lvl.value + 1):
             help_text[i].append(tip)  # construct helps for each ACL level
