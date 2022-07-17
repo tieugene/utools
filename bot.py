@@ -18,9 +18,10 @@ WELCOME = "Welcome.\nSend '/help' for list available commends."
 # var
 data: dict  # loaded config
 bot: telebot.TeleBot  # bot itself
-vhost: virt.VHost = None  # the vhost whto control to
-user_acl: dict = {}  # user.id -> ACL level
-cmd_acl: dict = {}   # cmd -> ACL level
+vhost: virt.VHost = None  # the vhost what control to
+user_acl: dict = {}     # user.id -> ACL level
+cmd_acl: dict = {}      # cmd -> ACL level
+alias2cmd: dict         # alias -> cmd
 help_text: list = [[], [], [], []]  # separate for each ACL level
 
 
@@ -44,15 +45,17 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         :param message:
         :return: True if access ok
         """
-        user = message.from_user
-        _uid = user.id
-        _cmd = message.text
-        logging.debug("can_use: uid=%d, cmd=%s" % (_uid, _cmd))
-        u_acl = user_acl.get(_uid)
-        c_acl = cmd_acl.get(_cmd)
-        if u_acl is not None and c_acl is not None and u_acl <= c_acl:
-            logging.info("Call %s by %d (%s)" % (_cmd, _uid, user.full_name))
-            return True
+        if message.text.startswith('/'):  # commands only
+            user = message.from_user
+            _uid = user.id
+            _cmd = message.text[1:]
+            _cmd = alias2cmd.get(_cmd, _cmd)  # use original cmd anyway
+            logging.debug("can_use: uid=%d, cmd=%s" % (_uid, _cmd))
+            u_acl = user_acl.get(_uid)
+            c_acl = cmd_acl.get(_cmd)
+            if u_acl is not None and c_acl is not None and u_acl <= c_acl:
+                logging.info("Call %s by %d (%s)" % (_cmd, _uid, user.full_name))
+                return True
         return False
 
 
@@ -85,54 +88,54 @@ def on_action(func: callable):
 
 
 @on_action
-def on_active(_: telebot.types.Message):
+def on_active(_: telebot.types.Message) -> str:
     return "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
 
 
 @on_action
-def on_state(_: telebot.types.Message):
+def on_state(_: telebot.types.Message) -> str:
     state = __try_vhost().State()
     return "State: %d (%s)" % (state, virt.STATE_NAME[state])
 
 
 @on_action
-def on_create(_: telebot.types.Message):
+def on_create(_: telebot.types.Message) -> str:
     retcode = __try_vhost().Create()  # 0 if ok
     return "Run: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_destroy(_: telebot.types.Message):
+def on_destroy(_: telebot.types.Message) -> str:
     retcode = __try_vhost().Destroy()
     return "Kill: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_suspend(_: telebot.types.Message):
+def on_suspend(_: telebot.types.Message) -> str:
     retcode = __try_vhost().Suspend()
     return "Suspend: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_resume(_: telebot.types.Message):
+def on_resume(_: telebot.types.Message) -> str:
     retcode = __try_vhost().Resume()
     return "Resume: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_shutdown(_: telebot.types.Message):
+def on_shutdown(_: telebot.types.Message) -> str:
     retcode = __try_vhost().ShutDown()
     return "Shutdown: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_reboot(_: telebot.types.Message):
+def on_reboot(_: telebot.types.Message) -> str:
     retcode = __try_vhost().Reboot()
     return "Reboot: " + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_reset(_: telebot.types.Message):
+def on_reset(_: telebot.types.Message) -> str:
     retcode = __try_vhost().Reset()
     return "Reset: " + (str(retcode) if retcode else CHECK)
 
@@ -143,7 +146,7 @@ def on_list(_: telebot.types.Message):
 
 
 def on_default(message: telebot.types.Message):
-    """Stub for unknow user, unknown command, access denied"""
+    """Stub for unknown user, unknown command, access denied"""
     user = message.from_user
     if user.id not in user_acl:
         logging.warning("Unknown user: %d - %s (username=%s, first_name=%s, last_name=%s)" % (
@@ -153,9 +156,9 @@ def on_default(message: telebot.types.Message):
             user.first_name,
             user.last_name
         ))
-        bot.send_message(message.chat.id, "Брысь!")
+        bot.send_message(message.chat.id, "Scat!")
     elif message.text not in cmd_acl:
-        bot.send_message(message.chat.id, "Unknown command")
+        bot.send_message(message.chat.id, "Unknown command.")
     else:
         logging.warning("Access denied: %s by %d (%s)" % (message.text, user.id, user.full_name))
         bot.send_message(message.chat.id, "Access denied")
@@ -164,14 +167,14 @@ def on_default(message: telebot.types.Message):
 HANDLERS = {
     "start": (on_start, IEACLevel.User, "Welcome message"),
     "help": (on_help, IEACLevel.User, "This page"),
-    "ask": (on_state, IEACLevel.User, "Get state"),
-    "stop": (on_suspend, IEACLevel.User, "Suspend (pause)"),
+    "state": (on_state, IEACLevel.User, "Get state"),
+    "suspend": (on_suspend, IEACLevel.User, "Suspend"),
     "resume": (on_resume, IEACLevel.Mgr, "Resume after suspend"),
-    "run": (on_create, IEACLevel.Mgr, "Power on"),
-    "shutdown": (on_shutdown, IEACLevel.Mgr, "Shut down (soft power off)"),
-    "reboot": (on_reboot, IEACLevel.Mgr, "Reboot (soft restart)"),
-    "reset": (on_reset, IEACLevel.Admin, "Reset (hard restart)"),
-    "kill": (on_destroy, IEACLevel.Admin, "Shut off (hard power off)"),
+    "create": (on_create, IEACLevel.Mgr, "Power on"),
+    "reboot": (on_reboot, IEACLevel.Mgr, "Reboot (soft)"),
+    "shutdown": (on_shutdown, IEACLevel.Mgr, "Power off (soft)"),
+    "reset": (on_reset, IEACLevel.Admin, "Reboot (hard)"),
+    "destroy": (on_destroy, IEACLevel.Admin, "Power off (hard)"),
     "active": (on_active, IEACLevel.Admin, "Check vhost is active"),
     "list": (on_list, IEACLevel.Admin, "List vhost IDs"),
 }
@@ -179,7 +182,7 @@ HANDLERS = {
 
 def main():
     """Main procedure."""
-    global data, bot, user_acl, cmd_acl, help_text
+    global data, bot, user_acl, cmd_acl, alias2cmd, help_text
     # 1. load cfg
     try:
         data = pre.load_cfg('srvbot.json')
@@ -193,18 +196,24 @@ def main():
     if 'tglog' in data:
         # logger = telebot.logger
         telebot.logger.setLevel(log.LOG_LEVEL[data['tglog']])
-    # 3. setup ACL
+    # 3. setup ACL, aliases
     for _id, _acl in data.get('acl', dict()).items():
-        user_acl[int(_id)] = _acl  # TODO: chk is_int, acl range
+        user_acl[int(_id)] = _acl
+    alias2cmd = data.get('alias', dict())
+    cmd2alias: dict = dict(map(reversed, alias2cmd.items()))
     # 4. setup tg-bot
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
     bot.add_custom_filter(CanUse())
-    for k, v in HANDLERS.items():
-        cmd_acl['/'+k] = v[1].value
-        tip = "/%s: %s" % (k, v[2])
-        for i in range(v[1].value + 1):
-            help_text[i].append(tip)
-        bot.register_message_handler(v[0], commands=[k], can_use=True)
+    for cmd, v in HANDLERS.items():
+        func, lvl, desc = v
+        cmd_acl[cmd] = lvl.value  # set command ACL (cmd => min user lvl)
+        cmd_list = [cmd]          # for help and trigger
+        if cmd in cmd2alias:
+            cmd_list.append(cmd2alias[cmd])
+        tip = "%s: %s" % (', '.join([f"/{s}" for s in cmd_list]), desc)  # cmd help string
+        for i in range(lvl.value + 1):
+            help_text[i].append(tip)  # construct helps for each ACL level
+        bot.register_message_handler(func, commands=cmd_list, can_use=True)
     bot.register_message_handler(on_default)  # stub
     # 4. go
     bot.infinity_polling()
