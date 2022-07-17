@@ -2,19 +2,34 @@
 """Telegram bot to handle KVM host."""
 # 1. std
 import enum
+import os
 import sys
 import logging
 import functools
+import gettext
 # 2. 3rd
 # noinspection PyPackageRequirements
 import telebot
 # 3. local
 from helper import pre, log, virt
-
+# i18n
+localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')  # TODO: or appdirs.site_data_dir()
+translate = gettext.translation('srvbot', localedir=localedir, languages=['ru'])
+# translate.install()
+_ = translate.gettext
 # const
 ACL_LEVELS = 4  # 0..3
 CHECK = '✓'
-WELCOME = "Welcome.\nSend '/help' for list available commends."
+STATE_NAME = (
+    _("No state"),
+    _("Running"),
+    _("Blocked"),
+    _("Paused"),
+    _("Shutdown"),
+    _("Shutoff"),
+    _("Crashed"),
+    _("PM Suspended")
+)
 # var
 data: dict  # loaded config
 bot: telebot.TeleBot  # bot itself
@@ -68,7 +83,7 @@ def __try_vhost() -> virt.VHost:
 
 
 def on_start(message: telebot.types.Message):
-    bot.send_message(message.chat.id, WELCOME)
+    bot.send_message(message.chat.id, _("Welcome.\nSend '/help' for list commands available."))
 
 
 def on_help(message: telebot.types.Message):
@@ -88,60 +103,60 @@ def on_action(func: callable):
 
 
 @on_action
-def on_active(_: telebot.types.Message) -> str:
-    return "Active: " + ('✗', CHECK)[int(__try_vhost().isActive())]
+def on_active(__: telebot.types.Message) -> str:
+    return _("Active") + ': ' + ('✗', CHECK)[int(__try_vhost().isActive())]
 
 
 @on_action
-def on_state(_: telebot.types.Message) -> str:
+def on_state(__: telebot.types.Message) -> str:
     state = __try_vhost().State()
-    return "State: %d (%s)" % (state, virt.STATE_NAME[state])
+    return _("State") + ": %d (%s)" % (state, STATE_NAME[state])
 
 
 @on_action
-def on_create(_: telebot.types.Message) -> str:
+def on_create(__: telebot.types.Message) -> str:
     retcode = __try_vhost().Create()  # 0 if ok
-    return "Run: " + (str(retcode) if retcode else CHECK)
+    return _("Power on") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_destroy(_: telebot.types.Message) -> str:
+def on_destroy(__: telebot.types.Message) -> str:
     retcode = __try_vhost().Destroy()
-    return "Kill: " + (str(retcode) if retcode else CHECK)
+    return _("Power off (force)") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_suspend(_: telebot.types.Message) -> str:
+def on_suspend(__: telebot.types.Message) -> str:
     retcode = __try_vhost().Suspend()
-    return "Suspend: " + (str(retcode) if retcode else CHECK)
+    return _("Suspend") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_resume(_: telebot.types.Message) -> str:
+def on_resume(__: telebot.types.Message) -> str:
     retcode = __try_vhost().Resume()
-    return "Resume: " + (str(retcode) if retcode else CHECK)
+    return _("Resume") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_shutdown(_: telebot.types.Message) -> str:
+def on_shutdown(__: telebot.types.Message) -> str:
     retcode = __try_vhost().ShutDown()
-    return "Shutdown: " + (str(retcode) if retcode else CHECK)
+    return _("Power off") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_reboot(_: telebot.types.Message) -> str:
+def on_reboot(__: telebot.types.Message) -> str:
     retcode = __try_vhost().Reboot()
-    return "Reboot: " + (str(retcode) if retcode else CHECK)
+    return _("Reboot") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_reset(_: telebot.types.Message) -> str:
+def on_reset(__: telebot.types.Message) -> str:
     retcode = __try_vhost().Reset()
-    return "Reset: " + (str(retcode) if retcode else CHECK)
+    return _("Reset") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
-def on_list(_: telebot.types.Message):
+def on_list(__: telebot.types.Message):
     return "VHosts: %s" % ', '.join(map(str, virt.VConn.list()))
 
 
@@ -156,27 +171,27 @@ def on_default(message: telebot.types.Message):
             user.first_name,
             user.last_name
         ))
-        bot.send_message(message.chat.id, "Scat!")
+        bot.send_message(message.chat.id, _("Scat!"))
     elif message.text not in cmd_acl:
-        bot.send_message(message.chat.id, "Unknown command.")
+        bot.send_message(message.chat.id, _("Unknown command."))
     else:
         logging.warning("Access denied: %s by %d (%s)" % (message.text, user.id, user.full_name))
-        bot.send_message(message.chat.id, "Access denied")
+        bot.send_message(message.chat.id, _("Access denied"))
 
 
 HANDLERS = {
-    "start": (on_start, IEACLevel.User, "Welcome message"),
-    "help": (on_help, IEACLevel.User, "This page"),
-    "state": (on_state, IEACLevel.User, "Get state"),
-    "suspend": (on_suspend, IEACLevel.User, "Suspend"),
-    "resume": (on_resume, IEACLevel.Mgr, "Resume after suspend"),
-    "create": (on_create, IEACLevel.Mgr, "Power on"),
-    "reboot": (on_reboot, IEACLevel.Mgr, "Reboot (soft)"),
-    "shutdown": (on_shutdown, IEACLevel.Mgr, "Power off (soft)"),
-    "reset": (on_reset, IEACLevel.Admin, "Reboot (hard)"),
-    "destroy": (on_destroy, IEACLevel.Admin, "Power off (hard)"),
-    "active": (on_active, IEACLevel.Admin, "Check vhost is active"),
-    "list": (on_list, IEACLevel.Admin, "List vhost IDs"),
+    "start": (on_start, IEACLevel.User, _("Welcome message")),
+    "help": (on_help, IEACLevel.User, _("This page")),
+    "state": (on_state, IEACLevel.User, _("State")),
+    "suspend": (on_suspend, IEACLevel.User, _("Suspend")),
+    "resume": (on_resume, IEACLevel.Mgr, _("Resume (after suspend)")),
+    "create": (on_create, IEACLevel.Mgr, _("Power on")),
+    "reboot": (on_reboot, IEACLevel.Mgr, _("Reboot")),
+    "shutdown": (on_shutdown, IEACLevel.Mgr, _("Power off")),
+    "reset": (on_reset, IEACLevel.Admin, _("Reset (force reboot)")),
+    "destroy": (on_destroy, IEACLevel.Admin, _("Power off (force)")),
+    "active": (on_active, IEACLevel.Admin, _("Check is active")),
+    "list": (on_list, IEACLevel.Admin, _("List vhost IDs")),
 }
 
 

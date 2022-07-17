@@ -137,3 +137,11 @@ Aim: make usable
 - [x] decorate helper.virt.VHost methods
 - [x] state diagram
 - [x] more logging
+
+## i18n
+
+1. Prepare: `xgettext -o locale/srvbot.pot bot.py`
+2. Mk l10n: `cp locale/srvbot.pot locale/ru/LC_MESSAGES/srvbot.po`
+3. Translate (`poedit`)
+4. update: `msgmerge -U locale/ru/LC_MESSAGES/srvbot.po locale/srvbot.pot`
+5. Compile: `msgfmt -o locale/ru/LC_MESSAGES/srvbot.mo locale/ru/LC_MESSAGES/srvbot.po`

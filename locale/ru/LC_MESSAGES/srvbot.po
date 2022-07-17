@@ -1,0 +1,130 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 19:10+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: bot.py:24
+msgid "No state"
+msgstr "Нет состояния"
+
+#: bot.py:25
+msgid "Running"
+msgstr "Работает"
+
+#: bot.py:26
+msgid "Blocked"
+msgstr "Заблокирован"
+
+#: bot.py:27
+msgid "Paused"
+msgstr "На паузе"
+
+#: bot.py:28
+msgid "Shutdown"
+msgstr "Выключение"
+
+#: bot.py:29
+msgid "Shutoff"
+msgstr "Выключен"
+
+#: bot.py:30
+msgid "Crashed"
+msgstr "Разбился"
+
+#: bot.py:31
+msgid "PM Suspended"
+msgstr "Приостановился сам"
+
+#: bot.py:86
+msgid ""
+"Welcome.\n"
+"Send '/help' for list commands available."
+msgstr ""
+"Добро пожаловать.\n"
+"Команда '/help' покажет доступные команды."
+
+#: bot.py:107
+msgid "Active"
+msgstr "Активен"
+
+#: bot.py:113 bot.py:185
+msgid "State"
+msgstr "Состояние"
+
+#: bot.py:119 bot.py:188
+msgid "Power on"
+msgstr "Включить"
+
+#: bot.py:125 bot.py:192
+msgid "Power off (force)"
+msgstr "Выключить (принудительно)"
+
+#: bot.py:131 bot.py:186
+msgid "Suspend"
+msgstr "Приостановить"
+
+#: bot.py:137
+msgid "Resume"
+msgstr "Продолжить"
+
+#: bot.py:143 bot.py:190
+msgid "Power off"
+msgstr "Выключить"
+
+#: bot.py:149 bot.py:189
+msgid "Reboot"
+msgstr "Перезагрузить"
+
+#: bot.py:155
+msgid "Reset"
+msgstr "Сброс"
+
+#: bot.py:174
+msgid "Scat!"
+msgstr "Брысь!"
+
+#: bot.py:176
+msgid "Unknown command."
+msgstr "Неизвестная команда."
+
+#: bot.py:179
+msgid "Access denied"
+msgstr "Доступ запрещен"
+
+#: bot.py:183
+msgid "Welcome message"
+msgstr "Приветствие"
+
+#: bot.py:184
+msgid "This page"
+msgstr "Этот список"
+
+#: bot.py:187
+msgid "Resume (after suspend)"
+msgstr "Продолжить (после приостановки)"
+
+#: bot.py:191
+msgid "Reset (force reboot)"
+msgstr "Сброс (принудительная перезагрузка)"
+
+#: bot.py:193
+msgid "Check is active"
+msgstr "Проверить активность"
+
+#: bot.py:194
+msgid "List vhost IDs"
+msgstr ""
