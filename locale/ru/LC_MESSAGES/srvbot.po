@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 19:10+0300\n"
+"POT-Creation-Date: 2022-07-17 22:37+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,39 +17,39 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: bot.py:24
+#: bot.py:21
 msgid "No state"
 msgstr "Нет состояния"
 
-#: bot.py:25
+#: bot.py:22
 msgid "Running"
 msgstr "Работает"
 
-#: bot.py:26
+#: bot.py:23
 msgid "Blocked"
 msgstr "Заблокирован"
 
-#: bot.py:27
+#: bot.py:24
 msgid "Paused"
 msgstr "На паузе"
 
-#: bot.py:28
+#: bot.py:25
 msgid "Shutdown"
 msgstr "Выключение"
 
-#: bot.py:29
+#: bot.py:26
 msgid "Shutoff"
 msgstr "Выключен"
 
-#: bot.py:30
+#: bot.py:27
 msgid "Crashed"
 msgstr "Разбился"
 
-#: bot.py:31
+#: bot.py:28
 msgid "PM Suspended"
 msgstr "Приостановился сам"
 
-#: bot.py:86
+#: bot.py:76
 msgid ""
 "Welcome.\n"
 "Send '/help' for list commands available."
@@ -57,39 +57,39 @@ msgstr ""
 "Добро пожаловать.\n"
 "Команда '/help' покажет доступные команды."
 
-#: bot.py:107
+#: bot.py:106
 msgid "Active"
 msgstr "Активен"
 
-#: bot.py:113 bot.py:185
+#: bot.py:112 bot.py:190
 msgid "State"
 msgstr "Состояние"
 
-#: bot.py:119 bot.py:188
+#: bot.py:118 bot.py:193
 msgid "Power on"
 msgstr "Включить"
 
-#: bot.py:125 bot.py:192
+#: bot.py:124 bot.py:197
 msgid "Power off (force)"
 msgstr "Выключить (принудительно)"
 
-#: bot.py:131 bot.py:186
+#: bot.py:130 bot.py:191
 msgid "Suspend"
 msgstr "Приостановить"
 
-#: bot.py:137
+#: bot.py:136
 msgid "Resume"
 msgstr "Продолжить"
 
-#: bot.py:143 bot.py:190
+#: bot.py:142 bot.py:195
 msgid "Power off"
 msgstr "Выключить"
 
-#: bot.py:149 bot.py:189
+#: bot.py:148 bot.py:194
 msgid "Reboot"
 msgstr "Перезагрузить"
 
-#: bot.py:155
+#: bot.py:154
 msgid "Reset"
 msgstr "Сброс"
 
@@ -97,34 +97,38 @@ msgstr "Сброс"
 msgid "Scat!"
 msgstr "Брысь!"
 
-#: bot.py:176
+#: bot.py:177
+msgid "Not a command."
+msgstr "Не команда."
+
+#: bot.py:181
 msgid "Unknown command."
 msgstr "Неизвестная команда."
 
-#: bot.py:179
+#: bot.py:183
 msgid "Access denied"
 msgstr "Доступ запрещен"
 
-#: bot.py:183
+#: bot.py:188
 msgid "Welcome message"
 msgstr "Приветствие"
 
-#: bot.py:184
+#: bot.py:189
 msgid "This page"
 msgstr "Этот список"
 
-#: bot.py:187
+#: bot.py:192
 msgid "Resume (after suspend)"
 msgstr "Продолжить (после приостановки)"
 
-#: bot.py:191
+#: bot.py:196
 msgid "Reset (force reboot)"
 msgstr "Сброс (принудительная перезагрузка)"
 
-#: bot.py:193
+#: bot.py:198
 msgid "Check is active"
 msgstr "Проверить активность"
 
-#: bot.py:194
+#: bot.py:199
 msgid "List vhost IDs"
 msgstr ""
