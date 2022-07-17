@@ -20,8 +20,8 @@ data: dict  # loaded config
 bot: telebot.TeleBot  # bot itself
 vhost: virt.VHost = None  # the vhost what control to
 user_acl: dict = {}     # user.id -> ACL level
-cmd_acl: dict = {}      # cmd -> ACL level (FIXME:
-alias_cmd: dict         # alias -> cmd
+cmd_acl: dict = {}      # cmd -> ACL level
+alias2cmd: dict         # alias -> cmd
 help_text: list = [[], [], [], []]  # separate for each ACL level
 
 
@@ -48,7 +48,8 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         if message.text.startswith('/'):  # commands only
             user = message.from_user
             _uid = user.id
-            _cmd = message.text[1:]  # FIXME: alias
+            _cmd = message.text[1:]
+            _cmd = alias2cmd.get(_cmd, _cmd)  # use original cmd anyway
             logging.debug("can_use: uid=%d, cmd=%s" % (_uid, _cmd))
             u_acl = user_acl.get(_uid)
             c_acl = cmd_acl.get(_cmd)
@@ -181,7 +182,7 @@ HANDLERS = {
 
 def main():
     """Main procedure."""
-    global data, bot, user_acl, cmd_acl, alias_cmd, help_text
+    global data, bot, user_acl, cmd_acl, alias2cmd, help_text
     # 1. load cfg
     try:
         data = pre.load_cfg('srvbot.json')
@@ -198,17 +199,21 @@ def main():
     # 3. setup ACL, aliases
     for _id, _acl in data.get('acl', dict()).items():
         user_acl[int(_id)] = _acl
-    alias_cmd = data.get('alias', dict())
+    alias2cmd = data.get('alias', dict())
+    cmd2alias: dict = dict(map(reversed, alias2cmd.items()))
     # 4. setup tg-bot
     bot = telebot.TeleBot(data['bot']['token'], parse_mode=None)
     bot.add_custom_filter(CanUse())
     for cmd, v in HANDLERS.items():
         func, lvl, desc = v
-        cmd_acl[cmd] = lvl.value  # set command ACL (cmd => min user lvl)  # FIXME: _alias
-        tip = "/%s: %s" % (cmd, desc)  # cmd help string
+        cmd_acl[cmd] = lvl.value  # set command ACL (cmd => min user lvl)
+        cmd_list = [cmd]          # for help and trigger
+        if cmd in cmd2alias:
+            cmd_list.append(cmd2alias[cmd])
+        tip = "%s: %s" % (', '.join([f"/{s}" for s in cmd_list]), desc)  # cmd help string
         for i in range(lvl.value + 1):
             help_text[i].append(tip)  # construct helps for each ACL level
-        bot.register_message_handler(func, commands=[cmd], can_use=True)  # FIXME: +alias
+        bot.register_message_handler(func, commands=cmd_list, can_use=True)
     bot.register_message_handler(on_default)  # stub
     # 4. go
     bot.infinity_polling()
