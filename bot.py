@@ -14,8 +14,7 @@ import telebot
 from helper import pre, log, virt
 # i18n
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')  # TODO: or appdirs.site_data_dir()
-translate = gettext.translation('srvbot', localedir=localedir, languages=['ru'])
-# translate.install()
+translate = gettext.translation('srvbot', localedir=localedir)
 _ = translate.gettext
 # const
 ACL_LEVELS = 4  # 0..3
