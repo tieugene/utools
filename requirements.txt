@@ -1,2 +1,2 @@
-pyTelegramBotAPI
-libvirt
+pytelegrambotapi
+libvirt-python
