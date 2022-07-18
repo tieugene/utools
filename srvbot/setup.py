@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='srvbot',
     version='0.0.3',
-    packages=['helper'],
+    packages=['ulib'],
     url='https://github.com/tieugene/srvbot',
     license='GPLv3',
     author='TI_Eugene',

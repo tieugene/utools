@@ -1,0 +1,2 @@
+"""Misc constants"""
+NAME='backup'

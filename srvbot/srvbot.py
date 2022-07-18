@@ -10,7 +10,7 @@ import gettext
 # noinspection PyPackageRequirements
 import telebot
 # 3. local
-from helper import pre, log, virt
+from ulib import pre, log, virt
 # i18n
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')  # TODO: or appdirs.site_data_dir()
 translate = gettext.translation('srvbot', localedir=localedir)
@@ -81,7 +81,7 @@ def on_help(message: telebot.types.Message):
     uid = message.from_user.id
     help_list = []
     for cmd, uids in cmd_acl.items():
-        if uid in uids:
+        if uid in uids and cmd in help_text:
             logging.debug(f"Help for {uid} available: {cmd}")
             help_list.append(help_text[cmd])
         else:
@@ -184,8 +184,8 @@ def on_default(message: telebot.types.Message):
                 logging.warning("Access denied: %s by %d (%s)" % (message.text, user.id, user.full_name))
 
 
-HANDLERS = {
-    "start": (on_start, _("Welcome message")),
+HANDLERS = {  # cmd => (handler, help)
+    "start": (on_start, None),
     "help": (on_help, _("This page")),
     "state": (on_state, _("State")),
     "suspend": (on_suspend, _("Suspend")),
@@ -234,12 +234,12 @@ def main():
     bot = telebot.TeleBot(data['token'], parse_mode=None)
     bot.add_custom_filter(CanUse())
     for cmd, v in HANDLERS.items():
-        func, desc = v
         cmd_list = [cmd]          # for help and trigger
         if cmd in __cmd2alias:
             cmd_list.append(__cmd2alias[cmd])
-        help_text[cmd] = "%s: %s" % (', '.join([f"/{s}" for s in cmd_list]), desc)
-        bot.register_message_handler(func, commands=cmd_list, can_use=True)
+        bot.register_message_handler(v[0], commands=cmd_list, can_use=True)
+        if v[1]:
+            help_text[cmd] = "%s: %s" % (', '.join([f"/{s}" for s in cmd_list]), v[1])
     bot.register_message_handler(on_default)  # stub
     # 4. go
     bot.infinity_polling()

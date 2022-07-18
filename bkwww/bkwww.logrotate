@@ -1,0 +1,8 @@
+/var/log/bkwww/*log {
+    missingok
+    notifempty
+    daily
+    rotate 30
+    compress
+    sharedscripts
+}
