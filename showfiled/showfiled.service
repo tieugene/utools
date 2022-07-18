@@ -1,0 +1,16 @@
+# Inspired by https://gist.github.com/chmouel/8b57234b1efb6f9236e3a43e0bd39000 but configurable
+
+[Unit]
+Description=Show a file daemon
+StartLimitIntervalSec=0
+
+[Service]
+Type=idle
+EnvironmentFile=/etc/sysconfig/showfiled
+ExecStart=/usr/bin/env python3 /usr/sbin/showfiled.py $FPATH $PORT
+TimeoutStopSec=1
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
