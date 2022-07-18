@@ -1,0 +1,14 @@
+# Put it into
+# - /etc/systemd/system/timers.target.wants/ or
+# - /usr/lib/systemd/system/ and enable
+[Unit]
+Description=Hourly duplication of remote backups
+After=network.target
+
+[Timer]
+OnCalendar=Hourly
+AccuracySec=30m
+Persistent=true
+
+[Installs]
+WantedBy=timers.target
