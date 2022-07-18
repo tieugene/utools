@@ -10,7 +10,7 @@ import gettext
 # noinspection PyPackageRequirements
 import telebot
 # 3. local
-from helper import pre, log, virt
+from ulib import pre, log, virt
 # i18n
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')  # TODO: or appdirs.site_data_dir()
 translate = gettext.translation('srvbot', localedir=localedir)

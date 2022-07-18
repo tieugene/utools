@@ -6,7 +6,7 @@ After=syslog.target network.target
 Type=simple
 WorkingDirectory=/opt/pysandbox
 ExecStart=/opt/pysandbox/bin/python3 srvbot/bot.py
-# ExecReload=/opt/pysandbox/bin/python3 srvbot/bot.py
+# ExecReload=/opt/pysandbox/bin/python3 srvbot/srvbot.py
 Restart=on-abort
 
 Environment=VIRTUAL_ENV=/opt/pysandbox
