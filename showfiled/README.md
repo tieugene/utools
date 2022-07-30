@@ -8,3 +8,7 @@ Show a file daemon
 2. Edit `/etc/sysconfig/showfiled` properly
 3. Create $FPATH file with required content
 4. Request you file remotely: `curl http://youserver:$PORT`
+
+## TODO
+
+- `setup.py` (bin + lib)

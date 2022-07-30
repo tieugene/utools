@@ -130,3 +130,6 @@ dmypy.json
 # local
 *.json
 *.mo
+
+# local
+/*.tar.xz

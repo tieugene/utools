@@ -4,7 +4,7 @@ Release:        1%{?dist}
 License:        GPLv3
 Summary:        Show a file daemon
 URL:            https://github.com/tieugene/%{name}
-Source0:        https://github.com/tieugene/%{name}/archive/refs/tags/%{name}-%{version}.tar.gz
+Source0:        https://github.com/tieugene/%{name}/archive/refs/tags/%{name}-%{version}.tar.xz
 BuildRequires:  systemd-rpm-macros
 Requires:       python3 >= 3.5
 Requires:       systemd
@@ -37,7 +37,7 @@ Show a file content by HTTP request.
 
 
 %files
-%license LICENSE
+#license LICENSE
 %doc README.md
 %{_sbindir}/%{name}.py
 %{_unitdir}/%{name}.service

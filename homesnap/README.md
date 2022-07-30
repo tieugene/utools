@@ -43,12 +43,12 @@ Yet Another Python-based Backup
 - mk `host025.json` there or in `/etc/`
 - systemctl:
    ```bash
-   cp {host025.service,host025.timer} /etc/systemd/system/
+   cp {host025.service,homesnap.timer} /etc/systemd/system/
    systemctl daemon-reload
    systemctl enable host025.service
    [systemctl start host025.serice]
-   systemctl enable host025.timer
-   systemctl start host025.timer
+   systemctl enable homesnap.timer
+   systemctl start homesnap.timer
    ```
 
 ## ToDo
