@@ -1,4 +1,4 @@
-"""Mail helper"""
+"""Mail ulib"""
 import logging
 from typing import Union
 import smtplib

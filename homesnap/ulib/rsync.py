@@ -6,7 +6,7 @@ import subprocess
 from . import exc
 
 
-class YAPBRsyncError(exc.YAPBTextError):
+class UlibRsyncError(exc.UlibTextError):
     """Config loading exceptions."""
     name = "Rsync"
 
@@ -26,4 +26,4 @@ def rsync(cmds: list[str]):
     if cp.returncode != 0:
         msg = f"Rsync error ({cp.returncode}): {cp.stderr}"
         logging.error(msg)
-        raise YAPBRsyncError(msg)
+        raise UlibRsyncError(msg)

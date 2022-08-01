@@ -9,7 +9,7 @@ import libvirt
 from . import exc
 
 
-class YAPBKVMErrorError(exc.YAPBTextError):
+class YAPBKVMErrorError(exc.UlibTextError):
     """KVM error."""
     name = "Virt"
 

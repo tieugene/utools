@@ -1,8 +1,9 @@
-# yapybackup
-Yet Another Python-based Backup
+# HomeSnap
+
+Home backupnSnapshot
 
 # Requirements
-- python 3.6+ (CentOS7)
+- python 3.6+
 - python3-libvirt 4.5.0+
 
 # Advantages
@@ -56,3 +57,5 @@ Yet Another Python-based Backup
 - [ ] `sample/`
 - [ ] ~~logrotate~~
 - [ ] spec
+- [ ] `setup.py` (bin + lib)
+- [ ] use `ulib`

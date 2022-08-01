@@ -12,7 +12,7 @@ from typing import Optional
 from . import exc
 
 
-class YAPBCfgLoadError(exc.YAPBTextError):
+class YAPBCfgLoadError(exc.UlibTextError):
     """Config loading exceptions."""
     name = "CfgLoad"
 

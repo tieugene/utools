@@ -11,7 +11,7 @@ import pre
 
 
 def main():
-    if not pre.load_cfg('helper.json'):
+    if not pre.load_cfg('ulib.json'):
         sys.exit(1)
     mail.send_mail()
     return

@@ -12,12 +12,12 @@ from . import exc
 
 
 # TODO: split into critical and skipable errors
-class YAPBGetStampError(exc.YAPBTextError):
+class UlibGetStampError(exc.UlibTextError):
     """Stamp loading exceptions."""
     name = "GetStamp"
 
 
-class YAPBSetStampError(exc.YAPBTextError):
+class YAPBSetStampError(exc.UlibTextError):
     """Stamp saving exceptions."""
     name = "SetStamp"
 
@@ -34,7 +34,7 @@ def get_stamp(path: str) -> Optional[int]:
                 # TODO: handle open(), read()
                 msg = f"'{path}': str{e}"
                 logging.error(msg)
-                raise YAPBGetStampError(msg)
+                raise UlibGetStampError(msg)
         else:
             logging.debug(f"'{path}' not exists")
     elif path.startswith('http://'):  # remote
@@ -43,7 +43,7 @@ def get_stamp(path: str) -> Optional[int]:
         except urllib.error.URLError as e:  # !network, !VPN
             msg = f"'{path}': urllib: {str(e)}"
             logging.warning(msg)
-            raise YAPBGetStampError(msg)
+            raise UlibGetStampError(msg)
         if rsp.status == http.client.NOT_FOUND:  # busy (no stamp yet)
             logging.debug(f"'{path}' not exists")
             return
@@ -53,15 +53,15 @@ def get_stamp(path: str) -> Optional[int]:
             except ValueError as e:
                 msg = f"'{path}': {str(e)}"
                 logging.error(msg)
-                raise YAPBGetStampError(msg)
+                raise UlibGetStampError(msg)
         else:
             msg = f"'{path}': Response {rsp.status} ({rsp.reason})"
             logging.error(msg)
-            raise YAPBGetStampError(msg)
+            raise UlibGetStampError(msg)
     else:
         msg = f"'{path}': unknown scheme"
         logging.error(msg)
-        raise YAPBGetStampError(msg)
+        raise UlibGetStampError(msg)
     # default = None (stamp is absent)
 
 

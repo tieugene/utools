@@ -3,12 +3,12 @@ RTFM: https://libvirt.org/docs/libvirt-appdev-guide-python/en-US/html/libvirt_ap
 """
 
 
-class YAPBError(RuntimeError):
+class UlibError(RuntimeError):
     """Basic error"""
     ...
 
 
-class YAPBTextError(YAPBError):
+class UlibTextError(UlibError):
     """Exception with a text msg"""
     name: str
     msg: str

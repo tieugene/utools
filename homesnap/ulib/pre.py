@@ -7,7 +7,7 @@ from typing import Optional
 from . import exc
 
 
-class YAPBCfgLoadError(exc.YAPBTextError):
+class UlibCfgLoadError(exc.UlibTextError):
     """Config loading exceptions."""
     name = "CfgLoad"
 
@@ -28,5 +28,5 @@ def load_cfg(fname: str) -> Optional[dict]:
         try:
             return json.load(open(fpath))
         except (IsADirectoryError, PermissionError, json.decoder.JSONDecodeError) as e:
-            raise YAPBCfgLoadError(f"'{fpath}': {str(e)}")
+            raise UlibCfgLoadError(f"'{fpath}': {str(e)}")
     return
