@@ -26,7 +26,6 @@ def load_cfg(fname: str) -> Optional[dict]:
     """Load config (sibling > ~ > /etc)
     :return: Config loaded
     """
-    # FIXME: abspath(.), appdirs.user_config_dir, appdirs.site_config_dir
     for d in (
             os.path.abspath(os.path.dirname(sys.argv[0])),
             appdirs.user_config_dir(),   # ~/.config

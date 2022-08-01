@@ -4,13 +4,8 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/pysandbox
-ExecStart=/opt/pysandbox/bin/python3 srvbot/bot.py
-# ExecReload=/opt/pysandbox/bin/python3 srvbot/srvbot.py
+ExecStart=/usr/bin/python3 /usr/sbin/srvbot.py
 Restart=on-abort
-
-Environment=VIRTUAL_ENV=/opt/pysandbox
-Environment=PATH=$VIRTUAL_ENV/bin:$PATH
 
 [Install]
 WantedBy=multi-user.target

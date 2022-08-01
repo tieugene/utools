@@ -3,8 +3,8 @@ Version:        0.0.1
 Release:        1%{?dist}
 License:        GPLv3
 Summary:        Show a file daemon
-URL:            https://github.com/tieugene/%{name}
-Source0:        https://github.com/tieugene/%{name}/archive/refs/tags/%{name}-%{version}.tar.xz
+URL:            https://github.com/tieugene/utools/%{name}
+Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  systemd-rpm-macros
 Requires:       python3 >= 3.5
 Requires:       systemd
