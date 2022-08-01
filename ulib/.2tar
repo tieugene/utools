@@ -1,3 +1,4 @@
-*.py
-REAME.md
+ulib
+setup.py
+README.md
 ulib.spec

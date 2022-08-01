@@ -1,10 +1,12 @@
-Name:           ulib
+%global module ulib
+Name:           python-ulib
 Version:        0.0.1
 Release:        1%{?dist}
 License:        GPLv3
 Summary:        Utility micro-library
-URL:            https://github.com/tieugene/utools/%{name}
-Source0:        %{name}-%{version}.tar.xz
+URL:            https://github.com/tieugene/utools/%{module}
+Source0:        %{module}-%{version}.tar.xz
+BuildRequires:  python3-setuptools
 BuildRequires:  systemd-rpm-macros
 Requires:       python3 >= 3.6
 Suggests:       %{py3_dist libvirt-python}
@@ -16,18 +18,22 @@ Common library for micro-tools.
 
 
 %prep
-%autosetup
+%autosetup -n %{module}-%{version}
+
+
+%build
+%{py3_build}
 
 
 %install
-%{__install} -Dpm 0755 %{name}.py %{buildroot}%{_sbindir}/%{name}.py
-%{__install} -Dpm 0644 %{name}.service %{buildroot}%{_unitdir}/%{name}.service
+%{py3_install}
 
 
 %files
 #license LICENSE
 %doc README.md
-%{_sbindir}/%{name}.py
+%{python3_sitelib}/%{module}/
+%{python3_sitelib}/%{module}-%{version}-py3.*.egg-info/
 
 
 %changelog
