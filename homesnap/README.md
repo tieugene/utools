@@ -39,15 +39,15 @@ Home backupnSnapshot
 - guest-agent
 - JSON Schema
 
-## host025:
-- copy `host025.py` into somewhere
-- mk `host025.json` there or in `/etc/`
+## homesnap:
+- copy `homesnap.py` into somewhere
+- mk `homesnap.json` there or in `/etc/`
 - systemctl:
    ```bash
-   cp {host025.service,homesnap.timer} /etc/systemd/system/
+   cp {homesnap.service,homesnap.timer} /etc/systemd/system/
    systemctl daemon-reload
-   systemctl enable host025.service
-   [systemctl start host025.serice]
+   systemctl enable homesnap.service
+   [systemctl start homesnap.serice]
    systemctl enable homesnap.timer
    systemctl start homesnap.timer
    ```
@@ -56,6 +56,4 @@ Home backupnSnapshot
 - [ ] cfg dict workaroud (`d[key]` &rArr; `d.get(key)`)
 - [ ] `sample/`
 - [ ] ~~logrotate~~
-- [ ] spec
-- [ ] `setup.py` (bin + lib)
 - [ ] use `ulib`
