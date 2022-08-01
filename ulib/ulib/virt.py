@@ -9,7 +9,7 @@ import libvirt
 from . import exc
 
 
-class YAPBKVMErrorError(exc.UlibTextError):
+class UlibKVMErrorError(exc.UlibTextError):
     """KVM error."""
     name = "Virt"
 
@@ -25,7 +25,7 @@ class VConn:
             try:
                 VConn.__conn = libvirt.open(None)  # localhost only
             except libvirt.libvirtError:
-                raise YAPBKVMErrorError("Failed to open connection to the hypervisor")
+                raise UlibKVMErrorError("Failed to open connection to the hypervisor")
         return VConn.__conn
 
     @staticmethod
@@ -34,7 +34,7 @@ class VConn:
         try:
             return VConn.conn().listDomainsID()
         except libvirt.libvirtError:
-            raise YAPBKVMErrorError("Failed list vhosts")
+            raise UlibKVMErrorError("Failed list vhosts")
 
 
 def try_libvirt(reason: str):
@@ -44,7 +44,7 @@ def try_libvirt(reason: str):
             try:
                 return func(ref)
             except libvirt.libvirtError as e:
-                raise YAPBKVMErrorError("%s (%s)" % (reason, str(e)))
+                raise UlibKVMErrorError("%s (%s)" % (reason, str(e)))
         return wrapper
     return decorator_try_libvirt
 
@@ -58,7 +58,7 @@ class VHost(object):
         try:
             self.__dom = VConn.conn().lookupByName(name)
         except libvirt.libvirtError as e:
-            raise YAPBKVMErrorError("Cannot find vhost '%s' (%s)" % (name, str(e)))
+            raise UlibKVMErrorError("Cannot find vhost '%s' (%s)" % (name, str(e)))
 
     @try_libvirt("Cannot check vhost active")
     def isActive(self) -> bool:

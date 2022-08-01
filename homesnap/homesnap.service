@@ -3,6 +3,6 @@ Description=Duplication of remote backups
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /usr/bin/homesnap.py
+ExecStart=/usr/bin/homesnap
 #StandardOutput=append:/var/log1.log | syslog
 #StandardError=append:/var/log2.log | syslog
