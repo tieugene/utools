@@ -1,6 +1,7 @@
-locale
-README.md
 srvbot.py
+locale
+setup.py
 srvbot.service
+README.md
 srvbot.venv.service
 srvbot.spec

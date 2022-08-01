@@ -7,11 +7,11 @@ setup(
     license='GPLv3',
     author='TI_Eugene',
     author_email='ti.eugene@gmail.com',
-    description='Telegram bot to control KVM guest'
-    # packages=['srvbot'],
-    # entry_points={
-    #     'console_scripts': [
-    #         'srvbot = srvbot:main',
-    #     ],
-    # },
+    description='Telegram bot to control KVM guest',
+    py_modules=['srvbot'],
+    entry_points={
+        'console_scripts': [
+            'srvbot = srvbot:main',
+        ],
+    },
 )

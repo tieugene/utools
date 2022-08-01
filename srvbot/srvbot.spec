@@ -21,8 +21,12 @@ Telegram bot to control KVM guest.
 %autosetup
 
 
+%build
+%{py3_build}
+
+
 %install
-%{__install} -Dpm 0755 %{name}.py %{buildroot}%{_sbindir}/%{name}.py
+%{py3_install}
 %{__install} -Dpm 0644 %{name}.service %{buildroot}%{_unitdir}/%{name}.service
 for lang in $(ls locale)
 do
@@ -46,7 +50,10 @@ done
 %files
 #license LICENSE
 %doc README.md srvbot.venv.service
-%{_sbindir}/%{name}.py
+%{_bindir}/%{name}
+%{python3_sitelib}/%{name}.py
+%{python3_sitelib}/__pycache__/*
+%{python3_sitelib}/%{name}-%{version}-py3.*.egg-info/
 %{_unitdir}/%{name}.service
 %{_datadir}/locale/*/LC_MESSAGES/%{name}.mo
 
