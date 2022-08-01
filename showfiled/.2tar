@@ -1,5 +1,6 @@
-README.md
 showfiled.py
+setup.py
 showfiled.service
-showfiled.spec
 showfiled.sysconfig
+README.md
+showfiled.spec

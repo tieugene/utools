@@ -68,7 +68,6 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 ### rpm
 
 - l10n (near/system)
-- `setup.py` (bin+lib)
 - Use `ulib`
 
 ### 0.0.4:

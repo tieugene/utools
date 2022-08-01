@@ -5,6 +5,7 @@ License:        GPLv3
 Summary:        Vhost telebot
 URL:            https://github.com/tieugene/utools/%{name}
 Source0:        %{name}-%{version}.tar.xz
+BuildRequires:  python3-setuptools
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  gettext
 Requires:       python3 >= 3.6
