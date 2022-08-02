@@ -13,6 +13,8 @@ import telebot
 from ulib import pre, log, virt
 # i18n
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')  # TODO: or appdirs.site_data_dir()
+if not os.path.isdir(localedir):  # default if in-place l10ns absent
+    localedir = None
 translate = gettext.translation('srvbot', localedir=localedir)
 _ = translate.gettext
 # const
