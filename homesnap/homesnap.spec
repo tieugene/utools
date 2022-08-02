@@ -12,6 +12,7 @@ BuildRequires:	systemd-rpm-macros
 Requires:	systemd
 Requires:	rsync
 Requires:	%{py3_dist ulib}
+Requires:	%{py3_dist appdirs}
 BuildArch:	noarch
 
 %description

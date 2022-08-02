@@ -1,5 +1,6 @@
 """Pre-work jobs - handle config and/or CLI"""
 # 1. std
+from typing import Optional
 import os
 import sys
 import json
@@ -7,8 +8,6 @@ import os.path
 # 2. 3rd
 import appdirs
 # 3. local
-from typing import Optional
-
 from . import exc
 
 

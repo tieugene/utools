@@ -1,8 +1,8 @@
 """Handle backup stamps"""
 
 # 1. std
-import logging
 from typing import Optional
+import logging
 import os.path
 import urllib.error
 import urllib.request

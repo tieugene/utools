@@ -5,14 +5,21 @@ Utility micro-library
 ## Requirements
 
 - python 3.6+
+- python3-appdirs
 - python3-libvirt 4.5.0+
 
-## TOC
+## Modules
 
-- `exc.py` - exceptions base
-- `log.py` - logging
-- `pre.py` - prepend tasks (config, CLI)
-- `virt.py` - libvirt wrapper
+- [`backup`](ulib/backup.py) - *(stub)*
+- [`exc`](ulib/exc.py) - exceptions base
+- [`log`](ulib/log.py) - logging
+- [`mail`](ulib/mail.py) - smtp client
+- [`pre`](ulib/pre.py) - prepend tasks (config, CLI)
+- [`rsync`](ulib/rsync.py) - `rsync` (CLI) wrapper
+- [`stamp`](ulib/stamp.py) - handle stamp file
+- [`vdrive`](ulib/vdrive.py) - *(stub)* ctl vdrives (maybe from kvm?): mount/umount (class?); CLI
+- [`virt`](ulib/virt.py) - libvirt wrapper
+- `pack` - `7za`/`tar` (CLI) wrapper
 
 ## Advantages
 - [x] json config
@@ -29,13 +36,4 @@ Utility micro-library
   - [ ] rclone?
 - [ ] rotates (day/week/month)
 - [x] email
-- [x] log
-
-## Modules:
-- [x] cli/cfg
-- [ ] vhost: ctl KVM vhosts - state/freeze/resume(host) (class?); libvirt
-- [ ] vdrive: ctl vdrives (maybe from kvm?): mount/umount (class?); CLI
-- [x] mail: smtp client
-- [x] rsync: rsync frontend; CLI
-- [ ] pack: 7za/tar frontend; CLI
 - [x] log
