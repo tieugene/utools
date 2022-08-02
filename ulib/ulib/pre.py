@@ -27,9 +27,9 @@ def load_cfg(fname: str) -> Optional[dict]:
     :return: Config loaded
     """
     for d in (
-            os.path.abspath(os.path.dirname(sys.argv[0])),
+            os.path.abspath(os.path.dirname(sys.argv[0])),  # ./
             appdirs.user_config_dir(),   # ~/.config
-            appdirs.site_config_dir()):  # /etc
+            appdirs.site_config_dir()):  # /etc/xdg (!)
         fpath = os.path.join(d, fname)
         if not os.path.exists(fpath):  # or handle FileNotFoundError
             continue

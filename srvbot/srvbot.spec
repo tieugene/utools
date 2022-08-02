@@ -6,12 +6,14 @@ Summary:        Vhost telebot
 URL:            https://github.com/tieugene/utools/%{name}
 Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  python3-setuptools
+BuildRequires:  python3-rpm-macros
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  gettext
 Requires:       python3 >= 3.6
 Requires:       systemd
 Requires:       %{py3_dist pytelegrambotapi}
-#Requires:       #{py3_dist utools}
+Requires:       %{py3_dist libvirt-python}
+Requires:       %{py3_dist ulib}
 BuildArch:      noarch
 
 %description
@@ -60,5 +62,5 @@ done
 
 
 %changelog
-* Mon Aug 01 2022 TI_Eugene <tieugene@fedoraproject.org> - 0.0.3-1
+* Tue Aug 02 2022 TI_Eugene <tieugene@fedoraproject.org> - 0.0.3-1
 - Initial build

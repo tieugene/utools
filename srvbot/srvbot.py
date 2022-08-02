@@ -96,7 +96,7 @@ def on_action(func: callable):
     def wrapper(message: telebot.types.Message):
         try:
             response = func(message)
-        except virt.YAPBKVMErrorError as e:
+        except virt.UlibKVMError as e:
             response = str(e)
             logging.error(response)
         bot.send_message(message.chat.id, response)
@@ -211,7 +211,7 @@ def main():
         data = pre.load_cfg('srvbot.json')
         if data is None:
             sys.exit("Config not found")
-    except pre.YAPBCfgLoadError as e:
+    except pre.UlibCfgLoadError as e:
         sys.exit(str(e))
     # 2. setup logger
     if 'log' in data:

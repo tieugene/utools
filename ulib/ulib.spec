@@ -7,7 +7,7 @@ Summary:        Utility micro-library
 URL:            https://github.com/tieugene/utools/%{module}
 Source0:        %{module}-%{version}.tar.xz
 BuildRequires:  python3-setuptools
-BuildRequires:  systemd-rpm-macros
+BuildRequires:  python3-rpm-macros
 Requires:       python3 >= 3.6
 Suggests:       %{py3_dist libvirt-python}
 Suggests:       %{py3_dist appdirs}

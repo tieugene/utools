@@ -6,6 +6,7 @@ Summary:        Show a file daemon
 URL:            https://github.com/tieugene/utools/%{name}
 Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  python3-setuptools
+BuildRequires:  python3-rpm-macros
 BuildRequires:  systemd-rpm-macros
 Requires:       python3 >= 3.5
 Requires:       systemd
