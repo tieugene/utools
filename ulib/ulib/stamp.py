@@ -17,7 +17,7 @@ class UlibGetStampError(exc.UlibTextError):
     name = "GetStamp"
 
 
-class YAPBSetStampError(exc.UlibTextError):
+class UlibSetStampError(exc.UlibTextError):
     """Stamp saving exceptions."""
     name = "SetStamp"
 
@@ -71,4 +71,4 @@ def set_stamp(path: str, stamp: int):
     except (OSError, PermissionError) as e:
         msg = f"'{path}': {str(e)}"
         logging.error(msg)
-        raise YAPBSetStampError(msg)
+        raise UlibSetStampError(msg)

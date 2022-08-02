@@ -6,6 +6,7 @@ Home backup snapshot
 
 - python 3.6+
 - rsync client
+- external drive (optional)
 
 ## Install:
 

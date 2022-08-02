@@ -54,7 +54,7 @@ def __handle_item(item: dict) -> Optional[tuple[bool, str]]:
     except stamp.UlibGetStampError:  # sync not started
         # logging.warning(f"Item '{name}': {str(e)}")
         pass
-    except (rsync.UlibRsyncError, stamp.YAPBSetStampError) as e:
+    except (rsync.UlibRsyncError, stamp.UlibSetStampError) as e:
         retvalue = (False, str(e))
     return retvalue
 
