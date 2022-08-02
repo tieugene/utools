@@ -5,6 +5,7 @@ License:        GPLv3
 Summary:        Show a file daemon
 URL:            https://github.com/tieugene/utools/%{name}
 Source0:        %{name}-%{version}.tar.xz
+BuildRequires:  python3 >= 3.5
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-rpm-macros
 BuildRequires:  systemd-rpm-macros
@@ -54,5 +55,5 @@ Show a file content by HTTP request.
 
 
 %changelog
-* Thu Jun 23 2022 TI_Eugene <tieugene@fedoraproject.org> - 0.0.1-1
+* Tue Aug 02 2022 TI_Eugene <tieugene@fedoraproject.org> - 0.0.1-1
 - Initial build

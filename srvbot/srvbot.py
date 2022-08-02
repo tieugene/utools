@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Telegram bot to handle KVM host."""
+"""Telegram bot to handle KVM host.
+Note: requires root permissions to control vhosts
+"""
 # 1. std
 import os
 import sys

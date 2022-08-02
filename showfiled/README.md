@@ -7,4 +7,5 @@ Show a file daemon
 1. Install the package
 2. Edit `/etc/sysconfig/showfiled` properly
 3. Create $FPATH file with required content
-4. Request you file remotely: `curl http://youserver:$PORT`
+4. `systemctl enable --now showfiled`
+5. Request you file remotely: `curl http://youserver:$PORT`
