@@ -1,4 +1,5 @@
-"""Duplicate backups"""
+#!/usr/bin/env python3
+"""HomeSnap - Duplicate backups"""
 
 # 1. std
 from typing import Optional
@@ -7,11 +8,11 @@ import sys
 import datetime
 import logging
 # 3. local
-from yapybackup import pre, log, stamp, rsync, mail
+from ulib import pre, log, stamp, rsync, mail
 
 # consts
 DATIME_FMT = "%y-%m-%d %H:%M:%S"
-MAIL_SUBJ = "Host025 sync: %s"
+MAIL_SUBJ = "HomeSnap sync: %s"
 MAIL_BODY = "Beg: %s\nEnd: %s\n----\n%s"
 
 
@@ -42,7 +43,7 @@ def __handle_item(item: dict) -> Optional[tuple[bool, str]]:
                 if os.path.isdir(epath):
                     try:
                         rsync.rsync(opts + [item['dpath'], epath])
-                    except rsync.YAPBRsyncError as e:
+                    except rsync.UlibRsyncError as e:
                         retvalue = (True, str(e))
                 else:
                     retvalue = (True, "no external drive")
@@ -50,10 +51,10 @@ def __handle_item(item: dict) -> Optional[tuple[bool, str]]:
             logging.warning(f"{name}: Src stamp ({s_stamp}) < drc ({d_stamp})")
         else:  # stamps are equals => nothing to do
             logging.debug(f"{name}: Stamps are equal: {s_stamp}")
-    except stamp.YAPBGetStampError:  # sync not started
+    except stamp.UlibGetStampError:  # sync not started
         # logging.warning(f"Item '{name}': {str(e)}")
         pass
-    except (rsync.YAPBRsyncError, stamp.YAPBSetStampError) as e:
+    except (rsync.UlibRsyncError, stamp.UlibSetStampError) as e:
         retvalue = (False, str(e))
     return retvalue
 
@@ -64,9 +65,9 @@ def main():
     mail_queue = []
     total = True
     try:
-        if (data := pre.load_cfg('host025.json')) is None:   # 1. load cfg
+        if (data := pre.load_cfg('homesnap.json')) is None:   # 1. load cfg
             sys.exit("Config not found")
-    except pre.YAPBCfgLoadError as e:
+    except pre.UlibCfgLoadError as e:
         sys.exit(str(e))
     # 2. setup logger
     log.setLogger(data.get('log', 0))

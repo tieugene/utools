@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-Show file content on demand by HTTP.
-TODO: move to python lib
-"""
+"""Show file content on demand by HTTP."""
 
 import os
 import sys
@@ -22,10 +19,13 @@ class HttpGetHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
 
-def main(fpath: str, port: int):
+def main():
     global FPATH
-    FPATH = fpath
-    httpd = HTTPServer(('', port), HttpGetHandler)
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <file_path> <port>")
+        sys.exit(1)
+    FPATH = sys.argv[1]
+    httpd = HTTPServer(('', int(sys.argv[2])), HttpGetHandler)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -33,7 +33,4 @@ def main(fpath: str, port: int):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print(f"Usage: {sys.argv[0]} <file_path> <port>")
-        sys.exit(1)
-    main(sys.argv[1], int(sys.argv[2]))
+    main()

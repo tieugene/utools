@@ -1,58 +1,53 @@
-# yapybackup
-Yet Another Python-based Backup
+# HomeSnap
+
+Home backup snapshot
 
 # Requirements
-- python 3.6+ (CentOS7)
-- python3-libvirt 4.5.0+
 
-# Advantages
-- [x] json config
-- [ ] per-vhost config
-- [ ] backing up:
-  - [ ] KVM ntfs volume
-  - [ ] LXC folders
-  - [x] rsync local dir-to-dir
-  - [ ] pack (7za, tar)
-- [ ] copying:
-  - [x] rsync local drive-to-drive
-  - [x] rsync local dir to remote
-  - [ ] ftp
-  - [ ] rclone?
-- [ ] rotates (day/week/month)
-- [x] email
-- [x] log
+- python 3.6+
+- rsync client
+- external drive (optional)
 
-## Modules:
-- [x] cli/cfg
-- [ ] vhost: ctl KVM vhosts - state/freeze/resume(host) (class?); libvirt
-- [ ] vdrive: ctl vdrives (maybe from kvm?): mount/umount (class?); CLI
-- [x] mail: smtp client
-- [x] rsync: rsync frontend; CLI
-- [ ] pack: 7za/tar frontend; CLI
-- [x] log
+## Install:
 
-## TODO
-### Teach:
-- python-libvirt
-- PyCharm remote debug
-- guest-agent
-- JSON Schema
+### Remote:
 
-## host025:
-- copy `host025.py` into somewhere
-- mk `host025.json` there or in `/etc/`
-- systemctl:
-   ```bash
-   cp {host025.service,host025.timer} /etc/systemd/system/
-   systemctl daemon-reload
-   systemctl enable host025.service
-   [systemctl start host025.serice]
-   systemctl enable host025.timer
-   systemctl start host025.timer
-   ```
+- install and setup `shofiled`
+- install and setup `rsyncd` properly
+- tune firewall
+
+### Local:
+
+1. install `homesnap` rpm
+2. create `/etc/xdg/homesnap.json` or `/root/.config/homesnap.json` like sample below
+3. `systemctl enable homesnap.timer; systemctl start homesnap.timer`
+
+## Config sample
+
+Sample config file with C-like comments:
+
+```json5
+{
+  "mail": {
+    "smtp": "smtp.yandex.com",  // default with smtp auth, port 465
+    "mailfrom": "robot@mydomain.com",  // as 'from' as smtp login
+    "mailpass": "smtpassword",  // smtp password
+    "mailto": ["admin@mydomain.com", "boss@mydomain.com"]  // can be a string
+  },
+  "log": 5,  // syslog verbosity, optional
+  "items": [  // list of source/dest (remote/local) pairs
+    {
+      "name": "ext",  // just id
+      "opts": "-aqzAHX --del",  // rsync client additional options
+      "schk": "http://172.16.1.1:8000",  // source tag (`showfiled` endpoint via VPN)
+      "spath": "rsync://172.16.1.1/daily",  // source rsync endpoint to mirror (via VPN)
+      "dchk": "/mnt/shares/backup/ext.txt",  // dest tag (local file) in pair to 'schk'
+      "dpath": "/mnt/shares/backup/ext/daily",  // dest rsync endpoint in pair to 'spath'
+      "epath": "/misc/extdrive/backup/ext"  // external drive folder
+    }
+  ]
+}
+```
 
 ## ToDo
 - [ ] cfg dict workaroud (`d[key]` &rArr; `d.get(key)`)
-- [ ] `sample/`
-- [ ] ~~logrotate~~
-- [ ] spec

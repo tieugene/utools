@@ -1,3 +1,0 @@
-"""Working data"""
-
-Cfg = dict()

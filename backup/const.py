@@ -1,2 +1,0 @@
-"""Misc constants"""
-NAME='backup'

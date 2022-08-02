@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Telegram bot to handle KVM host."""
+"""Telegram bot to handle KVM host.
+Note: requires root permissions to control vhosts
+"""
 # 1. std
 import os
 import sys
@@ -13,6 +15,8 @@ import telebot
 from ulib import pre, log, virt
 # i18n
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')  # TODO: or appdirs.site_data_dir()
+if not os.path.isdir(localedir):  # default if in-place l10ns absent
+    localedir = None
 translate = gettext.translation('srvbot', localedir=localedir)
 _ = translate.gettext
 # const
@@ -94,7 +98,7 @@ def on_action(func: callable):
     def wrapper(message: telebot.types.Message):
         try:
             response = func(message)
-        except virt.YAPBKVMErrorError as e:
+        except virt.UlibKVMError as e:
             response = str(e)
             logging.error(response)
         bot.send_message(message.chat.id, response)
@@ -209,7 +213,7 @@ def main():
         data = pre.load_cfg('srvbot.json')
         if data is None:
             sys.exit("Config not found")
-    except pre.YAPBCfgLoadError as e:
+    except pre.UlibCfgLoadError as e:
         sys.exit(str(e))
     # 2. setup logger
     if 'log' in data:

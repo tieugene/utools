@@ -4,31 +4,32 @@ Telegram-based server helper bot.
 
 ## Requirements
 
-- python 3.6+
-- python-pyTelegramBotAPI
-- python-libvirt
+- python3 3.6+
+- python3-pyTelegramBotAPI
+- python3-libvirt
+- python3-ulib
 
 ## Install
 
-[RTFM](https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html)
+1. Install rpm
+2. Create `/etc/xdg/srvbot.json` or `/root/.config/srvbot.json` like the sample below
+3. `systemctl enable --now srvbot`
 
-### CentOS 7
-```bash
-yum install python36-virtualenv python36-libvirt
-```
+### Venv
 
-### CentOS 8
+Usage in old CentOS' requires special
+[actions](https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html):
+
 ```bash
+# CentOS7:
+# yum install python36-virtualenv python36-libvirt
+# CentOS8:
 dnf install python3-virtualenv python3-libvirt
-```
-
-### CentOS all
-```bash
 cd /opt
 python3 -m venv pysandbox
 # or pyvenv --system-site-packages --symlinks pysandbox
 source pysandbox/bin/activate
-[pip install --upgrade pip]
+pip install --upgrade pip
 pip install pyTelegramBotAPI
 deactivate
 ```
@@ -63,6 +64,40 @@ st | State\Act| crt | dst | sus | rsm |shtdn| rbt | rst
 - Active
 - List
 
+## i18n
+
+1. Prepare i18n: `xgettext -o locale/srvbot.pot bot.py`
+2. Mk l10n: `cp locale/srvbot.pot locale/ru/LC_MESSAGES/srvbot.po`
+3. Translate (`poedit`)
+4. Update l10n: `msgmerge -U locale/ru/LC_MESSAGES/srvbot.po locale/srvbot.pot`
+5. Compile: `msgfmt -o locale/ru/LC_MESSAGES/srvbot.mo locale/ru/LC_MESSAGES/srvbot.po`
+
+## Sample
+
+Sample config file (json with C-style comments):
+
+```json5
+{
+  "log": 5,  //  log level (optional, default - no)
+  "tglog": 3,  // Telegram log level (optional, default - no)
+  "token": "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",  // mandatory
+  "vhost": "w10",  // name of KVM guest, mandatory
+  "alias": {  // command aliases, optional
+    "стоп": "suspend",
+    "старт": "resume"
+  },
+  "acl": [  // access control list
+    {  // 'cmd' commands are available for 'uid' Tg users
+      "cmd": ["state", "suspend", "resume", "create", "reboot", "shutdown", "reset", "destroy", "active"],
+      "uid": [123456789]  // like admin
+    },
+    {
+      "cmd": ["state", "suspend", "resume"],
+      "uid": [987654322, 192837465]  // ordinar users
+  ]
+}
+```
+
 ## ToDo:
 
 ### 0.0.4:
@@ -79,32 +114,3 @@ Aim: expanding
  - [x] /setjoingroups: Disable
  - [x] /setprivacy: Enable
  - [ ] /setcommands: 
-
-## Done
-
-### 0.0.2:
-
-Aim: make usable
-
-- [x] [systemd unit](https://avalon.land/blog/it/telegram-bot-on-centos7/)
-- [x] ACL
-- [x] decorate srvbot.handle_X
-- [x] decorate helper.virt.VHost methods
-- [x] state diagram
-- [x] more logging
-
-### 0.0.3:
-
-Aim: extending
-
-- [x] configurable command aliases
-- [x] configurable ACL
-- [x] i18n+l10n
-
-## i18n
-
-1. Prepare i18n: `xgettext -o locale/srvbot.pot bot.py`
-2. Mk l10n: `cp locale/srvbot.pot locale/ru/LC_MESSAGES/srvbot.po`
-3. Translate (`poedit`)
-4. Update l10n: `msgmerge -U locale/ru/LC_MESSAGES/srvbot.po locale/srvbot.pot`
-5. Compile: `msgfmt -o locale/ru/LC_MESSAGES/srvbot.mo locale/ru/LC_MESSAGES/srvbot.po`

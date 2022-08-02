@@ -1,14 +1,12 @@
-"""Exceptions.
-RTFM: https://libvirt.org/docs/libvirt-appdev-guide-python/en-US/html/libvirt_application_development_guide_using_python-Error_Handling.html
-"""
+"""Exceptions."""
 
 
-class YAPBError(RuntimeError):
+class UlibError(RuntimeError):
     """Basic error"""
     ...
 
 
-class YAPBTextError(YAPBError):
+class UlibTextError(UlibError):
     """Exception with a text msg"""
     name: str
     msg: str
