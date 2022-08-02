@@ -1,59 +1,52 @@
 # HomeSnap
 
-Home backupnSnapshot
+Home backup snapshot
 
 # Requirements
+
 - python 3.6+
-- python3-libvirt 4.5.0+
+- rsync client
 
-# Advantages
-- [x] json config
-- [ ] per-vhost config
-- [ ] backing up:
-  - [ ] KVM ntfs volume
-  - [ ] LXC folders
-  - [x] rsync local dir-to-dir
-  - [ ] pack (7za, tar)
-- [ ] copying:
-  - [x] rsync local drive-to-drive
-  - [x] rsync local dir to remote
-  - [ ] ftp
-  - [ ] rclone?
-- [ ] rotates (day/week/month)
-- [x] email
-- [x] log
+## Install:
 
-## Modules:
-- [x] cli/cfg
-- [ ] vhost: ctl KVM vhosts - state/freeze/resume(host) (class?); libvirt
-- [ ] vdrive: ctl vdrives (maybe from kvm?): mount/umount (class?); CLI
-- [x] mail: smtp client
-- [x] rsync: rsync frontend; CLI
-- [ ] pack: 7za/tar frontend; CLI
-- [x] log
+### Remote:
 
-## TODO
-### Teach:
-- python-libvirt
-- PyCharm remote debug
-- guest-agent
-- JSON Schema
+- install and setup `shofiled`
+- install and setup `rsyncd` properly
+- tune firewall
 
-## homesnap:
-- copy `homesnap.py` into somewhere
-- mk `homesnap.json` there or in `/etc/`
-- systemctl:
-   ```bash
-   cp {homesnap.service,homesnap.timer} /etc/systemd/system/
-   systemctl daemon-reload
-   systemctl enable homesnap.service
-   [systemctl start homesnap.serice]
-   systemctl enable homesnap.timer
-   systemctl start homesnap.timer
-   ```
+### Local:
+
+1. install `homesnap` rpm
+2. create `/etc/xdg/homesnap.json` or `/root/.config/homesnap.json` like sample below
+3. `systemctl enable homesnap.timer; systemctl start homesnap.timer`
+
+## Config sample
+
+Sample config file with C-like comments:
+
+```json5
+{
+  "mail": {
+    "smtp": "smtp.yandex.com",  // default with smtp auth, port 465
+    "mailfrom": "robot@mydomain.com",  // as 'from' as smtp login
+    "mailpass": "smtpassword",  // smtp password
+    "mailto": ["admin@mydomain.com", "boss@mydomain.com"]  // can be a string
+  },
+  "log": 5,  // syslog verbosity, optional
+  "items": [  // list of source/dest (remote/local) pairs
+    {
+      "name": "ext",  // just id
+      "opts": "-aqzAHX --del",  // rsync client additional options
+      "schk": "http://172.16.1.1:8000",  // source tag (`showfiled` endpoint via VPN)
+      "spath": "rsync://172.16.1.1/daily",  // source rsync endpoint to mirror (via VPN)
+      "dchk": "/mnt/shares/backup/ext.txt",  // dest tag (local file) in pair to 'schk'
+      "dpath": "/mnt/shares/backup/ext/daily",  // dest rsync endpoint in pair to 'spath'
+      "epath": "/misc/extdrive/backup/ext"  // external drive folder
+    }
+  ]
+}
+```
 
 ## ToDo
 - [ ] cfg dict workaroud (`d[key]` &rArr; `d.get(key)`)
-- [ ] `sample/`
-- [ ] ~~logrotate~~
-- [ ] use `ulib`

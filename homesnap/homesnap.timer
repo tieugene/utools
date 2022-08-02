@@ -10,5 +10,5 @@ OnCalendar=Hourly
 AccuracySec=30m
 Persistent=true
 
-[Installs]
+[Install]
 WantedBy=timers.target
