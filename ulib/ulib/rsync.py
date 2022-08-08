@@ -11,15 +11,17 @@ class UlibRsyncError(exc.UlibTextError):
     name = "Rsync"
 
 
-def rsync(cmds: list[str]):
+def rsync(opts: list[str]):
     """
-    run the built rsync command as a subprocess
+    Run the built rsync command as a subprocess.
+    :param opts: rsync CLI options
     :return: True if ok
     :todo: shutil.which('rsync')
     """
-    logging.debug("rsync %s" % ' '.join(cmds))
+    cmds = ['rsync'] + opts
+    logging.debug(' '.join(cmds))
     cp: subprocess.CompletedProcess = subprocess.run(
-        ['rsync'] + cmds,
+        cmds,
         capture_output=True,
         encoding='utf-8'
     )

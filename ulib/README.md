@@ -37,3 +37,7 @@ Utility micro-library
 - [ ] rotates (day/week/month)
 - [x] email
 - [x] log
+
+## TODO
+
+- split by subpackages

@@ -24,6 +24,8 @@ def cli():
 def load_cfg(fname: str) -> Optional[dict]:
     """Load config (sibling > ~ > /etc)
     :return: Config loaded
+    :todo: ini, yaml, json5, toml, xml
+    :todo: convert into object
     """
     for d in (
             os.path.abspath(os.path.dirname(sys.argv[0])),  # ./
