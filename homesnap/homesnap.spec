@@ -10,7 +10,7 @@ BuildRequires:  python3-setuptools
 BuildRequires:  python3-rpm-macros
 BuildRequires:	systemd-rpm-macros
 Requires:	systemd
-Requires:	rsync
+Requires:	/usr/bin/rsync
 Requires:	%{py3_dist ulib}
 Requires:	%{py3_dist appdirs}
 BuildArch:	noarch

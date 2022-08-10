@@ -100,6 +100,8 @@ Sample config file (json with C-style comments):
 
 ## ToDo:
 
+- special user to run by (+ polkut?)
+
 ### 0.0.4:
 
 Aim: expanding

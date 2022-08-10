@@ -38,4 +38,4 @@ def load_cfg(fname: str) -> Optional[dict]:
             return json.load(open(fpath))
         except (IsADirectoryError, PermissionError, json.decoder.JSONDecodeError) as e:
             raise UlibCfgLoadError(f"'{fpath}': {str(e)}")
-    return
+    sys.exit("Config not found")

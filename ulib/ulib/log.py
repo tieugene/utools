@@ -17,9 +17,10 @@ LOG_LEVEL = (
 
 
 def setLogger(lvl: int):
-    logger = logging.getLogger()
-    logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-    logger.setLevel(LOG_LEVEL[lvl])
+    if lvl is not None:
+        logger = logging.getLogger()
+        logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+        logger.setLevel(LOG_LEVEL[lvl])
 
 
 ''' Фокус не удался

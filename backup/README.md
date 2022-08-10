@@ -42,6 +42,11 @@
 - mk 'current' -> daily/... symlink
 - email just "OK" or "Error"+log
 
+## Limitations
+- run as root (due libvirt)
+- KVM guests only (yet)
+- rsync 1-level folders
+
 ## RTFM
 
 Надо монтировать для shell.

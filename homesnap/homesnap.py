@@ -64,11 +64,8 @@ def main():
     t0 = __now()
     mail_queue = []
     total = True
-    try:
-        if (data := pre.load_cfg('homesnap.json')) is None:   # 1. load cfg
-            sys.exit("Config not found")
-    except pre.UlibCfgLoadError as e:
-        sys.exit(str(e))
+    # 1. load cfg
+    data = pre.load_cfg('homesnap.json')
     # 2. setup logger
     log.setLogger(data.get('log', 0))
     for item in data['items']:          # -. for each host:

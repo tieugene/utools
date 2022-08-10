@@ -41,3 +41,4 @@ Utility micro-library
 ## TODO
 
 - split by subpackages
+- `virt` w/ sudo (status, suspend, resume)

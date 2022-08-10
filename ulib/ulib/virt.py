@@ -1,4 +1,6 @@
-"""KVM vhost control"""
+"""KVM vhost control.
+TODO: sudo-like (polkit?)
+"""
 # 1. std
 from typing import List, Union
 import functools
@@ -20,10 +22,11 @@ class VConn:
 
     @staticmethod
     def conn() -> libvirt.virConnect:
+        """:todo: connect as root"""
         if not VConn.__conn:
             logging.debug("Try opening VConn")
             try:
-                VConn.__conn = libvirt.open(None)  # localhost only
+                VConn.__conn = libvirt.open(None)  # ‘qemu:///system’ by default, lxc:///system available
             except libvirt.libvirtError:
                 raise UlibKVMError("Failed to open connection to the hypervisor")
         return VConn.__conn

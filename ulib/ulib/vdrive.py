@@ -33,5 +33,5 @@ class VDrive(object):
         sp.sp(['guestmount', '-a', self.__path, '-m', vpart, '--ro', self.__mnt2], UlibVDriveError)
 
     def umount(self):
-        if os.path.ismount(self.__path):
-            sp.sp(['guestmount', self.__mnt2], UlibVDriveError)
+        if os.path.ismount(self.__mnt2):
+            sp.sp(['guestunmount', self.__mnt2], UlibVDriveError)

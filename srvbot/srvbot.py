@@ -209,15 +209,9 @@ def main():
     global data, vhost, bot, cmd_acl, alias2cmd, users, help_text  # , user_acl
     # 1. load cfg
     vhost = None
-    try:
-        data = pre.load_cfg('srvbot.json')
-        if data is None:
-            sys.exit("Config not found")
-    except pre.UlibCfgLoadError as e:
-        sys.exit(str(e))
+    data = pre.load_cfg('srvbot.json')
     # 2. setup logger
-    if 'log' in data:
-        log.setLogger(data['log'])
+    log.setLogger(data.get('log'))
     if 'tglog' in data:
         # logger = telebot.logger
         telebot.logger.setLevel(log.LOG_LEVEL[data['tglog']])
