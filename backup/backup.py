@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Backup
+"""Backup.
+Requires: rsync, 7za, zst, gustmount, gustunmount[, dump][, sudo, virsh]
+Requires: python-libvirt (F34, RH8, ~CO7~)[, python-lxc (F34, RH8, ~CO7~)]
 :todo: mail report queue
 :todo: --dry-run
 """
@@ -9,21 +11,31 @@ import datetime
 import logging
 import shutil
 from pathlib import Path
-# 32. rds
-# python-libvirt (F34, RH8, ~CO7~)
-# python-lxc (F34, RH8, ~CO7~)
+# 2. 3rd
 import libvirt
 # 3. local
 from ulib import exc, pre, log, sp, rsync, virt, vdrive
+
 # x. const (TODO: to cfg | default)
 DIR_D = 'daily'
 DIR_W = 'weekly'
 DIR_M = 'monthly'
+WEEK_DAY = 7  # Sun
 OPTS_7Z = ['-t7z', '-m0=lzma', '-mx=9', '-mfb=64', '-md=32m', '-ms=on']
 
 
 class UlibBackupError(exc.UlibTextError):
     name = "Backup"
+
+
+def __is_weekly(d: datetime.date):
+    """Check it's time to weekly"""
+    return d.isoweekday() == WEEK_DAY
+
+
+def __is_monthly(d: datetime.date):
+    """Check it's time to weekly"""
+    return d.isoweekday() == WEEK_DAY and d.day <= 7
 
 
 def __rsync(spath: Path, dpath: Path, by: Path = None) -> bool:
@@ -54,7 +66,7 @@ def __rsync(spath: Path, dpath: Path, by: Path = None) -> bool:
     return True
 
 
-def __7za(spath: Path, dpath: Path, mask: str = '*') -> bool:
+def zip_1c(spath: Path, dpath: Path, mask: str = '*') -> bool:
     """Pack subfolders of given spath into dpath
     :param spath: Abs source path to backup
     :param dpath: Abs dest path ('/…/YYMMDD')
@@ -79,17 +91,26 @@ def __7za(spath: Path, dpath: Path, mask: str = '*') -> bool:
     return True
 
 
-def cpal(spath: Path, dpath: Path):
+def zip_file(sfile: Path, ddir: Path):
+    """Compress a file
+    :param sfile: File to compress
+    :param ddir: Dir to backup to
+    :note: now zstd only
+    """
+    sp.sp(['zstd' '-k', '--output-dir-flat', sfile])
+
+
+def cpal(sdir: Path, ddir: Path):
     """'cp -al src => dst"""
-    sp.sp(['cp', '-al', spath, dpath], UlibBackupError)
+    sp.sp(['cp', '-al', sdir, ddir], UlibBackupError)
 
 
-def rotate_dir(path: Path, size: int) -> bool:
+def rotate_dir(ddir: Path, size: int) -> bool:
     """Rotates folder content by given items"""
-    if not path.is_dir():
-        logging.error(f"Rotate: rotating dir '{path}' not found")
+    if not ddir.is_dir():
+        logging.error(f"Rotate: rotating dir '{ddir}' not found")
         return False
-    for d in sorted(path.iterdir())[:-size]:
+    for d in sorted(ddir.iterdir())[:-size]:
         if not d.is_dir():
             logging.warning(f"Rotate: '{d}' is not dir")
             continue
@@ -97,7 +118,7 @@ def rotate_dir(path: Path, size: int) -> bool:
         # shutil.rmtree(d)
 
 
-def daily(data: dict) -> bool:
+def daily(data: dict, today: datetime.date) -> bool:
     """Daily tasks.
     :todo: lxc guest
     :todo: force backup flag
@@ -108,8 +129,8 @@ def daily(data: dict) -> bool:
     __daily: Path = backup2 / DIR_D
     if not __daily.exists():
         __daily.mkdir()
-    __today: str = datetime.date.today().strftime('%y%m%d')
-    __dpath = __daily / __today
+    __stoday: str = today.strftime('%y%m%d')
+    __dpath = __daily / __stoday
     if __dpath.exists():
         logging.error(f"Dest '{__dpath}' already exists")
         return False
@@ -136,29 +157,38 @@ def daily(data: dict) -> bool:
                     if __type == 'rsync':
                         __rsync(__spath, __dpath, __yesterday)
                     elif __type == '1c7':
-                        __7za(__spath, __dpath, '1[Cc][Vv]7.?[Dd] *.[Dd][Bb][Ff]')
+                        zip_1c(__spath, __dpath, '1[Cc][Vv]7.?[Dd] *.[Dd][Bb][Ff]')
                     elif __type == '1c8':
-                        __7za(__spath, __dpath)
+                        zip_1c(__spath, __dpath)
                     else:
                         logging.warning(f"Unknown type '{__type}' for path {__spath}")
                 __vdrive.umount()
             # TODO: compress weekly/monthly
+            zip_period = vd.get('zip')
+            if zip_period is None:
+                pass
+            elif (zip_period == 'd') or \
+                    (zip_period == 'w' and __is_weekly(today)) or \
+                    (zip_period == 'm' and __is_monthly(today)):
+                zip_file(Path(vd['path']), __dpath)
+            else:
+                logging.warning(f"Unknown 'zip' period for {vd['path']}: {zip_period}")
         # if vstate0 == libvirt.VIR_DOMAIN_RUNNING:
         #     __vhost.Resume()
     return True
 
 
 def main():
-    today = datetime.date.today()
-    stoday = today.strftime('%y%m%d')
     data = pre.load_cfg('backup.json')
     log.setLogger(data.get('log'))
-    if daily(data):  # FIXME: today arg
+    today = datetime.date.today()
+    if daily(data, today):  # FIXME: today arg
         rotate_dir(Path(data['backup2']) / DIR_D, 7)
-        if today.weekday() == 6:  # sun => weekly
+        if __is_weekly(today):
+            stoday = today.strftime('%y%m%d')
             cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_W / stoday)
             rotate_dir(Path(data['backup2']) / DIR_W, 5)
-            if today.day <= 7:  # monthly
+            if __is_monthly(today):
                 cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_M / stoday)
                 rotate_dir(Path(data['backup2']) / DIR_M, data.get('months', 3))
         # rsync_local()

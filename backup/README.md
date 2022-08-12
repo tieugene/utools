@@ -56,12 +56,13 @@
 - [python3-libguestfs](https://libguestfs.org/guestfs-python.3.html) (F36, CO7, CO8)
 
 ## Todo
-- […] __7za &hellip;
+- […] __7za
 - […] rotate_dir
 - […] cpal: CLI
-- [ ] weekly
-- [ ] monthly
-- [ ] compress (daily)
+- […] weekly
+- […] monthly
+- […] zip_file (daily()
+- [ ] dump_self
 - [ ] rsync_local
 - [ ] backup_ftp
 - [ ] backup_yadisk
