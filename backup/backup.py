@@ -1,74 +1,112 @@
 #!/usr/bin/env python3
-"""Backup"""
+"""Backup
+:todo: --dry-run
+"""
 # 1. std
 import os
 import datetime
 import logging
+import shutil
 from pathlib import Path
 # 32. rds
 # python-libvirt (F34, RH8, ~CO7~)
 # python-lxc (F34, RH8, ~CO7~)
 import libvirt
 # 3. local
-from ulib import exc, pre, log, rsync, virt, vdrive
+from ulib import exc, pre, log, sp, rsync, virt, vdrive
 # x. const (TODO: to cfg | default)
 DIR_D = 'daily'
 DIR_W = 'weekly'
 DIR_M = 'monthly'
+OPTS_7Z = ['-t7z', '-m0=lzma', '-mx=9', '-mfb=64', '-md=32m', '-ms=on']
 
 
 class UlibBackupError(exc.UlibTextError):
-    """Config loading exceptions."""
     name = "Backup"
 
 
-def __rsync(spath: Path, dpath: Path, by: Path = None):
-    """rsync
+def __rsync(spath: Path, dpath: Path, by: Path = None) -> bool:
+    """Rsync spath as dppath using by as link-dest
     :param spath: Abs source path to backup
     :param dpath: Abs dest path ('/…/YYMMDD')
     :param by: Abs prev path ('yesterday', '/…/YYMMDD')
+    :return: True on success
     """
-    # chk prev exists
-    # resolve prev against today
-    # print(spath, dpath, by)
     if not spath.is_dir():
-        raise UlibBackupError(f"Source dir '{spath}' not found")
+        logging.error(f"__rsync: Source dir '{spath}' not found")
+        return False
     __tail = spath.name
     __dest = dpath / __tail
     if __dest.exists():
-        raise UlibBackupError(f"Dest '{__dest}' already exists")
+        logging.error(f"Dest '{__dest}' already exists")
+        return False
     opts = ['-axAXH', '--modify-window=1', '--del']
     __prev = by / __tail
     if not __prev.is_dir():
-        logging.warning(f"Prev dir '{__prev}' not found")
+        logging.info(f"Prev dir '{__prev}' not found")
     else:
         opts.append(f"--link-dest={os.path.relpath(__prev, __dest)}")
     opts.extend([str(spath) + '/', str(__dest)])
     dpath.mkdir(exist_ok=True)
     # print(' '.join(cmds))
     rsync.rsync(opts)
+    return True
 
 
-def __7za(spath: Path, dpath: Path):
-    ...
+def __7za(spath: Path, dpath: Path, mask: str = '*') -> bool:
+    """Pack subfolders of given spath into dpath
+    :param spath: Abs source path to backup
+    :param dpath: Abs dest path ('/…/YYMMDD')
+    :param mask: What to pack
+    :return: True on success
+    :todo: partial success
+    """
+    if not spath.is_dir():
+        logging.error(f"7za: Source dir '{spath}' not found")
+        return False
+    for d in spath.iterdir():
+        if not d.is_dir():
+            logging.warning(f"Not a dir: '{d}'")
+            continue
+        cwd = Path.cwd()
+        os.chdir(d)
+        opts = ['7za', 'a'] + OPTS_7Z + [str(dpath / d.name) + '.7za', mask]
+        # print(opts)
+        dpath.mkdir(exist_ok=True)
+        sp.sp(opts, UlibBackupError)
+        os.chdir(cwd)
+    return True
 
 
-def rotate():
-    ...
+def rotate_dir(path: Path, size: int) -> bool:
+    """Rotates folder content by given items"""
+    if not path.is_dir():
+        logging.error(f"Rotate: rotating dir '{path}' not found")
+        return False
+    for d in sorted(path.iterdir())[:-size]:
+        if not d.is_dir():
+            logging.warning(f"Rotate: '{d}' is not dir")
+            continue
+        print(f"Rmtree '{d}'")
+        # shutil.rmtree(d)
 
 
-def daily(data: dict):
+def daily(data: dict) -> bool:
     """Daily tasks.
     :todo: lxc guest
     :todo: force backup flag
+    :todo: umount anyway
     """
     mnt2: Path = Path(data['mnt2'])
     backup2: Path = Path(data['backup2'])  # folder to backup to
     __daily: Path = backup2 / DIR_D
+    if not __daily.exists():
+        __daily.mkdir()
     __today: str = datetime.date.today().strftime('%y%m%d')
     __dpath = __daily / __today
     if __dpath.exists():
-        raise UlibBackupError(f"Dest '{__dpath}' already exists")
+        logging.error(f"Dest '{__dpath}' already exists")
+        return False
     __daily_are = __daily.iterdir()
     __yesterday: Path = sorted(__daily_are)[-1] if __daily_are else None
     for vh in data['vhost']:
@@ -90,7 +128,9 @@ def daily(data: dict):
                     __spath = mnt2 / __sdir
                     if __type == 'rsync':
                         __rsync(__spath, __dpath, __yesterday)
-                    elif __type == '7za':
+                    elif __type == '1c7':
+                        __7za(__spath, __dpath, '1[Cc][Vv]7.?[Dd] *.[Dd][Bb][Ff]')
+                    elif __type == '1c8':
                         __7za(__spath, __dpath)
                     else:
                         logging.warning(f"Unknown type '{__type}' for path {__spath}")
@@ -98,7 +138,7 @@ def daily(data: dict):
             # TODO: compress weekly/monthly
         # if vstate0 == libvirt.VIR_DOMAIN_RUNNING:
         #     __vhost.Resume()
-    # rotate daily
+    rotate_dir(__daily, 7)
 
 
 def weekly():
@@ -115,20 +155,17 @@ def monthly():
 
 def main():
     today = datetime.date.today()
-    # 1. load config
     data = pre.load_cfg('backup.json')
-    # 2. setup logger
     log.setLogger(data.get('log'))
-    # 3. main
-    daily(data)
-    if today.weekday() == 6:  # sun
-        weekly()
-        if today.day <= 7:
-            monthly()
-    # rsync_local()
-    # rsync_remote()
-    # backup_ftp()
-    # backup_yadisk()
+    if daily(data):
+        if today.weekday() == 6:  # sun
+            weekly()
+            if today.day <= 7:
+                monthly()
+        # rsync_local()
+        # rsync_remote()
+        # backup_ftp()
+        # backup_yadisk()
     # email()
 
 
