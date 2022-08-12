@@ -127,7 +127,7 @@ def rotate_dir(ddir: Path, size: int) -> bool:
     return True
 
 
-def rsync_local(data: dict) -> bool:
+def mirror_local(data: dict) -> bool:
     """Duplicate whole backup into sibling drive"""
     mirror = data.get('mirror')
     if mirror is None:
@@ -138,6 +138,10 @@ def rsync_local(data: dict) -> bool:
     cmds = ['rsync', '-aAXH', '--del', data['backup2'] + '/', mnt2 / mirror['dir']]
     sp.sp(cmds, UlibBackupError)
     sp.sp(['umount', data['mnt2']], UlibBackupError)
+    return True
+
+
+def mirror_ftp(data: dict) -> bool:
     return True
 
 
@@ -188,7 +192,7 @@ def daily(data: dict, today: datetime.date) -> bool:
                     else:
                         logging.warning(f"Unknown type '{__type}' for path {__spath}")
                 __vdrive.umount()
-            # TODO: compress weekly/monthly
+            # compress vdrives weekly/monthly
             zip_period = vd.get('zip')
             if zip_period is None:
                 pass
@@ -216,17 +220,18 @@ def main():
     data = pre.load_cfg('backup.json')
     log.setLogger(data.get('log'))
     today = datetime.date.today()
+    backup2 = Path(data['backup2'])
     if daily(data, today):  # FIXME: today arg
         rotate_dir(Path(data['backup2']) / DIR_D, 7)
         if __is_weekly(today):
             stoday = today.strftime('%y%m%d')
-            cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_W / stoday)
-            rotate_dir(Path(data['backup2']) / DIR_W, 5)
+            cpal(backup2 / DIR_D / stoday, backup2 / DIR_W / stoday)
+            rotate_dir(backup2 / DIR_W, 5)
             if __is_monthly(today):
-                cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_M / stoday)
-                rotate_dir(Path(data['backup2']) / DIR_M, data.get('months', 3))
-        rsync_local(data)
-        # backup_ftp()
+                cpal(backup2 / DIR_D / stoday, backup2 / DIR_M / stoday)
+                rotate_dir(backup2 / DIR_M, data.get('months', 3))
+        mirror_local(data)
+        mirror_ftp(data)
     # email()
 
 

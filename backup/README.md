@@ -63,7 +63,9 @@
 - […] monthly
 - […] zip_file
 - […] dump_self
-- [ ] rsync_local
-- [ ] backup_ftp
+- […] mirror_local
+- [ ] mirror_ftp:
+  - py ftplib
+  - fuse + curlftpfs
 - [ ] logging
-- [ ] backup_yadisk
+- [ ] email
