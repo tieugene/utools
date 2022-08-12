@@ -49,10 +49,19 @@
 
 ## RTFM
 
-Надо монтировать для shell.
-
 - [kpartx+mount](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/virtualization/sect-virtualization-troubleshooting_xen-accessing_data_on_guest_disk_image)
 - [qemu-nbd+mount](https://gist.github.com/shamil/62935d9b456a6f9877b5)
 - [kpartx+pysh](https://gist.github.com/sandeep-datta/7375280)
 - [libguestfs-tools:guest[u]mount](https://linuxconfig.org/access-and-modify-virtual-machines-disk-images-with-libguestfs-tools)
 - [python3-libguestfs](https://libguestfs.org/guestfs-python.3.html) (F36, CO7, CO8)
+
+## Todo
+- […] __7za &hellip;
+- […] rotate_dir
+- […] cpal: CLI
+- [ ] weekly
+- [ ] monthly
+- [ ] compress (daily)
+- [ ] rsync_local
+- [ ] backup_ftp
+- [ ] backup_yadisk

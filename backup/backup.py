@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Backup
+:todo: mail report queue
 :todo: --dry-run
 """
 # 1. std
@@ -78,6 +79,11 @@ def __7za(spath: Path, dpath: Path, mask: str = '*') -> bool:
     return True
 
 
+def cpal(spath: Path, dpath: Path):
+    """'cp -al src => dst"""
+    sp.sp(['cp', '-al', spath, dpath], UlibBackupError)
+
+
 def rotate_dir(path: Path, size: int) -> bool:
     """Rotates folder content by given items"""
     if not path.is_dir():
@@ -109,6 +115,7 @@ def daily(data: dict) -> bool:
         return False
     __daily_are = __daily.iterdir()
     __yesterday: Path = sorted(__daily_are)[-1] if __daily_are else None
+    # FIXME: must be < today
     for vh in data['vhost']:
         __vname = vh['name']  # guest registered name
         # # 1. stop vhost
@@ -138,32 +145,23 @@ def daily(data: dict) -> bool:
             # TODO: compress weekly/monthly
         # if vstate0 == libvirt.VIR_DOMAIN_RUNNING:
         #     __vhost.Resume()
-    rotate_dir(__daily, 7)
-
-
-def weekly():
-    """cpal daily + dump/comp + rotate"""
-    # cpal daily
-    # rotate weekly
-
-
-def monthly():
-    """cpall weekly"""
-    # cpal weekly
-    # rotate monthly
+    return True
 
 
 def main():
     today = datetime.date.today()
+    stoday = today.strftime('%y%m%d')
     data = pre.load_cfg('backup.json')
     log.setLogger(data.get('log'))
-    if daily(data):
-        if today.weekday() == 6:  # sun
-            weekly()
-            if today.day <= 7:
-                monthly()
+    if daily(data):  # FIXME: today arg
+        rotate_dir(Path(data['backup2']) / DIR_D, 7)
+        if today.weekday() == 6:  # sun => weekly
+            cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_W / stoday)
+            rotate_dir(Path(data['backup2']) / DIR_W, 5)
+            if today.day <= 7:  # monthly
+                cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_M / stoday)
+                rotate_dir(Path(data['backup2']) / DIR_M, data.get('months', 3))
         # rsync_local()
-        # rsync_remote()
         # backup_ftp()
         # backup_yadisk()
     # email()
