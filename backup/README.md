@@ -65,5 +65,5 @@
 - […] dump_self
 - [ ] rsync_local
 - [ ] backup_ftp
-- [ ] backup_yadisk
 - [ ] logging
+- [ ] backup_yadisk

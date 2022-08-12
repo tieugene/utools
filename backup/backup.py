@@ -127,6 +127,20 @@ def rotate_dir(ddir: Path, size: int) -> bool:
     return True
 
 
+def rsync_local(data: dict) -> bool:
+    """Duplicate whole backup into sibling drive"""
+    mirror = data.get('mirror')
+    if mirror is None:
+        logging.info("Local mirroring not defined")
+        return False
+    mnt2 = Path(data['mnt2'])
+    sp.sp(['mount', mirror['dev'], mnt2], UlibBackupError)
+    cmds = ['rsync', '-aAXH', '--del', data['backup2'] + '/', mnt2 / mirror['dir']]
+    sp.sp(cmds, UlibBackupError)
+    sp.sp(['umount', data['mnt2']], UlibBackupError)
+    return True
+
+
 def daily(data: dict, today: datetime.date) -> bool:
     """Daily tasks.
     :todo: lxc guest
@@ -163,7 +177,7 @@ def daily(data: dict, today: datetime.date) -> bool:
                 __vdrive.mount(vp['dev'])
                 for __dir in vp['dir']:
                     __type = __dir['type']
-                    __sdir = __dir['path']
+                    __sdir = __dir['path']  # FIXME: strip '/'s
                     __spath = mnt2 / __sdir
                     if __type == 'rsync':
                         __rsync(__spath, __dpath, __yesterday)
@@ -211,9 +225,8 @@ def main():
             if __is_monthly(today):
                 cpal(Path(data['backup2']) / DIR_D / stoday, Path(data['backup2']) / DIR_M / stoday)
                 rotate_dir(Path(data['backup2']) / DIR_M, data.get('months', 3))
-        # rsync_local()
+        rsync_local(data)
         # backup_ftp()
-        # backup_yadisk()
     # email()
 
 
