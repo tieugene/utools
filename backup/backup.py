@@ -73,6 +73,7 @@ def zip_1c(spath: Path, dpath: Path, mask: str = '*') -> bool:
     :param mask: What to pack
     :return: True on success
     :todo: partial success
+    :fixme: dst subfolder ([1C]7/8)
     """
     if not spath.is_dir():
         logging.error(f"7za: Source dir '{spath}' not found")
@@ -91,18 +92,25 @@ def zip_1c(spath: Path, dpath: Path, mask: str = '*') -> bool:
     return True
 
 
-def zip_file(sfile: Path, ddir: Path):
+def zip_file(sfile: Path, ddir: Path) -> bool:
     """Compress a file
     :param sfile: File to compress
     :param ddir: Dir to backup to
     :note: now zstd only
     """
-    sp.sp(['zstd' '-k', '--output-dir-flat', sfile])
+    sp.sp(['zstd' '-k', '--output-dir-flat', ddir, sfile])
+    return True
 
 
-def cpal(sdir: Path, ddir: Path):
+def dump_self(ddir: Path) -> bool:
+    sp.sp(['dump', '-0zf', ddir / 'self_root.gz', '/'])
+    return True
+
+
+def cpal(sdir: Path, ddir: Path) -> bool:
     """'cp -al src => dst"""
     sp.sp(['cp', '-al', sdir, ddir], UlibBackupError)
+    return True
 
 
 def rotate_dir(ddir: Path, size: int) -> bool:
@@ -116,6 +124,7 @@ def rotate_dir(ddir: Path, size: int) -> bool:
             continue
         print(f"Rmtree '{d}'")
         # shutil.rmtree(d)
+    return True
 
 
 def daily(data: dict, today: datetime.date) -> bool:
@@ -140,6 +149,8 @@ def daily(data: dict, today: datetime.date) -> bool:
     for vh in data['vhost']:
         __vname = vh['name']  # guest registered name
         # # 1. stop vhost
+        vstate0 = 0
+        __vhost = None
         if os.getuid() == 0:
             logging.debug(f"Try to create vhost {__vname}")
             __vhost = virt.VHost(__vname)
@@ -173,8 +184,17 @@ def daily(data: dict, today: datetime.date) -> bool:
                 zip_file(Path(vd['path']), __dpath)
             else:
                 logging.warning(f"Unknown 'zip' period for {vd['path']}: {zip_period}")
-        # if vstate0 == libvirt.VIR_DOMAIN_RUNNING:
-        #     __vhost.Resume()
+        if os.getuid() == 0 and vstate0 == libvirt.VIR_DOMAIN_RUNNING:
+            __vhost.Resume()
+    dump_period = data.get('dump')
+    if dump_period is None:
+        pass
+    elif (dump_period == 'd') or \
+            (dump_period == 'w' and __is_weekly(today)) or \
+            (dump_period == 'm' and __is_monthly(today)):
+        dump_self(__dpath)
+    else:
+        logging.warning(f"Unknown 'dump' period: {dump_period}")
     return True
 
 
