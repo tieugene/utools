@@ -3,10 +3,10 @@
 # - /usr/lib/systemd/system/ and enable
 [Unit]
 Description=Hourly duplication of remote backups
-After=network.target
+After=network-online.target
 
 [Timer]
-OnCalendar=Hourly
+OnCalendar=hourly
 AccuracySec=30m
 Persistent=true
 
