@@ -61,35 +61,35 @@ class VHost(object):
             raise UlibKVMError("Cannot find vhost '%s' (%s)" % (name, str(e)))
 
     @try_libvirt("Cannot check vhost active")
-    def isActive(self) -> bool:
+    def is_active(self) -> bool:
         """Get vhost active.
         :return: True if active
         """
         return bool(self.__dom.isActive())
 
     @try_libvirt("Cannot get vhost state")
-    def State(self) -> int:
+    def state(self) -> int:
         """Get vhost state.
         :return: 0 if OK
         """
         return self.__dom.state()[0]  # state, reason: [1, 5], [3, 1]
 
     @try_libvirt("Cannot create vhost")
-    def Create(self) -> int:
+    def create(self) -> int:
         """Power on vhost
         :return: 0 if OK
         """
         return self.__dom.create()
 
     @try_libvirt("Cannot destroy vhost")
-    def Destroy(self) -> int:
+    def destroy(self) -> int:
         """Power off vhost (hard)
         :return: 0 if OK
         """
         return self.__dom.destroy()
 
     @try_libvirt("Cannot suspend vhost")
-    def Suspend(self) -> int:
+    def suspend(self) -> int:
         """Suspend vhost.
         :return: 0 if OK
         :todo: flush drives before
@@ -97,28 +97,28 @@ class VHost(object):
         return self.__dom.suspend()
 
     @try_libvirt("Cannot resume vhost")
-    def Resume(self) -> int:
+    def resume(self) -> int:
         """Resume vhost after suspending.
         :return: 0 if OK
         """
         return self.__dom.resume()
 
     @try_libvirt("Cannot shutdown vhost")
-    def ShutDown(self) -> int:
+    def shut_down(self) -> int:
         """Shutdown vhost (soft)
         :return: 0 if OK
         """
         return self.__dom.shutdown()
 
     @try_libvirt("Cannot reboot vhost")
-    def Reboot(self) -> int:
+    def reboot(self) -> int:
         """Reboot vhost (soft)
         :return: 0 if OK
         """
         return self.__dom.reboot()
 
     @try_libvirt("Cannot reset vhost")
-    def Reset(self) -> int:
+    def reset(self) -> int:
         """Reboot vhost (hard)
         :return: 0 if OK
         """
