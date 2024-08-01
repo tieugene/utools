@@ -107,54 +107,54 @@ def on_action(func: callable):
 
 @on_action
 def on_active(__: telebot.types.Message) -> str:
-    return _("Active") + ': ' + ('✗', CHECK)[int(__try_vhost().isActive())]
+    return _("Active") + ': ' + ('✗', CHECK)[int(__try_vhost().is_active())]
 
 
 @on_action
 def on_state(__: telebot.types.Message) -> str:
-    state = __try_vhost().State()
+    state = __try_vhost().state()
     return _("State") + ": %d (%s)" % (state, STATE_NAME[state])
 
 
 @on_action
 def on_create(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().Create()  # 0 if ok
+    retcode = __try_vhost().create()  # 0 if ok
     return _("Power on") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
 def on_destroy(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().Destroy()
+    retcode = __try_vhost().destroy()
     return _("Power off (force)") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
 def on_suspend(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().Suspend()
+    retcode = __try_vhost().suspend()
     return _("Suspend") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
 def on_resume(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().Resume()
+    retcode = __try_vhost().resume()
     return _("Resume") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
 def on_shutdown(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().ShutDown()
+    retcode = __try_vhost().shut_down()
     return _("Power off") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
 def on_reboot(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().Reboot()
+    retcode = __try_vhost().reboot()
     return _("Reboot") + ': ' + (str(retcode) if retcode else CHECK)
 
 
 @on_action
 def on_reset(__: telebot.types.Message) -> str:
-    retcode = __try_vhost().Reset()
+    retcode = __try_vhost().reset()
     return _("Reset") + ': ' + (str(retcode) if retcode else CHECK)
 
 

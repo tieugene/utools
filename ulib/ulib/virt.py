@@ -1,6 +1,6 @@
 """KVM vhost control"""
 # 1. std
-from typing import List, Union
+from typing import List, Union, Optional
 import functools
 import logging
 # 2. 3rd
@@ -16,7 +16,7 @@ class UlibKVMError(exc.UlibTextError):
 
 class VConn:
     """libvirt.virtConnect proxy"""
-    __conn: libvirt.virConnect = None
+    __conn: Optional[libvirt.virConnect] = None
 
     @staticmethod
     def conn() -> libvirt.virConnect:
@@ -51,10 +51,11 @@ def try_libvirt(reason: str):
 
 class VHost(object):
     """libvirt.virtDomain proxy."""
-    __dom: libvirt.virDomain = None
+    __dom: Optional[libvirt.virDomain]
 
     def __init__(self, name: str):
         """:todo: lookupByID(int)"""
+        self.__dom = None
         try:
             self.__dom = VConn.conn().lookupByName(name)
         except libvirt.libvirtError as e:
