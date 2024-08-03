@@ -1,4 +1,6 @@
 """KVM vhost control"""
+# python-libvirt (F34, RH8, ~CO7~)
+# python-lxc (F34, RH8, ~CO7~)
 from enum import IntEnum, unique, auto
 # 1. std
 from typing import List, Union, Optional
