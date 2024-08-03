@@ -34,6 +34,7 @@ STATE_NAME = (
 # var
 data: dict              # loaded config
 bot: telebot.TeleBot    # bot itself
+vconn: virt.VConn
 vhost: virt.VHost       # the vhost what control to
 alias2cmd: dict         # alias:str -> cmd:str
 users: set = set()      # registered users (set[int])
@@ -68,11 +69,20 @@ class CanUse(telebot.custom_filters.SimpleCustomFilter):
         return False
 
 
+def __try_vconn() -> virt.VConn:
+    global vconn
+    if not vconn.opened:
+        logging.debug("Try to open vconn")
+        vconn.open()
+    return vconn
+
+
 def __try_vhost() -> virt.VHost:
-    global vhost
+    global vconn, vhost
     if not vhost:
         logging.debug("Try to create vhost")
-        vhost = virt.VHost(data['vhost'])
+        __try_vconn()
+        vhost = vconn.get_vhost(data['vhost'])
     return vhost
 
 
@@ -160,7 +170,7 @@ def on_reset(__: telebot.types.Message) -> str:
 
 @on_action
 def on_list(__: telebot.types.Message):
-    return "VHosts: %s" % ', '.join(map(str, virt.VConn.list()))
+    return "VHosts: %s" % ', '.join(__try_vconn().list())
 
 
 def on_default(message: telebot.types.Message):
@@ -206,8 +216,9 @@ HANDLERS = {  # cmd => (handler, help)
 
 def main():
     """Main procedure."""
-    global data, vhost, bot, cmd_acl, alias2cmd, users, help_text  # , user_acl
+    global data, vconn, vhost, bot, cmd_acl, alias2cmd, users, help_text  # , user_acl
     # 1. load cfg
+    vconn = virt.VConn()
     vhost = None
     try:
         data = pre.load_cfg('srvbot.json')

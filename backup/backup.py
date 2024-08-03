@@ -8,6 +8,10 @@ import datetime
 # local
 from ulib import pre, log
 
+
+ERRS: str = ''
+
+
 class BackupError(RuntimeError):
     """Basic error"""
     msg: str
@@ -17,72 +21,53 @@ class BackupError(RuntimeError):
         self.msg = msg
 
 
-def vm_start():
-    ...
-
-
-def vm_stop():
-    ...
-
-
-def lxc_start():
-    ...
-
-
-def lxc_stop():
-    ...
-
-
-def guest_mount():
-    """libgustfs-tools-c(guestmount)"""
-    ...
-
-
-def guest_umount():
-    """libgustfs-tools-c(guestmount)"""
-    ...
-
-
-def rsync():
-    """rsync"""
-    ...
-
-
-def rotate():
-    ...
-
-
-def daily():
-    ...
-
-
-def weekly():
-    """cpal daily + dump/comp"""
-    ...
-
-
-def monthly():
-    """cpall weekly"""
-    ...
-
-
-def main():
-    # 1. load config
+def load_cfg() -> bool:
     try:
-        data = pre.load_cfg('backup.json')
+        data = pre.load_cfg('backup.ini')
         if data is None:
             sys.exit("Config not found")
     except pre.UlibCfgLoadError as e:
         sys.exit(str(e))
-    # 2.
-    today = datetime.date.today()
-    daily()
-    if today.weekday() == 6:  # sun
-        weekly()
-        if today.day <= 7:
-            monthly()
-    # rsync_local()
-    # rsync_remote()
-    # backup_ftp()
-    # backup_yadisk()
-    # email()
+
+
+def monthly() -> bool:
+    # std
+    ...
+    # if today.day <= 7:
+    # cpal weekly
+    # rotate
+
+
+def weekly() -> bool:
+    # std
+    ...
+    # if today.weekday == 6
+    # pack vdisks, dump self
+    # cpal daily
+    # rotate
+
+
+def daily() -> bool:
+    # UDF
+    ...
+    # mk dir
+    # connect libvirt
+    # stop vm
+    # mount D:
+    #   backup_dir 1
+    #   backup_dir 2
+    #   backup_1c7
+    #   backup_1c8
+    #   umount
+    # mount E:
+    #   backup_dir 3
+    # start vm
+    # rotate
+
+
+def main():
+    # today = datetime.date.today()
+    if load_cfg():  # std
+        # debug_level = ...
+        result = daily() & weekly() & monthly() & rsync_local()
+        email(result, ERRS)
