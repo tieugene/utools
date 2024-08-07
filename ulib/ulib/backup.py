@@ -1,46 +1,75 @@
 #!/usr/bin/env python3
 """Main file"""
 # 1. std
-import sys
 import pathlib
+from typing import List, Optional
 # 2. 3rd
 import sh
-# 3. local
-import pre
+# local
+from . import exc
 
 
-# import vhost
+class UlibBackupError(exc.UlibError):
+    """Basic error"""
+    msg: str
 
-def load_cfg() -> bool:
-    try:
-        data = pre.load_cfg('backup.ini')
-        if data is None:
-            sys.exit("Config not found")
-    except pre.UlibCfgLoadError as e:
-        sys.exit(str(e))
+    def __init__(self, msg: str):
+        super().__init__(self)
+        self.msg = msg
 
 
-def mk_dir(path: pathlib.Path):
-    # try to create folder if not exists
+def dir_list(path: pathlib.Path) -> List[str]:
+    """
+    :exceptions:
+    - not exists
+    - not folder
+    - access denied
+    """
+    return sorted([x.name for x in path.iterdir()])
+
+
+def dir_mk(path: pathlib.Path):
+    """Create dir (if not exists).
+    :exceptions:
+    - parent not exists
+    - paren is not dir
+    - access denied
+    - exists and is not dir
+    """
     ...
 
 
-def rotate(path: pathlib.Path, count: int):
-    # rotate subfolders
+def dir_rotate(path: pathlib.Path, count: int):
+    """Rotate subfolders.
+    :exceptions:
+    - is not dir
+    - access denied
+    """
     ...
 
 
-def guest_mount():
-    # mount guest disk
+def guest_mount(src: pathlib.Path, dst: pathlib.Path):
+    """Mount guest disk.
+    :exceptions:
+    - ...
+    """
     ...
 
 
-def guest_umount():
-    # umount guest disk
+def guest_umount(mnt: pathlib.Path):
+    """Umount guest disk"""
     ...
 
 
-def rsync_local():
+def mount(src: pathlib.Path, mnt: pathlib.Path):
+    """Mount real device."""
+
+
+def umount(mnt: pathlib.Path):
+    """Umount device."""
+
+
+def rsync_local(dev: str, mnt: str, src: pathlib.Path):
     ...
     # mount dest
     # rsync
@@ -52,37 +81,45 @@ def cpal():
     ...
 
 
-def backup_dir():
+def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[str] = None):
+    """Backup a folder.
+    :exceptions:
+    - src not exists
+    - src is not folder
+    - dst not exists
+    - dst is not folder
+    - subj not exists
+    """
     # rsync -axAXH $addon --modify-window=1 --del --link-dest=
     ...
 
 
-def __backup_1c():
+def __backup_1c(src: pathlib.Path, dst: pathlib.Path, opts: str):
+    """Backup 1C folders."""
     # for each subfolder:
     # 7za
     ...
 
 
-def backup_1c7():
-    # backup1C $1 $2 "1[Cc][Vv]7.?[Dd] *.[Dd][Bb][Ff]"
+def backup_1c7(src: pathlib.Path, dst: pathlib.Path):
+    __backup_1c(src, dst, "1[Cc][Vv]7.?[Dd] *.[Dd][Bb][Ff]")
+
+
+def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
+    __backup_1c(src, dst, "*")
+
+
+def weekly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
     ...
+    # # vhost.poweroff (нельзя; iptables)
+    # # 7za vdisks
+    # # dump self
+    # # poweron
+    # cpal|hardlink daily
+    # dir_rotate
 
 
-def backup_1c8():
-    # backup1C $1 $2 "*"
+def monthly(count: int):
     ...
-
-
-def weekly() -> bool:
-    ...
-    # if today.weekday == 6
-    # pack vdisks, dump self
-    # cpal daily
-    # rotate
-
-
-def monthly() -> bool:
-    ...
-    # if today.day <= 7:
-    # cpal weekly
-    # rotate
+    # cpal|hlink weekly
+    # dir_rotate(count)

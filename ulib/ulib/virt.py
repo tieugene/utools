@@ -12,7 +12,7 @@ import libvirt
 from . import exc
 
 
-class UlibKVMError(exc.UlibTextError):
+class UlibVirtError(exc.UlibTextError):
     """KVM error."""
     name = "Virt"
 
@@ -116,13 +116,21 @@ class VConn:
         self.__conn = None
 
     def open(self) -> bool:
+        """Open libvirtd connection.
+        :exceptions:
+        - libvirt not running
+        - access denied
+        :fixme: always ok
+        """
         if self.__conn is None:
             try:
                 logging.debug("Try to open connection")
                 self.__conn = libvirt.open()  # localhost only
+                logging.debug("Seems connected.")
             except libvirt.libvirtError:
-                raise UlibKVMError("Failed to open connection to the hypervisor")
+                raise UlibVirtError("Failed to open connection to the hypervisor")
             if not self.__conn:
+                logging.debug("Connect is None")
                 self.__conn = None
         return bool(self.__conn)
 
@@ -136,16 +144,27 @@ class VConn:
                 self.__conn = None
 
     def list(self) -> List[str]:
+        """List vhosts.
+        :exceptions:
+        - not connected
+        - access denied
+        """
         try:
             return self.__conn.listDefinedDomains()
         except libvirt.libvirtError:
-            raise UlibKVMError("Failed list vhosts")
+            raise UlibVirtError("Failed list vhosts")
 
     def get_vhost(self, name: str) -> VHost:
+        """
+        :exceptions:
+        - not connected
+        - dom not found
+        - access denied
+        """
         try:
             return VHost(self.__conn.lookupByName(name))
         except libvirt.libvirtError as e:
-            raise UlibKVMError("Cannot find vhost '%s' (%s)" % (name, str(e)))
+            raise UlibVirtError("Cannot find vhost '%s' (%s)" % (name, str(e)))
 
 
 def try_libvirt(reason: str):
@@ -156,6 +175,6 @@ def try_libvirt(reason: str):
             try:
                 return func(ref)
             except libvirt.libvirtError as e:
-                raise UlibKVMError("%s (%s)" % (reason, str(e)))
+                raise UlibVirtError("%s (%s)" % (reason, str(e)))
         return wrapper
     return decorator_try_libvirt
