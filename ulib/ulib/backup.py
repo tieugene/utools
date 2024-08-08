@@ -19,6 +19,14 @@ def dir_exists(path: pathlib.Path) -> bool:
         raise UlibBackupError(str(e)) from e
 
 
+def dir_empty(path: pathlib.Path) -> bool:
+    return not bool(dir_list(path))
+
+
+def dir_rm(path: pathlib.Path):
+    path.rmdir()
+
+
 def dir_list(path: pathlib.Path) -> List[str]:
     """
     :exceptions:
@@ -39,19 +47,28 @@ def dir_list(path: pathlib.Path) -> List[str]:
 def dir_mk(path: pathlib.Path):
     """Create dir [if not exists].
     :exceptions:
-    - [ ] parent not exists
-    - [ ] paren is not dir
-    - [x] access denied
-    - [x] exists
-    - [ ] exists and is not dir
+    - [x] parent not exists (FileNotFoundError)
+    - [x] paren is not dir (NotADirectoryError)
+    - [x] access denied (PermissionError)
+    - [x] exists (FileExistsError)
+    - exists and is not dir
     :todo: if not exists
     """
     try:
         path.mkdir()
+    except FileNotFoundError as e:
+        raise UlibBackupError(str(e)) from e
+    except NotADirectoryError as e:
+        raise UlibBackupError(str(e)) from e
     except FileExistsError as e:
         raise UlibBackupError(str(e)) from e
     except PermissionError as e:
         raise UlibBackupError(str(e)) from e
+
+
+def dir_mounted(path: pathlib.Path) -> bool:
+    # TODO: exceptions
+    return path.is_mount()
 
 
 def dir_rotate(path: pathlib.Path, count: int):
@@ -61,27 +78,6 @@ def dir_rotate(path: pathlib.Path, count: int):
     - access denied
     """
     ...
-
-
-def guest_mount(src: pathlib.Path, dst: pathlib.Path):
-    """Mount guest disk.
-    :exceptions:
-    - ...
-    """
-    ...
-
-
-def guest_umount(mnt: pathlib.Path):
-    """Umount guest disk"""
-    ...
-
-
-def mount(src: pathlib.Path, mnt: pathlib.Path):
-    """Mount real device."""
-
-
-def umount(mnt: pathlib.Path):
-    """Umount device."""
 
 
 def rsync_local(dev: str, mnt: str, src: pathlib.Path):

@@ -8,11 +8,11 @@ import sys
 import traceback
 # 2. 3rds
 # 3. local
-from ulib import exc, log, virt, backup, mail
+from ulib import exc, log, virt, mnt, backup, mail
 
 
 LOG_LEVEL = logging.DEBUG
-DIR_IMG = pathlib.Path('mnt/shares/images')
+DIR_IMG = pathlib.Path('/mnt/shares/images')
 DIR_BACKUP = pathlib.Path('/mnt/shares/backup')
 DIR_BACKUP_D = DIR_BACKUP / 'daily'
 DIR_BACKUP_W = DIR_BACKUP / 'weekly'
@@ -28,26 +28,28 @@ def daily():
     logging.debug("Start daily")
     dir_today = DIR_BACKUP_D / YMD
     if backup.dir_exists(dir_today):
-        # TODO: chk empty => rm
-        logging.info(f"%s already exists.", YMD)
-        return
-    conn = virt.VConn()  # FIXME: always OK; .opened too; .list() is []
-    conn.open()  # TOSO: with
-    # TODO: chk .list() is empty
-    dom = conn.get_vhost('winxp')  # TODO: with
+        if backup.dir_empty(dir_today):
+            logging.debug("Rm")
+            backup.dir_rm(dir_today)
+        else:
+            logging.info(f"%s already exists.", YMD)
+            return
     daylies = backup.dir_list(DIR_BACKUP_D)
     last = daylies[-1] if daylies else None
+    conn = virt.VConn()  # FIXME: always OK; .opened too; .list() is []; TODO: sudo/auth
+    conn.open()  # TOSO: with
+    # TODO: chk .list() is empty
+    # dom = conn.get_vhost('winxp')  # TODO: with
     backup.dir_mk(dir_today)
-    sys.exit()
-    if (state := dom.state()) == virt.DomState.Running:
-        dom.suspend()
-    sys.exit()
-    backup.guest_mount('D')
+    # if (state := dom.state()) == virt.DomState.Running:
+    #    dom.suspend()
+    mnt.mount_guest(DIR_IMG / 'WXP_D.img', 32256, DIR_MNT)
     #   backup_dir 1
     #   backup_dir 2
     #   backup_1c7
     #   backup_1c8
-    #   umount
+    mnt.umount(DIR_MNT)
+    sys.exit()
     # mount E:
     #   backup_dir 3
     # if weekly:
@@ -72,6 +74,7 @@ def main():
         logging.error(e)  # FIXME: trace
         # logging.exception(e)
         # print(traceback.format_exc())
+    # finally: umount
     # mail.send_mail(result, ERRS)
 
 
