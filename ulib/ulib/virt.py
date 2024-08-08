@@ -19,7 +19,7 @@ class UlibVirtError(exc.UlibError):
 
 @unique
 class DomState(IntEnum):
-    No_state = 0
+    No_state = 0  #
     Running = 1
     Blocked = 2
     Paused = 3
@@ -27,6 +27,17 @@ class DomState(IntEnum):
     Shutoff = 5
     Crashed = 6
     Suspended = 7
+
+
+'''
+    libvirt.VIR_DOMAIN_RUNNING: "running",
+    libvirt.VIR_DOMAIN_BLOCKED: "idle",
+    libvirt.VIR_DOMAIN_PAUSED: "paused",
+    libvirt.VIR_DOMAIN_SHUTDOWN: "in shutdown",
+    libvirt.VIR_DOMAIN_SHUTOFF: "shut off",
+    libvirt.VIR_DOMAIN_CRASHED: "crashed",
+    libvirt.VIR_DOMAIN_NOSTATE: "no state",
+'''
 
 
 @unique

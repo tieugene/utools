@@ -1,23 +1,24 @@
 """Rsync wrapper"""
-# 1. std
-import logging
+import pathlib
 import subprocess
+from typing import Optional, Iterable
+
+import sysrsync
+
 # 3. local
 from . import exc
 
 
-class UlibRsyncError(exc.UlibTextError):
-    """Config loading exceptions."""
-    name = "Rsync"
+class UlibRsyncError(exc.UlibError):
+    ...
 
 
-def rsync(cmds: list[str]):
+def rsync_raw(cmds: list[str]):
     """
     run the built rsync command as a subprocess
     :return: True if ok
     :todo: shutil.which('rsync')
     """
-    logging.debug("rsync %s" % ' '.join(cmds))
     cp: subprocess.CompletedProcess = subprocess.run(
         ['rsync'] + cmds,
         capture_output=True,
@@ -25,5 +26,8 @@ def rsync(cmds: list[str]):
     )
     if cp.returncode != 0:
         msg = f"Rsync error ({cp.returncode}): {cp.stderr}"
-        logging.error(msg)
         raise UlibRsyncError(msg)
+
+
+def rsync(src: pathlib.Path, dst: pathlib.Path, opts: Optional[Iterable[str]] = None):
+    sysrsync.run(source=str(src), destination=str(dst), syn_source_content=True, options=opts)

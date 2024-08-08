@@ -5,7 +5,7 @@ from typing import List, Optional
 # 2. 3rd
 import sh
 # local
-from . import exc
+from . import exc, rsync
 
 
 class UlibBackupError(exc.UlibError):
@@ -80,6 +80,10 @@ def dir_rotate(path: pathlib.Path, count: int):
     ...
 
 
+def __rsync(src: pathlib.Path, dst: pathlib.Path, opts: str):
+    ...
+
+
 def rsync_local(dev: str, mnt: str, src: pathlib.Path):
     ...
     # mount dest
@@ -93,20 +97,28 @@ def cpal():
 
 
 def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[str] = None):
-    """Backup a folder.
+    """Backup an NTFS folder.
+    :param: src: windows vdisk root
+    :param: dst: daily root
+    :param: subj: folder to sync
+    :param: prev: folder to --link-dest
+    :note: --link-dest is _exactly_ '../../{prev}/{subj}'
     :exceptions:
-    - src not exists
-    - src is not folder
-    - dst not exists
-    - dst is not folder
-    - subj not exists
+    - [ ] src not exists
+    - [ ] dst not exists
+    - [ ] src/subj not exists
     """
-    # rsync -axAXH $addon --modify-window=1 --del --link-dest=
-    ...
+    # python3-sysrsync (Fx, ~~EL9~~ but)
+    # rsync -axAXH --modify-window=1 --del --link-dest=
+    opts = ['-axAXH', '-modify-window=1', '--del']
+    if prev:
+        opts.append(f"--link-dest=../../{prev}/subj")
+    rsync.rsync(src / subj, dst / subj, opts)
 
 
 def __backup_1c(src: pathlib.Path, dst: pathlib.Path, opts: str):
     """Backup 1C folders."""
+    #
     # for each subfolder:
     # 7za
     ...
@@ -121,6 +133,7 @@ def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
 
 
 def xly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
+    """Handle weekly/monthly"""
     ...
     # cpal|hardlink daily
     # dir_rotate

@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""The main"""
+"""The main.
+:TODO:
+- [ ] backup_dir => rsync
+- [ ] backup_1cX => 7za
+- [ ] pack_vdir => 7za
+- [ ] dump => sh.dump
+- [ ] rsync_local => rsync
+"""
 # 1. std
 import logging
 import pathlib
@@ -8,48 +15,45 @@ import sys
 import traceback
 # 2. 3rds
 # 3. local
-from ulib import exc, log, virt, mnt, backup, mail
+from ulib import exc, log, virt, mnt, backup, rsync, mail
 
 
 LOG_LEVEL = logging.DEBUG
 DIR_IMG = pathlib.Path('/mnt/shares/images')
 DIR_BACKUP = pathlib.Path('/mnt/shares/backup')
-DIR_BACKUP_D = DIR_BACKUP / 'daily'
-DIR_BACKUP_W = DIR_BACKUP / 'weekly'
-DIR_BACKUP_M = DIR_BACKUP / 'monthly'
 DIR_MNT = pathlib.Path('/mnt/tmp')
 WEEKDAY = 6  # sunday; TODO: use .isoweekday() (mon=1, sun=7)
 # vars
+DIR_BACKUP_D = DIR_BACKUP / 'daily'
+DIR_BACKUP_W = DIR_BACKUP / 'weekly'
+DIR_BACKUP_M = DIR_BACKUP / 'monthly'
 TODAY = datetime.date.today()
 YMD = TODAY.strftime('%y%m%d')
+DIR_BACKUP_2DAY = DIR_BACKUP_D / YMD
 
 
 def daily():
     logging.debug("Start daily")
-    dir_today = DIR_BACKUP_D / YMD
-    if backup.dir_exists(dir_today):
-        if backup.dir_empty(dir_today):
+    if backup.dir_exists(DIR_BACKUP_2DAY):
+        if backup.dir_empty(DIR_BACKUP_2DAY):
             logging.debug("Rm")
-            backup.dir_rm(dir_today)
+            backup.dir_rm(DIR_BACKUP_2DAY)
         else:
             logging.info(f"%s already exists.", YMD)
             return
-    daylies = backup.dir_list(DIR_BACKUP_D)
-    last = daylies[-1] if daylies else None
-    conn = virt.VConn()  # FIXME: always OK; .opened too; .list() is []; TODO: sudo/auth
-    conn.open()  # TOSO: with
-    # TODO: chk .list() is empty
+    dailies = backup.dir_list(DIR_BACKUP_D)
+    prev = dailies[-1] if dailies else None
+    conn = virt.VConn()
+    conn.open()  # TODO: with
     # dom = conn.get_vhost('winxp')  # TODO: with
-    backup.dir_mk(dir_today)
+    backup.dir_mk(DIR_BACKUP_2DAY)
     # if (state := dom.state()) == virt.DomState.Running:
     #    dom.suspend()
     mnt.mount_guest(DIR_IMG / 'WXP_D.img', 32256, DIR_MNT)
-    #   backup_dir 1
-    #   backup_dir 2
+    backup.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
     #   backup_1c7
     #   backup_1c8
     mnt.umount(DIR_MNT)
-    sys.exit()
     # mount E:
     #   backup_dir 3
     # if weekly:
@@ -57,8 +61,9 @@ def daily():
     #   dump self
     # if state == virt.DomState.Running:
     #   start vm
-    # conn.close()
+    conn.close()
     # dir_rotate(8)
+    sys.exit()
 
 
 def main():
