@@ -5,7 +5,7 @@ from typing import List, Optional
 # 2. 3rd
 import sh
 # local
-from . import exc, rsync
+from . import exc, rsync, mnt
 
 
 class UlibBackupError(exc.UlibError):
@@ -20,10 +20,33 @@ def dir_exists(path: pathlib.Path) -> bool:
 
 
 def dir_empty(path: pathlib.Path) -> bool:
+    """Chrck folder is empty.
+    :exceptions:
+    - [ ] not exists
+    - [ ] not folder
+    - [ ] access denied
+    """
     return not bool(dir_list(path))
 
 
+def dir_mounted(path: pathlib.Path) -> bool:
+    """Check folder is mount.
+    :exceptions:
+    - [ ] not exists
+    - [ ] not folder
+    - [ ] access denied
+    """
+    return path.is_mount()
+
+
 def dir_rm(path: pathlib.Path):
+    """Remove folder.
+    :exceptions:
+    - [ ] not exists
+    - [ ] not folder
+    - [ ] not empty (?)
+    - [ ] access denied
+    """
     path.rmdir()
 
 
@@ -66,34 +89,33 @@ def dir_mk(path: pathlib.Path):
         raise UlibBackupError(str(e)) from e
 
 
-def dir_mounted(path: pathlib.Path) -> bool:
-    # TODO: exceptions
-    return path.is_mount()
-
-
+# ----
 def dir_rotate(path: pathlib.Path, count: int):
     """Rotate subfolders.
     :exceptions:
     - is not dir
     - access denied
     """
+    # sh.rmdir -r
     ...
-
-
-def __rsync(src: pathlib.Path, dst: pathlib.Path, opts: str):
-    ...
-
-
-def rsync_local(dev: str, mnt: str, src: pathlib.Path):
-    ...
-    # mount dest
-    # rsync
-    # umount
 
 
 def cpal():
-    # cp -al | mk hardlink
+    # sh.cp -al
     ...
+
+
+def xly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
+    """Handle weekly/monthly"""
+    ...
+    # cpal src / ymd => dst / ymd
+    # dir_rotate(dst, count)
+
+
+def rsync_local(dev: pathlib.Path, dst: pathlib.Path, src: pathlib.Path):
+    mnt.mount(dev, dst)
+    rsync.rsync(src, dst / src.name, ['-azAXH', '--del'])
+    mnt.umount(dst)
 
 
 def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[str] = None):
@@ -108,8 +130,6 @@ def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[s
     - [ ] dst not exists
     - [ ] src/subj not exists
     """
-    # python3-sysrsync (Fx, ~~EL9~~ but)
-    # rsync -axAXH --modify-window=1 --del --link-dest=
     opts = ['-axAXH', '-modify-window=1', '--del']
     if prev:
         opts.append(f"--link-dest=../../{prev}/subj")
@@ -120,7 +140,7 @@ def __backup_1c(src: pathlib.Path, dst: pathlib.Path, opts: str):
     """Backup 1C folders."""
     #
     # for each subfolder:
-    # 7za
+    #   7za
     ...
 
 
@@ -129,11 +149,4 @@ def backup_1c7(src: pathlib.Path, dst: pathlib.Path):
 
 
 def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
-    __backup_1c(src, dst, "*")
-
-
-def xly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
-    """Handle weekly/monthly"""
-    ...
-    # cpal|hardlink daily
-    # dir_rotate
+    __backup_1c(src, dst, "*")  # FIXME: 1Cv8.1CD

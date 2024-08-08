@@ -12,16 +12,15 @@ class UlibMntError(exc.UlibError):
 
 
 def mount_guest(src: pathlib.Path, off: int, mnt: pathlib.Path):
-    """Mount guest disk.
-    # mount -o loop,ro,offset=$2 $IMAGES/$1 $MNTDIR
-    :exceptions:
-    - ...
-    """
-    mount(src, mnt, f"loop,ro,offset={off}")
+    """Mount NTFS guest disk."""
+    mount(src, mnt, f"loop,ro,fmask=111,offset={off}")
 
 
 def mount(src: pathlib.Path, mnt: pathlib.Path, opts: Optional[str] = None):
-    """Mount real device."""
+    """Mount real device.
+    :exceptions:
+    - ...
+    """
     logging.debug("Mount %s => %s with %s", str(src), str(mnt), opts)
     try:
         ctx = libmount.Context()
@@ -35,7 +34,10 @@ def mount(src: pathlib.Path, mnt: pathlib.Path, opts: Optional[str] = None):
 
 
 def umount(mnt: pathlib.Path):
-    """Umount device."""
+    """Umount device.
+    :exceptions:
+    - ...
+    """
     ctx = libmount.Context()
     ctx.target = str(mnt)
     ctx.umount()

@@ -3,7 +3,7 @@ import pathlib
 import subprocess
 from typing import Optional, Iterable
 
-import sysrsync
+import sysrsync  # Fx ok, ~~EL9~~ - handmade
 
 # 3. local
 from . import exc

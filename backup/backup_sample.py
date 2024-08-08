@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """The main.
 :TODO:
-- [ ] backup_dir => rsync
+- [...] backup_dir => rsync
 - [ ] backup_1cX => 7za
 - [ ] pack_vdir => 7za
 - [ ] dump => sh.dump
-- [ ] rsync_local => rsync
+- [...] rsync_local => rsync
+- [ ] force mode
 """
 # 1. std
 import logging
@@ -36,20 +37,19 @@ def daily():
     logging.debug("Start daily")
     if backup.dir_exists(DIR_BACKUP_2DAY):
         if backup.dir_empty(DIR_BACKUP_2DAY):
-            logging.debug("Rm")
+            logging.debug("Rm %s", DIR_BACKUP_2DAY)
             backup.dir_rm(DIR_BACKUP_2DAY)
         else:
             logging.info(f"%s already exists.", YMD)
             return
-    dailies = backup.dir_list(DIR_BACKUP_D)
-    prev = dailies[-1] if dailies else None
+    prev = dailies[-1] if (dailies := backup.dir_list(DIR_BACKUP_D)) else None
     conn = virt.VConn()
     conn.open()  # TODO: with
-    # dom = conn.get_vhost('winxp')  # TODO: with
+    # dom = conn.get_vhost('win7')  # TODO: with
     backup.dir_mk(DIR_BACKUP_2DAY)
     # if (state := dom.state()) == virt.DomState.Running:
     #    dom.suspend()
-    mnt.mount_guest(DIR_IMG / 'WXP_D.img', 32256, DIR_MNT)
+    mnt.mount_guest(DIR_IMG / 'W7_D.img', 1048576, DIR_MNT)
     backup.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
     #   backup_1c7
     #   backup_1c8
@@ -62,7 +62,7 @@ def daily():
     # if state == virt.DomState.Running:
     #   start vm
     conn.close()
-    # dir_rotate(8)
+    # dir_rotate(DIR_BACKUP_D, 8)
     sys.exit()
 
 
@@ -74,7 +74,7 @@ def main():
             backup.xly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)
             if TODAY.day < 7:  # monthly; FIXME: last sat of mon
                 backup.xly(DIR_BACKUP_W, DIR_BACKUP_M, YMD, 6)
-        # backup.rsync_local()
+        # backup.rsync_local(pathlib.Path('/dev/sdb2'), DIR_MNT, DIR_BACKUP)
     except exc.UlibError as e:
         logging.error(e)  # FIXME: trace
         # logging.exception(e)
