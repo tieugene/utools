@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Main file"""
 # 1. std
 import pathlib
@@ -10,33 +9,49 @@ from . import exc
 
 
 class UlibBackupError(exc.UlibError):
-    """Basic error"""
-    msg: str
+    ...
 
-    def __init__(self, msg: str):
-        super().__init__(self)
-        self.msg = msg
+
+def dir_exists(path: pathlib.Path) -> bool:
+    try:
+        return path.exists()
+    except PermissionError as e:
+        raise UlibBackupError(str(e)) from e
 
 
 def dir_list(path: pathlib.Path) -> List[str]:
     """
     :exceptions:
-    - not exists
-    - not folder
-    - access denied
+    - [x] not exists
+    - [x] not folder
+    - [x] access denied
     """
-    return sorted([x.name for x in path.iterdir()])
+    try:
+        return sorted([x.name for x in path.iterdir()])
+    except FileNotFoundError as e:
+        raise UlibBackupError(str(e)) from e
+    except NotADirectoryError as e:
+        raise UlibBackupError(str(e)) from e
+    except PermissionError as e:
+        raise UlibBackupError(str(e)) from e
 
 
 def dir_mk(path: pathlib.Path):
-    """Create dir (if not exists).
+    """Create dir [if not exists].
     :exceptions:
-    - parent not exists
-    - paren is not dir
-    - access denied
-    - exists and is not dir
+    - [ ] parent not exists
+    - [ ] paren is not dir
+    - [x] access denied
+    - [x] exists
+    - [ ] exists and is not dir
+    :todo: if not exists
     """
-    ...
+    try:
+        path.mkdir()
+    except FileExistsError as e:
+        raise UlibBackupError(str(e)) from e
+    except PermissionError as e:
+        raise UlibBackupError(str(e)) from e
 
 
 def dir_rotate(path: pathlib.Path, count: int):
@@ -109,17 +124,7 @@ def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
     __backup_1c(src, dst, "*")
 
 
-def weekly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
+def xly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
     ...
-    # # vhost.poweroff (нельзя; iptables)
-    # # 7za vdisks
-    # # dump self
-    # # poweron
     # cpal|hardlink daily
     # dir_rotate
-
-
-def monthly(count: int):
-    ...
-    # cpal|hlink weekly
-    # dir_rotate(count)

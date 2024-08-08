@@ -5,9 +5,10 @@ import logging
 import pathlib
 import datetime
 import sys
+import traceback
 # 2. 3rds
 # 3. local
-from ulib import log, virt, backup, mail
+from ulib import exc, log, virt, backup, mail
 
 
 LOG_LEVEL = logging.DEBUG
@@ -26,20 +27,21 @@ YMD = TODAY.strftime('%y%m%d')
 def daily():
     logging.debug("Start daily")
     dir_today = DIR_BACKUP_D / YMD
-    if dir_today.exists():
-        # TODO: chk empty
+    if backup.dir_exists(dir_today):
+        # TODO: chk empty => rm
         logging.info(f"%s already exists.", YMD)
-        return True
-    conn = virt.VConn()
-    res = conn.open()  # FIXME: always OK (.opened); .list() is []
-    dom = conn.get_vhost('winxp')
-    state = dom.state()
-    sys.exit()
-    dailies = backup.dir_list(DIR_BACKUP_D)
-    last = dailies[-1] if dailies else None
+        return
+    conn = virt.VConn()  # FIXME: always OK; .opened too; .list() is []
+    conn.open()  # TOSO: with
+    # TODO: chk .list() is empty
+    dom = conn.get_vhost('winxp')  # TODO: with
+    daylies = backup.dir_list(DIR_BACKUP_D)
+    last = daylies[-1] if daylies else None
     backup.dir_mk(dir_today)
-    if state == virt.DomState.Running:
+    sys.exit()
+    if (state := dom.state()) == virt.DomState.Running:
         dom.suspend()
+    sys.exit()
     backup.guest_mount('D')
     #   backup_dir 1
     #   backup_dir 2
@@ -61,13 +63,15 @@ def main():
     logging.basicConfig(level=LOG_LEVEL)
     try:
         daily()
-        if TODAY.weekday() == WEEKDAY:
-            backup.weekly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)  # == hlink+rotate
-            if TODAY.day < 7:
-                backup.monthly()  # == hlink+rotate
-        backup.rsync_local()
-    except (backup.UlibBackupError, virt.UlibVirtError) as e:
-        logging.error(e)
+        if TODAY.weekday() == WEEKDAY:  # weekly
+            backup.xly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)
+            if TODAY.day < 7:  # monthly; FIXME: last sat of mon
+                backup.xly(DIR_BACKUP_W, DIR_BACKUP_M, YMD, 6)
+        # backup.rsync_local()
+    except exc.UlibError as e:
+        logging.error(e)  # FIXME: trace
+        # logging.exception(e)
+        # print(traceback.format_exc())
     # mail.send_mail(result, ERRS)
 
 

@@ -1,20 +1,20 @@
 """KVM vhost control"""
 # python-libvirt (F34, RH8, ~CO7~)
 # python-lxc (F34, RH8, ~CO7~)
-from enum import IntEnum, unique, auto
 # 1. std
 from typing import List, Union, Optional
+from enum import IntEnum, unique, auto
 import functools
 import logging
 # 2. 3rd
 import libvirt
 # 3. local
+# from .exc import UlibError  # err
 from . import exc
 
 
-class UlibVirtError(exc.UlibTextError):
-    """KVM error."""
-    name = "Virt"
+class UlibVirtError(exc.UlibError):
+    ...
 
 
 @unique
@@ -127,8 +127,8 @@ class VConn:
                 logging.debug("Try to open connection")
                 self.__conn = libvirt.open()  # localhost only
                 logging.debug("Seems connected.")
-            except libvirt.libvirtError:
-                raise UlibVirtError("Failed to open connection to the hypervisor")
+            except libvirt.libvirtError as e:
+                raise UlibVirtError from e
             if not self.__conn:
                 logging.debug("Connect is None")
                 self.__conn = None
@@ -151,8 +151,8 @@ class VConn:
         """
         try:
             return self.__conn.listDefinedDomains()
-        except libvirt.libvirtError:
-            raise UlibVirtError("Failed list vhosts")
+        except libvirt.libvirtError as e:
+            raise UlibVirtError from e
 
     def get_vhost(self, name: str) -> VHost:
         """
@@ -164,7 +164,7 @@ class VConn:
         try:
             return VHost(self.__conn.lookupByName(name))
         except libvirt.libvirtError as e:
-            raise UlibVirtError("Cannot find vhost '%s' (%s)" % (name, str(e)))
+            raise UlibVirtError from e
 
 
 def try_libvirt(reason: str):
@@ -175,6 +175,6 @@ def try_libvirt(reason: str):
             try:
                 return func(ref)
             except libvirt.libvirtError as e:
-                raise UlibVirtError("%s (%s)" % (reason, str(e)))
+                raise UlibVirtError from e
         return wrapper
     return decorator_try_libvirt
