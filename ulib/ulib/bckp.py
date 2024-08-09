@@ -5,7 +5,7 @@ from typing import List, Optional
 # 2. 3rd
 import sh
 # 3. local
-from . import exc, rsync, mnt
+from . import exc, rsync, mnt, pack
 
 
 class UlibBackupError(exc.UlibError):
@@ -144,7 +144,10 @@ def __backup_1c(src: pathlib.Path, dst: pathlib.Path, opts: str):
 
 
 def backup_1c7(src: pathlib.Path, dst: pathlib.Path):
-    __backup_1c(src, dst, "1[Cc][Vv]7.?[Dd] *.[Dd][Bb][Ff]")
+    for d in src.iterdir():
+        if not d.is_dir():
+            continue
+        pack.pack_dir(d, dst, ('*.md', '*.dd', '*.dbf'))
 
 
 def backup_1c8(src: pathlib.Path, dst: pathlib.Path):

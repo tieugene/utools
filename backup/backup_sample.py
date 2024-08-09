@@ -2,7 +2,7 @@
 """The main.
 :TODO:
 - [..] backup_dir (=> rsync)
-- [.] backup_1c7 => zipfile
+- [..] backup_1c7 => zipfile
 - [ ] backup_1cv8 => zstd(file), gz
 - [ ] pack_vdrive => zstd(file); python3-zstandard
 - [ ] dump => sh.dump
@@ -60,7 +60,8 @@ def daily():
     #    dom.suspend()
     mnt.mount_guest(DIR_IMG / 'W7_D.img', 1048576, DIR_MNT)
     bckp.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
-    #   backup_1c7
+    bckp.dir_mk(DIR_BACKUP_2DAY / '1C')
+    bckp.backup_1c7(DIR_BACKUP / '1C' / '7', DIR_BACKUP_2DAY / '1C')
     #   backup_1c8
     mnt.umount(DIR_MNT)
     # mount E:
