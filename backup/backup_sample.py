@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """The main.
 :TODO:
-- [...] backup_dir (=> rsync)
-- [ ] backup_1c7 => 7za/zipfile/tar
-- [ ] backup_1cv8 => zstd(file)
+- [..] backup_dir (=> rsync)
+- [.] backup_1c7 => zipfile
+- [ ] backup_1cv8 => zstd(file), gz
 - [ ] pack_vdrive => zstd(file); python3-zstandard
 - [ ] dump => sh.dump
 - [ ] backup.dir_rotate
@@ -25,7 +25,7 @@ import sys
 import traceback
 # 2. 3rds
 # 3. local
-from ulib import exc, log, virt, mnt, backup, rsync, mail
+from ulib import exc, log, virt, mnt, bckp, rsync, mail
 
 
 LOG_LEVEL = logging.DEBUG
@@ -44,22 +44,22 @@ DIR_BACKUP_2DAY = DIR_BACKUP_D / YMD
 
 def daily():
     logging.debug("Start daily")
-    if backup.dir_exists(DIR_BACKUP_2DAY):
-        if backup.dir_empty(DIR_BACKUP_2DAY):
+    if bckp.dir_exists(DIR_BACKUP_2DAY):
+        if bckp.dir_empty(DIR_BACKUP_2DAY):
             logging.debug("Rm %s", DIR_BACKUP_2DAY)
-            backup.dir_rm(DIR_BACKUP_2DAY)
+            bckp.dir_rm(DIR_BACKUP_2DAY)
         else:
             logging.info(f"%s already exists.", YMD)
             return
-    prev = dailies[-1] if (dailies := backup.dir_list(DIR_BACKUP_D)) else None
+    prev = dailies[-1] if (dailies := bckp.dir_list(DIR_BACKUP_D)) else None
     conn = virt.VConn()
     conn.open()  # TODO: with
     # dom = conn.get_vhost('win7')  # TODO: with
-    backup.dir_mk(DIR_BACKUP_2DAY)
+    bckp.dir_mk(DIR_BACKUP_2DAY)
     # if (state := dom.state()) == virt.DomState.Running:
     #    dom.suspend()
     mnt.mount_guest(DIR_IMG / 'W7_D.img', 1048576, DIR_MNT)
-    backup.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
+    bckp.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
     #   backup_1c7
     #   backup_1c8
     mnt.umount(DIR_MNT)
@@ -80,9 +80,9 @@ def main():
     try:
         daily()
         if TODAY.weekday() == WEEKDAY:  # weekly
-            backup.xly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)
+            bckp.xly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)
             if TODAY.day < 7:  # monthly; FIXME: last sat of mon
-                backup.xly(DIR_BACKUP_W, DIR_BACKUP_M, YMD, 6)
+                bckp.xly(DIR_BACKUP_W, DIR_BACKUP_M, YMD, 6)
         # backup.rsync_local(pathlib.Path('/dev/sdb2'), DIR_MNT, DIR_BACKUP)
     except exc.UlibError as e:
         logging.error(e)  # FIXME: trace
