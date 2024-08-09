@@ -13,6 +13,7 @@ class UlibBackupError(exc.UlibError):
 
 
 # TODO: class MyPath(patlib.Path)
+# TODO: with path == os.getcwd()+os.chdir()...+os.chdir
 def dir_exists(path: pathlib.Path) -> bool:
     try:
         return path.exists()
@@ -101,7 +102,7 @@ def dir_rotate(path: pathlib.Path, count: int):
     ...
 
 
-def cpal():
+def __cpal():
     # sh.cp -al
     ...
 
@@ -126,6 +127,7 @@ def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[s
     :param: subj: folder to sync
     :param: prev: folder to --link-dest
     :note: --link-dest is _exactly_ '../../{prev}/{subj}'
+    :todo: rm xtra attrs (owner, rights etc: -a==)
     """
     opts = ['-axAXH', '--modify-window=1', '--del']
     if prev:
