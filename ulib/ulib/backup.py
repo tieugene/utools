@@ -97,7 +97,7 @@ def dir_rotate(path: pathlib.Path, count: int):
     - is not dir
     - access denied
     """
-    # sh.rmdir -r
+    # sh.rmdir -rf
     ...
 
 
@@ -126,14 +126,10 @@ def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[s
     :param: subj: folder to sync
     :param: prev: folder to --link-dest
     :note: --link-dest is _exactly_ '../../{prev}/{subj}'
-    :exceptions:
-    - [ ] src not exists
-    - [ ] dst not exists
-    - [ ] src/subj not exists
     """
-    opts = ['-axAXH', '-modify-window=1', '--del']
+    opts = ['-axAXH', '--modify-window=1', '--del']
     if prev:
-        opts.append(f"--link-dest=../../{prev}/subj")
+        opts.append(f"--link-dest=../../{prev}/{subj}")
     rsync.rsync(src / subj, dst / subj, opts)
 
 

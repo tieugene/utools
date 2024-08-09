@@ -38,6 +38,7 @@ def umount(mnt: pathlib.Path):
     :exceptions:
     - ...
     """
+    # TODO: if mount
     ctx = libmount.Context()
     ctx.target = str(mnt)
     ctx.umount()

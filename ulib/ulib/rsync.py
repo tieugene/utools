@@ -4,6 +4,7 @@ import subprocess
 from typing import Optional, Iterable
 
 import sysrsync  # Fx ok, ~~EL9~~ - handmade
+import sysrsync.exceptions
 
 # 3. local
 from . import exc
@@ -29,5 +30,17 @@ def rsync_raw(cmds: list[str]):
         raise UlibRsyncError(msg)
 
 
-def rsync(src: pathlib.Path, dst: pathlib.Path, opts: Optional[Iterable[str]] = None):
-    sysrsync.run(source=str(src), destination=str(dst), syn_source_content=True, options=opts)
+def rsync(src: pathlib.Path, dst: pathlib.Path, opts: Iterable[str]):
+    """:exceptions:
+    - [x] src not exists (RsyncError)
+    - [ ] src is not folder (no effect if dst exists)
+    - [x] src access denied (RsyncError)
+    - [x] dst parent not exists (RsyncError)
+    - [x] dst parent is not folder (RsyncError)
+    - [x] dst [parent] access denied (RsyncError)
+    - [x] dst is file (RsyncError)
+    """
+    try:
+        sysrsync.run(source=str(src), destination=str(dst), options=opts)
+    except sysrsync.exceptions.RsyncError as e:
+        raise UlibRsyncError(str(e)) from e

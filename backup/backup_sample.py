@@ -6,7 +6,7 @@
 - [ ] backup_1cv8 => zstd(file)
 - [ ] pack_vdrive => zstd(file); python3-zstandard
 - [ ] dump => sh.dump
-- [...] rsync_local => mount+rsync
+- [ ] rsync_local => mount+rsync
 - [ ] __force mode__
 :note: [copy_stream](https://python-zstandard.readthedocs.io/en/latest/compressor.html)
 Test compress 1Cv8.1CD 1.2GB:
