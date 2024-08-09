@@ -2,11 +2,18 @@
 """The main.
 :TODO:
 - [...] backup_dir => rsync
-- [ ] backup_1cX => 7za
-- [ ] pack_vdir => 7za
+- [ ] backup_1c7 => 7za/zipfile/tar
+- [ ] backup_1cv8 => zstd(file)
+- [ ] pack_vdrive => zstd(file); python3-zstandard
 - [ ] dump => sh.dump
-- [...] rsync_local => rsync
-- [ ] force mode
+- [...] rsync_local => mount+rsync
+- [ ] __force mode__
+:note: [copy_stream](https://python-zstandard.readthedocs.io/en/latest/compressor.html)
+Test compress 1Cv8.1CD 1.2GB:
+- 7z: 123", 359MiB
+- zstd: 5", 373MiB
+- pigz: 11", 379MiB
+- Full.7z: 410MiB
 """
 # 1. std
 import logging

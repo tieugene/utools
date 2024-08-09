@@ -1,2 +1,3 @@
 /_tmp/
-ulib/
+/ulib/
+/try_*.py

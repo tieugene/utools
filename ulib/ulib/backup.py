@@ -4,7 +4,7 @@ import pathlib
 from typing import List, Optional
 # 2. 3rd
 import sh
-# local
+# 3. local
 from . import exc, rsync, mnt
 
 
@@ -12,6 +12,7 @@ class UlibBackupError(exc.UlibError):
     ...
 
 
+# TODO: class MyPath(patlib.Path)
 def dir_exists(path: pathlib.Path) -> bool:
     try:
         return path.exists()
