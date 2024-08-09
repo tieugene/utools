@@ -135,15 +135,11 @@ def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[s
     rsync.rsync(src / subj, dst / subj, opts)
 
 
-def __backup_1c(src: pathlib.Path, dst: pathlib.Path, opts: str):
-    """Backup 1C folders."""
-    #
-    # for each subfolder:
-    #   7za
-    ...
-
-
 def backup_1c7(src: pathlib.Path, dst: pathlib.Path):
+    """
+    :param src: Source folder with 1c7 folders
+    :param dst: Destination folder
+    """
     for d in src.iterdir():
         if not d.is_dir():
             continue
@@ -151,4 +147,11 @@ def backup_1c7(src: pathlib.Path, dst: pathlib.Path):
 
 
 def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
-    __backup_1c(src, dst, "*")  # FIXME: 1Cv8.1CD
+    for d in src.iterdir():
+        if not d.is_dir():
+            continue
+        files = list(d.glob('1Cv8.1CD', case_sensitive=False))
+        if not files:
+            continue
+        file = files[0]
+        pack.pack_file(file, dst / (d.name + '.' + file.name))

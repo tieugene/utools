@@ -4,6 +4,8 @@ import pathlib
 import zipfile
 from typing import Iterable
 
+import zstandard
+
 
 def pack_dir(src: pathlib.Path, dst: pathlib.Path, files: Iterable[str]):
     """Pack files into zip-file.
@@ -24,4 +26,10 @@ def pack_dir(src: pathlib.Path, dst: pathlib.Path, files: Iterable[str]):
 
 
 def pack_file(src: pathlib.Path, dst: pathlib.Path):
-    """Pack file into file."""
+    """Pack file into file.
+    :param src: Source file
+    :param dst: Destination file w/o ext
+    """
+    print(f"Pack {src} into {dst}.zst")
+    with open(str(src), "rb") as ifh, open(str(dst) + '.zst', "wb") as ofh:
+        zstandard.ZstdCompressor().copy_stream(ifh, ofh)

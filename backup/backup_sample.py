@@ -3,7 +3,7 @@
 :TODO:
 - [..] backup_dir (=> rsync)
 - [..] backup_1c7 => zipfile
-- [ ] backup_1cv8 => zstd(file), gz
+- [..] backup_1cv8 => zstd(file), gz
 - [ ] pack_vdrive => zstd(file); python3-zstandard
 - [ ] dump => sh.dump
 - [ ] backup.dir_rotate
