@@ -1,6 +1,7 @@
 """Main file"""
 # 1. std
 import pathlib
+import shutil
 from typing import List, Optional
 # 2. 3rd
 import sh
@@ -41,7 +42,7 @@ def dir_mounted(path: pathlib.Path) -> bool:
     return path.is_mount()
 
 
-def dir_rm(path: pathlib.Path):
+def dir_rm(path: pathlib.Path, recur: bool = False):
     """Remove folder.
     :exceptions:
     - [ ] not exists
@@ -49,7 +50,10 @@ def dir_rm(path: pathlib.Path):
     - [ ] not empty (?)
     - [ ] access denied
     """
-    path.rmdir()
+    if recur:
+        shutil.rmtree(str(path))
+    else:
+        path.rmdir()
 
 
 def dir_list(path: pathlib.Path) -> List[str]:
@@ -92,26 +96,25 @@ def dir_mk(path: pathlib.Path):
 
 
 # ----
+def dump_self(dst_f: pathlib.Path):
+    # dump -0 -z -f $BACKUPDIR/$DAILY/$TODAY/vms_root.gz / > /dev/null
+    sh.dump('-0', '-z', '-f', str(dst_f.with_suffix('gz')), '/')
+
+
 def dir_rotate(path: pathlib.Path, count: int):
-    """Rotate subfolders.
-    :exceptions:
-    - is not dir
-    - access denied
-    """
-    # sh.rmdir -rf
-    ...
+    """Rotate subfolders."""
+    for d in sorted(list(path.iterdir()))[:-count]:
+        dir_rm(d, recur=True)
 
 
-def __cpal():
-    # sh.cp -al
-    ...
+def __cpal(src_d: pathlib.Path, dst_d: pathlib.Path, subj: str):
+    sh.cp('-al', str(src_d / subj), str(dst_d / subj))
 
 
 def xly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
     """Handle weekly/monthly"""
-    ...
-    # cpal src / ymd => dst / ymd
-    # dir_rotate(dst, count)
+    __cpal(src, dst, ymd)
+    dir_rotate(dst, count)
 
 
 def rsync_local(dev: pathlib.Path, dst: pathlib.Path, src: pathlib.Path):
@@ -155,3 +158,8 @@ def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
             continue
         file = files[0]
         pack.pack_file(file, dst / (d.name + '.' + file.name))
+
+
+def backup_vdrive(src_f: pathlib.Path, dst_d: pathlib.Path):
+    """Backup vdrive image into folder."""
+    pack.pack_file(src_f, dst_d / src_f.name)

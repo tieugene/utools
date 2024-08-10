@@ -6,7 +6,7 @@ from email.message import EmailMessage
 # 3. local
 
 
-def send_mail(smtp: str, mailfrom: str, creditentials: Tuple[str], mailto: Union[str, List[str]], subj: str,
+def send_mail(smtp: str, mailfrom: str, creditentials: Tuple[str, str], mailto: Union[str, List[str]], subj: str,
               body: Optional[str] = None):
     """Mail result.
     :todo: handle exceptions"""

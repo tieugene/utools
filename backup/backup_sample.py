@@ -3,19 +3,15 @@
 :TODO:
 - [..] backup_dir (=> rsync)
 - [..] backup_1c7 => zipfile
-- [..] backup_1cv8 => zstd(file), gz
-- [ ] pack_vdrive => zstd(file); python3-zstandard
-- [ ] dump => sh.dump
-- [ ] backup.dir_rotate
-- [ ] backup.xly
+- [..] backup_1cv8 => zstd(file)
+- [..] pack_vdrive => zstd(file)
+- [.] dump => sh.dump
+- [.] backup.dir_rotate
+- [.] backup.xly
 - [ ] rsync_local => mount+rsync
+- [ ] logging to str
 - [ ] __force mode__
 :note: [copy_stream](https://python-zstandard.readthedocs.io/en/latest/compressor.html)
-Test compress 1Cv8.1CD 1.2GB:
-- 7z: 123", 359MiB
-- zstd: 5", 373MiB
-- pigz: 11", 379MiB
-- Full.7z: 410MiB
 """
 # 1. std
 import logging
@@ -58,21 +54,21 @@ def daily():
     bckp.dir_mk(DIR_BACKUP_2DAY)
     # if (state := dom.state()) == virt.DomState.Running:
     #    dom.suspend()
-    mnt.mount_guest(DIR_IMG / 'W7_D.img', 1048576, DIR_MNT)
+    mnt.mount_guest(DIR_IMG / 'W7P_D.img', 1048576, DIR_MNT)
     bckp.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
     bckp.dir_mk(DIR_BACKUP_2DAY / '1C')
     bckp.backup_1c7(DIR_BACKUP / '1C' / '7', DIR_BACKUP_2DAY / '1C')
-    #   backup_1c8
+    bckp.backup_1c8(DIR_BACKUP / '1C' / '8', DIR_BACKUP_2DAY / '1C')
     mnt.umount(DIR_MNT)
     # mount E:
     #   backup_dir 3
-    # if weekly:
-    #   backup vdrives
-    #   dump self
+    if TODAY.weekday() == WEEKDAY:
+        bckp.backup_vdrive(DIR_IMG / 'W7P_D.img', DIR_BACKUP_2DAY)
+        bckp.dump_self(DIR_BACKUP_2DAY / 'vms_root')
     # if state == virt.DomState.Running:
-    #   start vm
+    #   dom.resume()
     conn.close()
-    # dir_rotate(DIR_BACKUP_D, 8)
+    bckp.dir_rotate(DIR_BACKUP_D, 8)
     sys.exit()
 
 
@@ -82,7 +78,7 @@ def main():
         daily()
         if TODAY.weekday() == WEEKDAY:  # weekly
             bckp.xly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)
-            if TODAY.day < 7:  # monthly; FIXME: last sat of mon
+            if TODAY.day < 7:  # monthly; FIXME: last weekly of mon
                 bckp.xly(DIR_BACKUP_W, DIR_BACKUP_M, YMD, 6)
         # backup.rsync_local(pathlib.Path('/dev/sdb2'), DIR_MNT, DIR_BACKUP)
     except exc.UlibError as e:

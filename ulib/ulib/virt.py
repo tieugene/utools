@@ -1,4 +1,8 @@
-"""KVM vhost control"""
+"""KVM vhost control.
+TODO:
+with conn:
+  with dom:
+"""
 # python-libvirt (F34, RH8, ~CO7~)
 # python-lxc (F34, RH8, ~CO7~)
 # 1. std

@@ -13,6 +13,7 @@ def pack_dir(src: pathlib.Path, dst: pathlib.Path, files: Iterable[str]):
     :param dst: Destination folder
     :param files: List of files in src to pack (relative to src)
     :note: destinatio file will be <dst>/<src.name>.zip
+    :todo: exceptions
     """
     filelist = []
     for mask in files:
@@ -29,7 +30,8 @@ def pack_file(src: pathlib.Path, dst: pathlib.Path):
     """Pack file into file.
     :param src: Source file
     :param dst: Destination file w/o ext
+    :todo: exceptions
     """
-    print(f"Pack {src} into {dst}.zst")
+    # print(f"Pack {src} into {dst}.zst")
     with open(str(src), "rb") as ifh, open(str(dst) + '.zst', "wb") as ofh:
         zstandard.ZstdCompressor().copy_stream(ifh, ofh)
