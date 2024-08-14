@@ -1,4 +1,5 @@
 """Path helpers."""
+import logging
 import os
 import pathlib
 import shutil
@@ -44,6 +45,7 @@ def dir_rm(path: pathlib.Path, recur: bool = False):
     - [x] not empty (OSError)
     - [x] access denied
     """
+    logging.debug("RmDir %s", path)
     try:
         if recur:
             shutil.rmtree(str(path))
@@ -76,6 +78,7 @@ def dir_mk(path: pathlib.Path):
     - exists and is not dir
     :todo: if not exists
     """
+    logging.debug("MkDir %s", path)
     try:
         path.mkdir()
     except (FileNotFoundError, NotADirectoryError, PermissionError, FileExistsError) as e:
@@ -89,6 +92,7 @@ def dir_rotate(path: pathlib.Path, count: int):
     - not dir
     - access denied
     """
+    logging.debug("Rotate %s by %d", path, count)
     for d in sorted(list(path.iterdir()))[:-count]:
         dir_rm(d, recur=True)
 
@@ -101,6 +105,7 @@ def cpal(src_d: pathlib.Path, dst_d: pathlib.Path):
     - [x] src/dst access denied (PermissionError)
     - [x] dst exists (FileExistsError)
     """
+    logging.debug("cp -al %s => %s", src_d, dst_d)
     try:
         # sh.cp('-al', str(src_d), str(dst_d / src_d.name))
         shutil.copytree(str(src_d), str(dst_d / src_d.name), copy_function=os.link)

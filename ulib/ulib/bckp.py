@@ -1,4 +1,5 @@
 """Main file"""
+import logging
 # 1. std
 from typing import Optional
 import pathlib
@@ -29,6 +30,7 @@ def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[s
     :note: --link-dest is _exactly_ '../../{prev}/{subj}'
     :todo: rm xtra attrs (owner, rights etc: -a==)
     """
+    logging.debug("Backup dir %s => %s", src, dst)
     opts = ['-axAXH', '--modify-window=1', '--del']
     if prev:
         opts.append(f"--link-dest=../../{prev}/{subj}")
@@ -64,6 +66,7 @@ def backup_vdrive(src_f: pathlib.Path, dst_d: pathlib.Path):
 
 def dump_self(dst_f: pathlib.Path):
     # dump -0 -z -f $BACKUPDIR/$DAILY/$TODAY/vms_root.gz / > /dev/null
+    logging.debug("Dump self")
     sh.dump('-0', '-z', '-f', str(dst_f.with_suffix('gz')), '/')
 
 

@@ -46,6 +46,7 @@ def umount(mnt: pathlib.Path):
     - ...
     """
     if mnt.is_mount():
+        logging.debug("Umount", str(mnt))
         ctx = libmount.Context()
         ctx.target = str(mnt)
         ctx.umount()

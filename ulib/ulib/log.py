@@ -2,9 +2,7 @@
 Console out obly (for systemd).
 """
 import io
-import sys
 import logging
-import logging.handlers
 from typing import Optional
 
 LOG_LEVEL = (
@@ -25,14 +23,3 @@ def set_logger(lvl: int, with_str: bool = False) -> Optional[io.StringIO]:
         ch.setLevel(lvl)
         logging.getLogger().addHandler(ch)
         return log_capture_string
-
-
-''' Фокус не удался
-handlers.SMTPHandler(
-    mailhost=(cfg['smtp'], 465),
-    fromaddr=cfg['mailfrom'],
-    toaddrs=[cfg['mailto']],
-    subject="Subject",
-    credentials=(cfg['mailfrom'], cfg['mailpass'])
-))
-'''

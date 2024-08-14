@@ -52,6 +52,7 @@ def daily():
     dom = conn.get_vhost('win7')  # TODO: with
     pth.dir_mk(DIR_BACKUP_2DAY)
     if (state := dom.state()) == virt.DomState.Running:
+        logging.info("Suspend guest")
         dom.suspend()
     mnt.mount_guest(DIR_IMG / 'W7P_D.img', 1048576, DIR_MNT)
     bckp.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
@@ -62,21 +63,25 @@ def daily():
     # mount E:
     #   backup_dir 3
     if TODAY.weekday() == WEEKDAY:
+        logging.info("Daily/weekly")
         bckp.backup_vdrive(DIR_IMG / 'W7P_D.img', DIR_BACKUP_2DAY)
         bckp.dump_self(DIR_BACKUP_2DAY / 'vms_root')
     if state == virt.DomState.Running:
+        logging.info("Resume guest")
         dom.resume()
     conn.close()
     pth.dir_rotate(DIR_BACKUP_D, 8)
 
 
 def main():
-    log_str = log.set_logger(logging.DEBUG, with_str=True)
+    log_str = log.set_logger(LOG_LEVEL, with_str=True)
     try:
         daily()
         if TODAY.isoweekday() == WEEKDAY:  # weekly
+            logging.info("Weekly")
             bckp.xly(DIR_BACKUP_2DAY, DIR_BACKUP_W, 8)
             if TODAY.day > (bckp.ldom(TODAY) - 7):  # monthly
+                logging.info("Monthly")
                 bckp.xly(DIR_BACKUP_W / YMD, DIR_BACKUP_M, 6)
         # bckp.rsync_local(pathlib.Path('/dev/sdb2'), DIR_MNT, DIR_BACKUP)
         result = True

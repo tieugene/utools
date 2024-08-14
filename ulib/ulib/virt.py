@@ -139,9 +139,8 @@ class VConn:
         """
         if self.__conn is None:
             try:
-                logging.debug("Try to open connection")
+                logging.debug("Open connection to libvirt")
                 self.__conn = libvirt.open()  # localhost only
-                logging.debug("Seems connected.")
             except libvirt.libvirtError as e:
                 raise UlibVirtError from e
             if not self.__conn:

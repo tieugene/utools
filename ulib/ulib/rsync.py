@@ -1,4 +1,5 @@
 """Rsync wrapper"""
+import logging
 import pathlib
 import subprocess
 from typing import Optional, Iterable
@@ -40,6 +41,7 @@ def rsync(src: pathlib.Path, dst: pathlib.Path, opts: Iterable[str]):
     - [x] dst [parent] access denied (RsyncError)
     - [x] dst is file (RsyncError)
     """
+    logging.debug("Rsync %s => %s", src, dst)
     try:
         sysrsync.run(source=str(src), destination=str(dst), options=opts)
     except sysrsync.exceptions.RsyncError as e:
