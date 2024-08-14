@@ -1,7 +1,9 @@
 """Main file"""
 # 1. std
-import pathlib
 from typing import Optional
+import pathlib
+import calendar
+import datetime
 # 2. 3rd
 import sh
 # 3. local
@@ -69,3 +71,8 @@ def rsync_local(dev: pathlib.Path, dst: pathlib.Path, src: pathlib.Path):
     mnt.mount(dev, dst)
     rsync.rsync(src, dst / src.name, ['-azAXH', '--del'])
     mnt.umount(dst)
+
+
+def ldom(d: datetime.date) -> int:
+    """Last day of month."""
+    return calendar.monthrange(d.year, d.month)[1]
