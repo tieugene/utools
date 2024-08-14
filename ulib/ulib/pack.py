@@ -1,4 +1,6 @@
-"""Tools to pack folders and files."""
+"""Tools to pack folders and files.
+:todo: 7za
+"""
 import logging
 import os
 import pathlib
@@ -21,7 +23,7 @@ def pack_dir(src: pathlib.Path, dst: pathlib.Path, files: Iterable[str]):
         filelist.extend([str(f.name) for f in src.glob(mask, case_sensitive=False)])
     if not filelist:
         return
-    logging.debug("Zip %s into %s.zip", str(src), str(dst))
+    logging.debug("Zip %s => %s/", str(src), str(dst))
     cwd = os.getcwd()
     os.chdir(str(src))
     with zipfile.ZipFile(str(dst / src.name) + '.zip', mode='w', compression=zipfile.ZIP_DEFLATED) as myzip:
@@ -36,6 +38,6 @@ def pack_file(src: pathlib.Path, dst: pathlib.Path):
     :param dst: Destination file w/o ext
     :todo: exceptions
     """
-    logging.debug(f"Pack {src} into {dst}.zst")
+    logging.debug(f"Pack {src} => {dst}.zst")
     with open(str(src), "rb") as ifh, open(str(dst) + '.zst', "wb") as ofh:
         zstandard.ZstdCompressor().copy_stream(ifh, ofh)

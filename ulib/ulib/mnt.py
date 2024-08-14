@@ -28,7 +28,7 @@ def mount(src: pathlib.Path, mnt: pathlib.Path, opts: Optional[str] = None):
     :exceptions:
     - ...
     """
-    logging.debug("Mount %s => %s with %s", str(src), str(mnt), opts)
+    logging.debug("Mount %s => %s with %s", src, mnt, opts)
     try:
         ctx = libmount.Context()
         ctx.source = str(src)
@@ -46,7 +46,7 @@ def umount(mnt: pathlib.Path):
     - ...
     """
     if mnt.is_mount():
-        logging.debug("Umount", str(mnt))
+        logging.debug("Umount %s", mnt)
         ctx = libmount.Context()
         ctx.target = str(mnt)
         ctx.umount()

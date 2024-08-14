@@ -57,8 +57,8 @@ def daily():
     mnt.mount_guest(DIR_IMG / 'W7P_D.img', 1048576, DIR_MNT)
     bckp.backup_dir(DIR_MNT, DIR_BACKUP_2DAY, 'Public', prev)
     pth.dir_mk(DIR_BACKUP_2DAY / '1C')
-    bckp.backup_1c7(DIR_BACKUP / '1C' / '7', DIR_BACKUP_2DAY / '1C')
-    bckp.backup_1c8(DIR_BACKUP / '1C' / '8', DIR_BACKUP_2DAY / '1C')
+    bckp.backup_1c7(DIR_MNT / '1C' / '7', DIR_BACKUP_2DAY / '1C')
+    bckp.backup_1c8(DIR_MNT / '1C' / '8', DIR_BACKUP_2DAY / '1C')
     mnt.umount(DIR_MNT)
     # mount E:
     #   backup_dir 3
@@ -91,6 +91,7 @@ def main():
         # logging.exception(e)
         # print(traceback.format_exc())
     # finally: umount
+    mnt.umount(DIR_MNT)
     print(log_str.getvalue())
     sys.exit()
     mail.send_mail(
