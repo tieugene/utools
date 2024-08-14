@@ -1,4 +1,5 @@
 """Path helpers."""
+import os
 import pathlib
 import shutil
 from typing import List
@@ -12,7 +13,7 @@ class UlibPathError(exc.UlibError):
     ...
 
 
-def dir_exists(path: pathlib.Path) -> bool:
+def exists(path: pathlib.Path) -> bool:
     try:
         return path.exists()
     except PermissionError as e:
@@ -20,37 +21,36 @@ def dir_exists(path: pathlib.Path) -> bool:
 
 
 def dir_empty(path: pathlib.Path) -> bool:
-    """Chrck folder is empty.
+    """Check folder is empty.
     :exceptions:
-    - [ ] not exists
-    - [ ] not folder
-    - [ ] access denied
+    - [x] not exists
+    - [x] not folder
+    - [x] access denied
     """
     return not bool(dir_list(path))
 
 
 def dir_mounted(path: pathlib.Path) -> bool:
     """Check folder is mount.
-    :exceptions:
-    - [ ] not exists
-    - [ ] not folder
-    - [ ] access denied
-    """
+    :note: no exceptions"""
     return path.is_mount()
 
 
 def dir_rm(path: pathlib.Path, recur: bool = False):
     """Remove folder.
     :exceptions:
-    - [ ] not exists
-    - [ ] not folder
-    - [ ] not empty (?)
-    - [ ] access denied
+    - [x] not exists
+    - [x] not folder
+    - [x] not empty (OSError)
+    - [x] access denied
     """
-    if recur:
-        shutil.rmtree(str(path))
-    else:
-        path.rmdir()
+    try:
+        if recur:
+            shutil.rmtree(str(path))
+        else:
+            path.rmdir()
+    except (FileNotFoundError, NotADirectoryError, PermissionError, OSError) as e:
+        raise UlibPathError(str(e)) from e
 
 
 def dir_list(path: pathlib.Path) -> List[str]:
@@ -62,11 +62,7 @@ def dir_list(path: pathlib.Path) -> List[str]:
     """
     try:
         return sorted([x.name for x in path.iterdir()])
-    except FileNotFoundError as e:
-        raise UlibPathError(str(e)) from e
-    except NotADirectoryError as e:
-        raise UlibPathError(str(e)) from e
-    except PermissionError as e:
+    except (FileNotFoundError, NotADirectoryError, PermissionError) as e:
         raise UlibPathError(str(e)) from e
 
 
@@ -82,13 +78,7 @@ def dir_mk(path: pathlib.Path):
     """
     try:
         path.mkdir()
-    except FileNotFoundError as e:
-        raise UlibPathError(str(e)) from e
-    except NotADirectoryError as e:
-        raise UlibPathError(str(e)) from e
-    except FileExistsError as e:
-        raise UlibPathError(str(e)) from e
-    except PermissionError as e:
+    except (FileNotFoundError, NotADirectoryError, PermissionError, FileExistsError) as e:
         raise UlibPathError(str(e)) from e
 
 
@@ -101,3 +91,18 @@ def dir_rotate(path: pathlib.Path, count: int):
     """
     for d in sorted(list(path.iterdir()))[:-count]:
         dir_rm(d, recur=True)
+
+
+def cpal(src_d: pathlib.Path, dst_d: pathlib.Path):
+    """cp -al.
+    :exceptions:
+    - [x] src not exists (FileNotFoundError)
+    - [x] dst is not dir
+    - [x] src/dst access denied (PermissionError)
+    - [x] dst exists (FileExistsError)
+    """
+    try:
+        # sh.cp('-al', str(src_d), str(dst_d / src_d.name))
+        shutil.copytree(str(src_d), str(dst_d / src_d.name), copy_function=os.link)
+    except (FileNotFoundError, FileExistsError, NotADirectoryError, PermissionError) as e:
+        raise UlibPathError(str(e)) from e

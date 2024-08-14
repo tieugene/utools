@@ -16,7 +16,10 @@ class UlibMntError(exc.UlibError):
 
 
 def mount_guest(src: pathlib.Path, off: int, mnt: pathlib.Path):
-    """Mount NTFS guest disk."""
+    """Mount NTFS guest disk.
+    :exceptions:
+    - ...
+    """
     mount(src, mnt, f"loop,ro,fmask=111,offset={off}")
 
 

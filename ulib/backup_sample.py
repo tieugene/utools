@@ -39,7 +39,7 @@ DIR_BACKUP_2DAY = DIR_BACKUP_D / YMD
 
 def daily():
     logging.debug("Start daily")
-    if pth.dir_exists(DIR_BACKUP_2DAY):
+    if pth.exists(DIR_BACKUP_2DAY):
         if pth.dir_empty(DIR_BACKUP_2DAY):
             logging.debug("Rm %s", DIR_BACKUP_2DAY)
             pth.dir_rm(DIR_BACKUP_2DAY)
@@ -76,9 +76,9 @@ def main():
     try:
         daily()
         if TODAY.weekday() == WEEKDAY:  # weekly
-            bckp.xly(DIR_BACKUP_D, DIR_BACKUP_W, YMD, 8)
+            bckp.xly(DIR_BACKUP_2DAY, DIR_BACKUP_W, 8)
             if TODAY.day < 7:  # monthly; FIXME: last weekly of mon
-                bckp.xly(DIR_BACKUP_W, DIR_BACKUP_M, YMD, 6)
+                bckp.xly(DIR_BACKUP_W / YMD, DIR_BACKUP_M, 6)
         # bckp.rsync_local(pathlib.Path('/dev/sdb2'), DIR_MNT, DIR_BACKUP)
     except exc.UlibError as e:
         logging.error(e)  # FIXME: trace

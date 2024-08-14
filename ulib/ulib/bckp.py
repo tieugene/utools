@@ -12,15 +12,10 @@ class UlibBackupError(exc.UlibError):
     ...
 
 
-def __cpal(src_d: pathlib.Path, dst_d: pathlib.Path, subj: str):
-    # shutil.copytree(src, dst, copy_function=os.link)
-    sh.cp('-al', str(src_d / subj), str(dst_d / subj))
-
-
-def xly(src: pathlib.Path, dst: pathlib.Path, ymd: str, count: int):
+def xly(src_d: pathlib.Path, dst_d: pathlib.Path, count: int):
     """Handle weekly/monthly"""
-    __cpal(src, dst, ymd)
-    pth.dir_rotate(dst, count)
+    pth.cpal(src_d, dst_d)
+    pth.dir_rotate(dst_d, count)
 
 
 def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[str] = None):
