@@ -1,0 +1,6 @@
+sh
+libmount
+zstandard
+platformdirs
+sysrsync
+libvirt
