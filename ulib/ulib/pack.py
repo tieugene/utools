@@ -16,6 +16,7 @@ def pack_dir(src: pathlib.Path, dst: pathlib.Path, files: Iterable[str]):
     :param dst: Destination folder
     :param files: List of files in src to pack (relative to src)
     :note: destinatio file will be <dst>/<src.name>.zip
+    :todo: bz2, lzma
     :todo: exceptions
     """
     filelist = []
