@@ -48,7 +48,7 @@ Summary:        Homesnap service
 Requires:       %{py3_dist ulib}
 Requires:       %{py3_dist platformdirs}
 
-%description -n ulib-backup
+%description -n ulib-homesnap
 Homesnap daemon.
 
 
@@ -110,6 +110,7 @@ Homesnap daemon.
 %doc doc/README.homesnap.md
 %{_bindir}/homesnap
 %{python3_sitelib}/homesnap.py
+%{python3_sitelib}/__pycache__/homesnap.*
 %{_unitdir}/homesnap.{service,timer}
 
 
