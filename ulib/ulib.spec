@@ -9,13 +9,13 @@ Source0:        %{module}-%{version}.tar.gz
 BuildRequires:  python3 >= 3.9
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-rpm-macros
-Requires:       python3 >= 3.6
+Requires:       python3 >= 3.9
 Suggests:       %{py3_dist platformdirs}
 Suggests:       %{py3_dist sh}
 Suggests:       %{py3_dist zstandard}
 Suggests:       %{py3_dist sysrsync}
-Suggests:       python3-libmount
 Suggests:       %{py3_dist libvirt-python}
+Suggests:       python3-libmount
 BuildArch:      noarch
 
 %description
@@ -32,7 +32,11 @@ Common library for micro-tools.
 
 %package -n     ulib-backup
 Summary:        Backup service
+Requires:       %{py3_dist sh}
+Requires:       %{py3_dist zstandard}
 Requires:       %{py3_dist sysrsync}
+Requires:       %{py3_dist libvirt-python}
+Requires:       python3-libmount
 
 %description -n ulib-backup
 Simple python-based backup.
