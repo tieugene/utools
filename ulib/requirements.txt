@@ -3,4 +3,4 @@ libmount
 zstandard
 platformdirs
 sysrsync
-libvirt
+libvirt-python

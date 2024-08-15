@@ -19,11 +19,11 @@ classifiers = [
 ]
 dependencies = [
   "sh",
-  "libmount",
+  # "libmount",
   "zstandard",
   "platformdirs",
   "sysrsync",
-  "libvirt"
+  "libvirt-python"
 ]
 urls.Homepage = "https://github.com/tieugene/utools"
 urls.Source = "https://github.com/tieugene/utrools"

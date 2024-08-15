@@ -1,17 +1,21 @@
 %global module ulib
 Name:           python-ulib
-Version:        0.0.1
+Version:        0.0.2
 Release:        1%{?dist}
 License:        GPLv3
 Summary:        Utility micro-library
 URL:            https://github.com/tieugene/utools/%{module}
 Source0:        %{module}-%{version}.tar.xz
-BuildRequires:  python3 >= 3.6
+BuildRequires:  python3 >= 3.9
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-rpm-macros
 Requires:       python3 >= 3.6
+Suggests:       %{py3_dist platformdirs}
+Suggests:       %{py3_dist sh}
+Suggests:       %{py3_dist zstandard}
+Suggests:       %{py3_dist sysrsync}
+Suggests:       python3-libmount
 Suggests:       %{py3_dist libvirt-python}
-Suggests:       %{py3_dist appdirs}
 BuildArch:      noarch
 
 %description
@@ -44,5 +48,8 @@ Common library for micro-tools.
 
 
 %changelog
+* Thu Aug 15 2024 TI_Eugene <tieugene@fedoraproject.org> - 0.0.2-1
+- backup application added
+
 * Tue Aug 02 2022 TI_Eugene <tieugene@fedoraproject.org> - 0.0.1-1
 - Initial build

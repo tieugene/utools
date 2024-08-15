@@ -12,6 +12,9 @@ BuildRequires:  pyproject-rpm-macros
 BuildRequires:	%{py3_dist wheel}
 # python3-sh
 BuildRequires:	%{py3_dist sh}
+BuildRequires:	python3-libmount
+# python3-libvirt
+BuildRequires:	%{py3_dist libvirt-python}
 
 %description
 %{summary}.

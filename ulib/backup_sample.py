@@ -20,7 +20,7 @@ import sys
 import traceback
 # 2. 3rds
 # 3. local
-from ulib import exc, log, virt, mnt, bckp, rsync, mail, pth
+from ulib import exc, log, virt, mnt, bckp, mail, pth
 
 
 LOG_LEVEL = logging.DEBUG
