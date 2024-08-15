@@ -9,6 +9,7 @@ Source0:        %{module}-%{version}.tar.gz
 BuildRequires:  python3 >= 3.9
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-rpm-macros
+BuildRequires:  systemd-rpm-macros
 Requires:       python3 >= 3.9
 Suggests:       %{py3_dist platformdirs}
 Suggests:       %{py3_dist sh}
