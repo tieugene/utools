@@ -36,13 +36,13 @@ def __handle_item(item: dict) -> Optional[tuple[bool, str]]:
             logging.info(f"{name}: Update required: Src ({s_stamp}) > Dst ({d_stamp})")
             # 5. rsync (linux: '-aqzAHX --del', macos: '-aqz'
             opts = item['opts'].split()
-            rsync.rsync(opts + [item['spath'], item['dpath']])
+            rsync.rsync_raw(opts + [item['spath'], item['dpath']])
             stamp.set_stamp(item['dchk'], s_stamp)  # 6. resume
             retvalue = (True, None)
             if epath := item.get('epath'):
                 if os.path.isdir(epath):
                     try:
-                        rsync.rsync(opts + [item['dpath'], epath])
+                        rsync.rsync_raw(opts + [item['dpath'], epath])
                     except rsync.UlibRsyncError as e:
                         retvalue = (True, str(e))
                 else:
@@ -70,7 +70,7 @@ def main():
     except pre.UlibCfgLoadError as e:
         sys.exit(str(e))
     # 2. setup logger
-    log.setLogger(data.get('log', 0))
+    log.set_logger(data.get('log', 0))
     for item in data['items']:          # -. for each host:
         if updating := __handle_item(item):
             if updating[0]:

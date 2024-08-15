@@ -32,6 +32,7 @@ Common library for micro-tools.
 
 %package -n     ulib-backup
 Summary:        Backup service
+Requires:       %{py3_dist ulib}
 Requires:       %{py3_dist sh}
 Requires:       %{py3_dist zstandard}
 Requires:       %{py3_dist sysrsync}
@@ -40,6 +41,15 @@ Requires:       python3-libmount
 
 %description -n ulib-backup
 Simple python-based backup.
+
+
+%package -n     ulib-homesnap
+Summary:        Homesnap service
+Requires:       %{py3_dist ulib}
+Requires:       %{py3_dist platformdirs}
+
+%description -n ulib-backup
+Homesnap daemon.
 
 
 %prep
@@ -54,18 +64,32 @@ Simple python-based backup.
 %{py3_install}
 %{__install} -Dpm 0644 contrib/backup.service %{buildroot}%{_unitdir}/backup.service
 %{__install} -Dpm 0644 contrib/backup.timer %{buildroot}%{_unitdir}/backup.timer
+%{__install} -Dpm 0644 contrib/homesnap.service %{buildroot}%{_unitdir}/homesnap.service
+%{__install} -Dpm 0644 contrib/homesnap.timer %{buildroot}%{_unitdir}/homesnap.timer
 
 
 %post -n ulib-backup
 %systemd_post backup.{service,timer}
 
 
+%post -n ulib-homesnap
+%systemd_post homesnap.{service,timer}
+
+
 %preun -n ulib-backup
 %systemd_preun backup.{service,timer}
 
 
+%preun -n ulib-homesnap
+%systemd_preun homesnap.{service,timer}
+
+
 %postun -n ulib-backup
 %systemd_postun_with_restart backup.{service,timer}
+
+
+%postun -n ulib-homesnap
+%systemd_postun_with_restart homesnap.{service,timer}
 
 
 %files -n python3-%{module}
@@ -79,6 +103,14 @@ Simple python-based backup.
 %license LICENSE
 %doc doc/README.backup.md backup_sample.py
 %{_unitdir}/backup.{service,timer}
+
+
+%files -n ulib-homesnap
+%license LICENSE
+%doc doc/README.homesnap.md
+%{_bindir}/homesnap
+%{python3_sitelib}/homesnap.py
+%{_unitdir}/homesnap.{service,timer}
 
 
 %changelog

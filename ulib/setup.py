@@ -9,4 +9,10 @@ setup(
     author_email='ti.eugene@gmail.com',
     description='Utility micro-library',
     packages=['ulib'],
+    py_modules=['homesnap'],
+    entry_points={
+        'console_scripts': [
+            'homesnap = homesnap:main',
+        ],
+    },
 )
