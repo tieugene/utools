@@ -5,8 +5,8 @@ Requires=backup.service
 [Timer]
 Unit=backup.service
 # OnCalendar=daily
-OnCalendar=*-*-* 01:00:00
-AccuracySec=15m
+OnCalendar=*-*-* 00:30:00
+AccuracySec=10m
 # Persistent=true
 
 [Install]
