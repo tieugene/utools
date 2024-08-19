@@ -45,14 +45,14 @@ def backup_1c7(src: pathlib.Path, dst: pathlib.Path):
     for d in src.iterdir():
         if not d.is_dir():
             continue
-        pack.pack_dir(d, dst, ('*.md', '*.dd', '*.dbf'))
+        pack.pack_dir(d, dst, ('*.?[Dd]', '*.[Dd][Bb][Ff]'))
 
 
 def backup_1c8(src: pathlib.Path, dst: pathlib.Path):
     for d in src.iterdir():
         if not d.is_dir():
             continue
-        files = list(d.glob('1Cv8.1CD', case_sensitive=False))
+        files = list(d.glob('1[Cc][Vv]8.1[Cc][Dd]'))
         if not files:
             continue
         file = files[0]

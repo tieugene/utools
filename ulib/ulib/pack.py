@@ -21,7 +21,7 @@ def pack_dir(src: pathlib.Path, dst: pathlib.Path, files: Iterable[str]):
     """
     filelist = []
     for mask in files:
-        filelist.extend([str(f.name) for f in src.glob(mask, case_sensitive=False)])
+        filelist.extend([str(f.name) for f in src.glob(mask)])
     if not filelist:
         return
     logging.debug("Zip %s => %s/", str(src), str(dst))

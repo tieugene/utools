@@ -6,11 +6,14 @@ import os
 import pathlib
 from typing import Optional, List
 
+import libvirt
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from pydantic import BaseModel, ConfigDict
 
+LOG_LEVEL = logging.INFO
 DIR = pathlib.Path(os.path.abspath(os.path.dirname(__file__)))
+VCONN = libvirt.open()
 
 # i18n
 localedir = DIR / 'locale'
@@ -19,7 +22,6 @@ if not localedir.is_dir():  # default if in-place l10ns absent
 translate = gettext.translation('srvbot', localedir=str(localedir))
 _ = translate.gettext
 
-LOG_LEVEL = logging.INFO
 dp: Dispatcher = Dispatcher()
 
 
@@ -46,7 +48,7 @@ async def on_start(message: types.Message):
 
 
 @dp.message(Command("help"))
-async def on_start(message: types.Message):
+async def on_help(message: types.Message):
     ...
 
 

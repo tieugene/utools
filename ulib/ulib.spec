@@ -25,7 +25,7 @@ Common library for micro-tools.
 
 %package -n     python3-%{module}
 Summary:        %{summary}
-%py_provides python3-%{module}
+#py_provides python3-%%{module}
 
 %description -n python3-%{module}
 Common library for micro-tools.
@@ -33,7 +33,11 @@ Common library for micro-tools.
 
 %package -n     ulib-backup
 Summary:        Backup service
+%if 0%{?epel}
+Requires:       python3-%{module}
+%else
 Requires:       %{py3_dist ulib}
+%endif
 Requires:       %{py3_dist sh}
 Requires:       %{py3_dist zstandard}
 Requires:       %{py3_dist sysrsync}
