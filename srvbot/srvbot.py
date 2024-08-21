@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Telegram bot to handle KVM host.
-Note: requires root permissions to control vhosts
+:note: requires root permissions to control vhosts
+:todo:
+- inline buttons
+- buttons (menu)
 """
 # 1. std
 import asyncio
@@ -10,7 +13,7 @@ import logging
 import os
 import pathlib
 from enum import unique, StrEnum
-from typing import List, Dict, Set, Optional, Any
+from typing import List, Dict, Set, Optional, Union
 # 2. 3rd
 import libvirt
 from aiogram import Bot, Dispatcher, types
@@ -26,9 +29,9 @@ if not localedir.is_dir():  # default if in-place l10ns absent
 translate = gettext.translation('srvbot', localedir=str(localedir))
 _ = translate.gettext
 
-Settings: 'SettingsType'
 VConn: libvirt.virConnect
 LOG_LEVEL = logging.DEBUG
+dp: Dispatcher = Dispatcher()
 ACL: Dict[int, Set[str]] = {}
 HELP: Dict[str, str] = {
     "start": _("Start page"),
@@ -53,8 +56,6 @@ STATE_NAME = (  # TODO: enum
     _("Crashed"),
     _("PM Suspended")
 )
-dp: Dispatcher = Dispatcher()
-
 
 @unique
 class Action(StrEnum):
@@ -65,8 +66,8 @@ class Action(StrEnum):
     SUSPEND = 'suspend'  # int=0
     RESUME = 'resume'  # int=0
     SHUTDOWN = 'shutdown'  # int=0
-    REBOOT = 'reboot'
-    RESET = 'reset'
+    REBOOT = 'reboot'  # int=0
+    RESET = 'reset'  # int=0
 
 
 class SettingsType(BaseModel):
@@ -80,6 +81,8 @@ class SettingsType(BaseModel):
     token: str
     vhost: str
     acl: List[Acl]
+
+Settings: SettingsType
 
 
 async def __chk_uid(message: types.Message) -> bool:
@@ -106,7 +109,7 @@ async def on_help(message: types.Message):
         await message.answer("\n".join(help_list))
 
 
-async def __chk_acl(message: types.Message) -> Optional[libvirt.virDomain]:
+async def __do_action(message: types.Message, meth: Action, quiet: bool = False) -> Optional[Union[int, List[int]]]:
     """Check user registerd and command permited and dom ok."""
     uid = message.from_user.id
     cmd = message.text[1:]
@@ -118,91 +121,73 @@ async def __chk_acl(message: types.Message) -> Optional[libvirt.virDomain]:
         await message.answer(_("Access denied"))
     else:
         try:
-            return VConn.lookupByName(Settings.vhost)
-        except libvirt.libvirtError as e:
-            await message.answer(f"Error: {str(e)}")
-
-
-async def __do_action(message: types.Message, m_name: str) -> Any:
-    """
-    :return:
-    - isActive: True/False
-    - state: [int, int]
-    - create: ...
-    - destroy: ...
-    :todo: quiet: bool = False
-    """
-    if dom := await __chk_acl(message):
-        try:
-            f = getattr(dom, m_name)
+            dom = VConn.lookupByName(Settings.vhost)
+            f = getattr(dom, meth)
             result = f()
             logging.debug("Result of %s is type %s == %s", message.text, type(result), result)
-            return result
+            if not quiet:
+                return result
+            else:
+                await message.answer("OK")
         except libvirt.libvirtError as e:
-            # logging.error
+            logging.error(str(e))
             await message.answer(f"Error: {str(e)}")
 
 
 @dp.message(Command("active"))
 async def on_active(message: types.Message):
     """Check guest is active (running, ...)."""
-    if (is_active := await __do_action(message, 'isActive')) is not None:
+    if (is_active := await __do_action(message, Action.ACTIVE)) is not None:
         await message.answer( _("Active") if is_active else _("Inactive"))
 
 
 @dp.message(Command("state"))
 async def on_state(message: types.Message):
     """Get guest state."""
-    if (state := await __do_action(message, 'state')) is not None:
+    if (state := await __do_action(message, Action.STATE)) is not None:
         await message.answer(STATE_NAME[state[0]])
 
 
 @dp.message(Command("create"))
 async def on_create(message: types.Message):
     """Start guest from scratch ('Power on')."""
-    if await __do_action(message, 'create') is not None:
-        await message.answer("OK")
+    await __do_action(message, Action.CREATE, quiet=True)
 
 
 @dp.message(Command("destroy"))
 async def on_destroy(message: types.Message):
     """Power of guest (force)."""
-    if await __do_action(message, 'destroy') is not None:
-        await message.answer("OK")
+    await __do_action(message, Action.DESTROY, quiet=True)
 
 
 @dp.message(Command("suspend"))
 async def on_suspend(message: types.Message):
     """Freeze guest."""
-    if await __do_action(message, 'suspend') is not None:
-        await message.answer("OK")
+    await __do_action(message, Action.SUSPEND, quiet=True)
 
 
 @dp.message(Command("resume"))
 async def on_resume(message: types.Message):
     """Melt guest."""
-    if await __do_action(message, 'resume') is not None:
-        await message.answer("OK")
+    await __do_action(message, Action.RESUME, quiet=True)
 
 
 @dp.message(Command("shutdown"))
 async def on_shutdown(message: types.Message):
-    if await __do_action(message, 'shutdown') is not None:
-        await message.answer("OK")
+    """Power off (soft) guest."""
+    await __do_action(message, Action.SHUTDOWN, quiet=True)
 
 
 @dp.message(Command("reboot"))
 async def on_reboot(message: types.Message):
-    ...
+    """Reboot (soft) guest."""
+    await __do_action(message, Action.REBOOT, quiet=True)
 
 
 @dp.message(Command("reset"))
 async def on_reset(message: types.Message):
-    ...
-
-
-async def on_default(message: types.Message):
-    ...
+    """Reset (hard) guest."""
+    await __do_action(message, Action.RESET, quiet=True)
 
 
 def main():
