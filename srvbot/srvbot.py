@@ -22,10 +22,10 @@ from aiogram.filters.command import Command
 DIR = pathlib.Path(os.path.abspath(os.path.dirname(__file__)))
 
 # i18n
-localedir = DIR / 'locale'
-if not localedir.is_dir():  # default if in-place l10ns absent
-    localedir = None
-translate = gettext.translation('srvbot', localedir=str(localedir))
+LOCALE_DIR = DIR / 'locale'
+if not LOCALE_DIR.is_dir():  # default if in-place l10ns absent
+    LOCALE_DIR = None
+translate = gettext.translation('srvbot', localedir=str(LOCALE_DIR))
 _ = translate.gettext
 
 VConn: libvirt.virConnect
@@ -45,7 +45,7 @@ HELP: Dict[str, str] = {
     "destroy": _("Power off (force)"),
     "active": _("Check is active"),
 }
-STATE_NAME = (  # TODO: enum
+STATE_NAME = (
     _("No state"),
     _("Running"),
     _("Blocked"),
@@ -58,6 +58,7 @@ STATE_NAME = (  # TODO: enum
 
 @unique
 class Action(StrEnum):
+    """Map of guest methods."""
     ACTIVE = 'isActive'  # int (0, 1)
     STATE = 'state'  # List[int, int]
     CREATE = 'create'  # int=0
@@ -71,6 +72,7 @@ class Action(StrEnum):
 
 @dataclass
 class SettingsType:
+    """Settings."""
     log: int
     tglog: int
     token: str
@@ -92,19 +94,22 @@ async def __chk_uid(message: types.Message) -> bool:
 
 @dp.message(Command("start"))
 async def on_start(message: types.Message):
+    """Start page."""
     if await __chk_uid(message):
         await message.answer(_("Welcome.\nSend '/help' for list commands available."))
 
 
 @dp.message(Command("help"))
 async def on_help(message: types.Message):
+    """Help."""
     if await __chk_uid(message):
         cmds = ACL[message.from_user.id].union({'start', 'help'})
         help_list = [f"/{k}: {v}" for k, v in HELP.items() if k in cmds]
         await message.answer("\n".join(help_list))
 
 
-async def __do_action(message: types.Message, meth: Action, quiet: bool = False) -> Optional[Union[int, List[int]]]:
+async def __do_action(message: types.Message, meth: Action, quiet: bool = False)\
+        -> Optional[Union[int, List[int]]]:
     """Check user registerd and command permited and dom ok."""
     uid = message.from_user.id
     cmd = message.text[1:]
@@ -122,8 +127,7 @@ async def __do_action(message: types.Message, meth: Action, quiet: bool = False)
             logging.debug("Result of %s is type %s == %s", message.text, type(result), result)
             if not quiet:
                 return result
-            else:
-                await message.answer("OK")
+            await message.answer("OK")
         except libvirt.libvirtError as e:
             logging.error(str(e))
             await message.answer(f"Error: {str(e)}")
@@ -186,10 +190,11 @@ async def on_reset(message: types.Message):
 
 
 def main():
+    """CLI endpoint."""
     global Settings, VConn
     logging.basicConfig(level=LOG_LEVEL)
     cfg_fn = DIR / 'srvbot.json'
-    with open(cfg_fn, 'rt') as i_f:
+    with open(cfg_fn, 'rt', encoding='utf8') as i_f:
         data_dict = json.load(i_f)
         Settings = SettingsType(**data_dict)
         for acl in Settings.acl:  # permissions
