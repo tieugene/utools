@@ -1,3 +1,2 @@
-appdirs
-pytelegrambotapi
 libvirt-python
+aiogram

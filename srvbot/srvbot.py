@@ -13,11 +13,11 @@ import os
 import pathlib
 from enum import unique, StrEnum
 from typing import List, Dict, Set, Optional, Union
+from dataclasses import dataclass
 # 2. 3rd
 import libvirt
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
-from pydantic import BaseModel, ConfigDict
 
 DIR = pathlib.Path(os.path.abspath(os.path.dirname(__file__)))
 
@@ -69,17 +69,13 @@ class Action(StrEnum):
     RESET = 'reset'  # int=0
 
 
-class SettingsType(BaseModel):
-    class Acl(BaseModel):
-        uid: List[int]
-        cmd: List[str]
-
-    model_config = ConfigDict(strict=True)
+@dataclass
+class SettingsType:
     log: int
     tglog: int
     token: str
     vhost: str
-    acl: List[Acl]
+    acl: List[Dict[str, List[Union[int, str]]]]
 
 Settings: SettingsType
 
@@ -197,8 +193,8 @@ def main():
         data_dict = json.load(i_f)
         Settings = SettingsType(**data_dict)
         for acl in Settings.acl:  # permissions
-            for uid in acl.uid:
-                ACL[uid] = set(acl.cmd)
+            for uid in acl['uid']:
+                ACL[uid] = set(acl['cmd'])
     bot = Bot(token=Settings.token)
     VConn = libvirt.open()  # ???
     asyncio.run(dp.start_polling(bot))
