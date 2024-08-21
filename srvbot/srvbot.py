@@ -27,8 +27,7 @@ _ = translate.gettext
 
 Settings: 'SettingsType'
 VConn: libvirt.virConnect
-LOG_LEVEL = logging.INFO
-dp: Dispatcher = Dispatcher()
+LOG_LEVEL = logging.DEBUG
 ACL: Dict[int, Set[str]] = {}
 HELP: Dict[str, str] = {
     "start": _("Start page"),
@@ -43,6 +42,8 @@ HELP: Dict[str, str] = {
     "destroy": _("Power off (force)"),
     "active": _("Check is active"),
 }
+dp: Dispatcher = Dispatcher()
+
 
 class SettingsType(BaseModel):
     class Acl(BaseModel):
@@ -57,24 +58,28 @@ class SettingsType(BaseModel):
     acl: List[Acl]
 
 
+async def __chk_uid(message: types.Message) -> bool:
+    """Check user registerd."""
+    if message.from_user.id not in ACL:
+        logging.warning("UID %d not registered.")
+        await message.answer(_("User unknown"))
+        return False
+    logging.info("Cmd '%s', from %d", message.text, message.from_user.id)
+    return True
+
+
 @dp.message(Command("start"))
 async def on_start(message: types.Message):
-    # TODO: check uid
-    logging.info("Cmd 'start' from %d", message.from_user.id)
-    await message.answer(_("Welcome.\nSend '/help' for list commands available."))
+    if await __chk_uid(message):
+        await message.answer(_("Welcome.\nSend '/help' for list commands available."))
 
 
 @dp.message(Command("help"))
 async def on_help(message: types.Message):
-    # start wrap
-    if message.from_user.id not in ACL:
-        logging.warning("UID %d not registered.")
-        await message.answer(_("User unknown"))
-        return
-    # end wrap
-    cmds = ACL[message.from_user.id].union({'start', 'help'})
-    help_list = [f"/{k}: {v}" for k, v in HELP.items() if k in cmds]
-    await message.answer("\n".join(help_list))
+    if await __chk_uid(message):
+        cmds = ACL[message.from_user.id].union({'start', 'help'})
+        help_list = [f"/{k}: {v}" for k, v in HELP.items() if k in cmds]
+        await message.answer("\n".join(help_list))
 
 
 @dp.message(Command("active"))
@@ -82,18 +87,16 @@ async def on_active(message: types.Message):
     if message.from_user.id not in ACL:
         logging.warning("UID %d not registered.", message.from_user.id)
         await message.answer(_("User unknown"))
-        return
-    if 'active' not in ACL[message.from_user.id]:
+    elif 'active' not in ACL[message.from_user.id]:
         logging.warning("Command '%s' not permited for UID %d.", 'active', message.from_user.id)
         await message.answer(_("Access denied"))
-        return
-    try:
-        # core
-        answer = _("Active") if VConn.lookupByName(Settings.vhost).isActive() else _("Inactive")
-        # /core
-    except libvirt.libvirtError as e:
-        answer = f"Error: {str(e)}"
-    await message.answer(answer)
+    else:
+        try:
+            # core
+            await message.answer( _("Active") if VConn.lookupByName(Settings.vhost).isActive() else _("Inactive"))
+            # /core
+        except libvirt.libvirtError as e:
+            await message.answer(f"Error: {str(e)}")
 
 
 @dp.message(Command("state"))
