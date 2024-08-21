@@ -2,8 +2,7 @@
 """Telegram bot to handle KVM host.
 :note: requires root permissions to control vhosts
 :todo:
-- inline buttons
-- buttons (menu)
+- -=pydantic
 """
 # 1. std
 import asyncio

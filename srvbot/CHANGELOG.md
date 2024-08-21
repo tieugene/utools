@@ -16,3 +16,7 @@ Aim: extending
 - [x] configurable command aliases
 - [x] configurable ACL
 - [x] i18n+l10n
+
+### 0.0.4:
+- telebot => aiogram 3.x
+- -= ulib
