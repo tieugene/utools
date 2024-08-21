@@ -9,7 +9,7 @@ import json
 import logging
 import os
 import pathlib
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 # 2. 3rd
 import libvirt
 from aiogram import Bot, Dispatcher, types
@@ -42,6 +42,16 @@ HELP: Dict[str, str] = {
     "destroy": _("Power off (force)"),
     "active": _("Check is active"),
 }
+STATE_NAME = (
+    _("No state"),
+    _("Running"),
+    _("Blocked"),
+    _("Paused"),
+    _("Shutdown"),
+    _("Shutoff"),
+    _("Crashed"),
+    _("PM Suspended")
+)
 dp: Dispatcher = Dispatcher()
 
 
@@ -68,6 +78,23 @@ async def __chk_uid(message: types.Message) -> bool:
     return True
 
 
+async def __chk_acl(message: types.Message) -> Optional[libvirt.virDomain]:
+    """Check user registerd and command permited and dom ok."""
+    uid = message.from_user.id
+    cmd = message.text[1:]
+    if uid not in ACL:
+        logging.warning("UID %d not registered.", message.from_user.id)
+        await message.answer(_("User unknown"))
+    elif cmd not in ACL[message.from_user.id]:
+        logging.warning("Command '%s' not permited for UID %d.", cmd, message.from_user.id)
+        await message.answer(_("Access denied"))
+    else:
+        try:
+            return VConn.lookupByName(Settings.vhost)
+        except libvirt.libvirtError as e:
+            await message.answer(f"Error: {str(e)}")
+
+
 @dp.message(Command("start"))
 async def on_start(message: types.Message):
     if await __chk_uid(message):
@@ -84,16 +111,10 @@ async def on_help(message: types.Message):
 
 @dp.message(Command("active"))
 async def on_active(message: types.Message):
-    if message.from_user.id not in ACL:
-        logging.warning("UID %d not registered.", message.from_user.id)
-        await message.answer(_("User unknown"))
-    elif 'active' not in ACL[message.from_user.id]:
-        logging.warning("Command '%s' not permited for UID %d.", 'active', message.from_user.id)
-        await message.answer(_("Access denied"))
-    else:
+    if dom := await __chk_acl(message):
         try:
             # core
-            await message.answer( _("Active") if VConn.lookupByName(Settings.vhost).isActive() else _("Inactive"))
+            await message.answer( _("Active") if dom.isActive() else _("Inactive"))
             # /core
         except libvirt.libvirtError as e:
             await message.answer(f"Error: {str(e)}")
@@ -101,11 +122,13 @@ async def on_active(message: types.Message):
 
 @dp.message(Command("state"))
 async def on_state(message: types.Message):
-    ...
+    if dom := await __chk_acl(message):
+        await message.answer(STATE_NAME[dom.state()[0]])
 
 
 @dp.message(Command("create"))
 async def on_create(message: types.Message):
+    """"""
     ...
 
 
