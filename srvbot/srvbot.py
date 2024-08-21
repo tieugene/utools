@@ -9,7 +9,8 @@ import json
 import logging
 import os
 import pathlib
-from typing import List, Dict, Set, Optional
+from enum import unique, StrEnum
+from typing import List, Dict, Set, Optional, Any
 # 2. 3rd
 import libvirt
 from aiogram import Bot, Dispatcher, types
@@ -42,7 +43,7 @@ HELP: Dict[str, str] = {
     "destroy": _("Power off (force)"),
     "active": _("Check is active"),
 }
-STATE_NAME = (
+STATE_NAME = (  # TODO: enum
     _("No state"),
     _("Running"),
     _("Blocked"),
@@ -53,6 +54,19 @@ STATE_NAME = (
     _("PM Suspended")
 )
 dp: Dispatcher = Dispatcher()
+
+
+@unique
+class Action(StrEnum):
+    ACTIVE = 'isActive'  # int (0, 1)
+    STATE = 'state'  # List[int, int]
+    CREATE = 'create'  # int=0
+    DESTROY = 'destroy'  # int=0
+    SUSPEND = 'suspend'  # int=0
+    RESUME = 'resume'  # int=0
+    SHUTDOWN = 'shutdown'  # int=0
+    REBOOT = 'reboot'
+    RESET = 'reset'
 
 
 class SettingsType(BaseModel):
@@ -78,6 +92,20 @@ async def __chk_uid(message: types.Message) -> bool:
     return True
 
 
+@dp.message(Command("start"))
+async def on_start(message: types.Message):
+    if await __chk_uid(message):
+        await message.answer(_("Welcome.\nSend '/help' for list commands available."))
+
+
+@dp.message(Command("help"))
+async def on_help(message: types.Message):
+    if await __chk_uid(message):
+        cmds = ACL[message.from_user.id].union({'start', 'help'})
+        help_list = [f"/{k}: {v}" for k, v in HELP.items() if k in cmds]
+        await message.answer("\n".join(help_list))
+
+
 async def __chk_acl(message: types.Message) -> Optional[libvirt.virDomain]:
     """Check user registerd and command permited and dom ok."""
     uid = message.from_user.id
@@ -95,61 +123,72 @@ async def __chk_acl(message: types.Message) -> Optional[libvirt.virDomain]:
             await message.answer(f"Error: {str(e)}")
 
 
-@dp.message(Command("start"))
-async def on_start(message: types.Message):
-    if await __chk_uid(message):
-        await message.answer(_("Welcome.\nSend '/help' for list commands available."))
-
-
-@dp.message(Command("help"))
-async def on_help(message: types.Message):
-    if await __chk_uid(message):
-        cmds = ACL[message.from_user.id].union({'start', 'help'})
-        help_list = [f"/{k}: {v}" for k, v in HELP.items() if k in cmds]
-        await message.answer("\n".join(help_list))
+async def __do_action(message: types.Message, m_name: str) -> Any:
+    """
+    :return:
+    - isActive: True/False
+    - state: [int, int]
+    - create: ...
+    - destroy: ...
+    :todo: quiet: bool = False
+    """
+    if dom := await __chk_acl(message):
+        try:
+            f = getattr(dom, m_name)
+            result = f()
+            logging.debug("Result of %s is type %s == %s", message.text, type(result), result)
+            return result
+        except libvirt.libvirtError as e:
+            # logging.error
+            await message.answer(f"Error: {str(e)}")
 
 
 @dp.message(Command("active"))
 async def on_active(message: types.Message):
-    if dom := await __chk_acl(message):
-        try:
-            # core
-            await message.answer( _("Active") if dom.isActive() else _("Inactive"))
-            # /core
-        except libvirt.libvirtError as e:
-            await message.answer(f"Error: {str(e)}")
+    """Check guest is active (running, ...)."""
+    if (is_active := await __do_action(message, 'isActive')) is not None:
+        await message.answer( _("Active") if is_active else _("Inactive"))
 
 
 @dp.message(Command("state"))
 async def on_state(message: types.Message):
-    if dom := await __chk_acl(message):
-        await message.answer(STATE_NAME[dom.state()[0]])
+    """Get guest state."""
+    if (state := await __do_action(message, 'state')) is not None:
+        await message.answer(STATE_NAME[state[0]])
 
 
 @dp.message(Command("create"))
 async def on_create(message: types.Message):
-    """"""
-    ...
+    """Start guest from scratch ('Power on')."""
+    if await __do_action(message, 'create') is not None:
+        await message.answer("OK")
 
 
 @dp.message(Command("destroy"))
 async def on_destroy(message: types.Message):
-    ...
+    """Power of guest (force)."""
+    if await __do_action(message, 'destroy') is not None:
+        await message.answer("OK")
 
 
 @dp.message(Command("suspend"))
 async def on_suspend(message: types.Message):
-    ...
+    """Freeze guest."""
+    if await __do_action(message, 'suspend') is not None:
+        await message.answer("OK")
 
 
 @dp.message(Command("resume"))
 async def on_resume(message: types.Message):
-    ...
+    """Melt guest."""
+    if await __do_action(message, 'resume') is not None:
+        await message.answer("OK")
 
 
 @dp.message(Command("shutdown"))
 async def on_shutdown(message: types.Message):
-    ...
+    if await __do_action(message, 'shutdown') is not None:
+        await message.answer("OK")
 
 
 @dp.message(Command("reboot"))
