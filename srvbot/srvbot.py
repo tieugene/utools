@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Telegram bot to handle KVM host.
 :note: requires root permissions to control vhosts
-:todo:
-- -=pydantic
+:todo: default handler
 """
 # 1. std
 import asyncio
@@ -11,7 +10,7 @@ import json
 import logging
 import os
 import pathlib
-from enum import unique, StrEnum
+from enum import unique, Enum
 from typing import List, Dict, Set, Optional, Union
 from dataclasses import dataclass
 # 2. 3rd
@@ -57,7 +56,7 @@ STATE_NAME = (
 )
 
 @unique
-class Action(StrEnum):
+class Action(Enum):
     """Map of guest methods."""
     ACTIVE = 'isActive'  # int (0, 1)
     STATE = 'state'  # List[int, int]
@@ -122,9 +121,9 @@ async def __do_action(message: types.Message, meth: Action, quiet: bool = False)
     else:
         try:
             dom = VConn.lookupByName(Settings.vhost)
-            f = getattr(dom, meth)
+            f = getattr(dom, meth.value)
             result = f()
-            logging.debug("Result of %s is type %s == %s", message.text, type(result), result)
+            # logging.debug("Result of %s is type %s == %s", message.text, type(result), result)
             if not quiet:
                 return result
             await message.answer("OK")

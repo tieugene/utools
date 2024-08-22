@@ -5,33 +5,37 @@ Telegram-based KVM guest helper bot.
 ## Requirements
 
 - python3 3.9+
-- python3-aiogram
-- python3-libvirt
-- python3-pydantic
+- python3-libvirt (system)
+- python3-aiogram (pip)
 
 ## Install
 
+### rpm (not ready yet):
 1. Install rpm
 2. Create `/etc/xdg/srvbot.json` or `/root/.config/srvbot.json` like the sample below
 3. `systemctl enable --now srvbot`
 
-### Venv
-
-Usage in old CentOS' requires special
-[actions](https://max-ko.ru/60-sreda-razrabotki-venv-python3-v-centos-7.html):
+### Venv:
 
 ```bash
-# F40:
-
-# CentOS8:
-dnf install python3-virtualenv python3-libvirt
-cd /opt
-python3 -m venv pysandbox
-# or pyvenv --system-site-packages --symlinks pysandbox
-source pysandbox/bin/activate
-pip install --upgrade pip
-pip install pyTelegramBotAPI
+# CentOS9, F40 (root):
+## 1. mk venv:
+dnf install python3-libvirt
+python3 -m venv --system-site-packages --symlinks /opt/pysandbox
+source /opt/pysandbox/bin/activate
+pip install aiogram
 deactivate
+## 2. copy sources:
+mkdir /opt/pysandbox/srvbot
+# cp srvbot.py srvbot.json locale/ => /opt/pysandbox/
+# 3. test:
+VIRTUAL_ENV=/opt/pysandbox /opt/pysandbox/bin/python3 /opt/pysandbox/srvbot/srvbot.py
+# 4. productin:
+cp srvbot.venv.service /usr/lib/systemd/system/srvbot.service
+systemctl daemon-reload
+systemctl enable --now srvbot.service
+# check
+journalctl -f -u srvbot.service
 ```
 
 ## State/Action
