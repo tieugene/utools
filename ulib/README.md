@@ -4,9 +4,13 @@ Utility micro-library
 
 ## Requirements
 
-- python 3.6+
-- python3-appdirs
+- python 3.9+
+- python3-platformdirs
 - python3-libvirt 4.5.0+
+
+## Applications:
+
+- [homesnap](homesnap.py): home snapshot of remote backups
 
 ## Modules
 
@@ -37,7 +41,6 @@ Utility micro-library
 - [x] email
 - [x] log
 
-## Used in:
-- backup
-- homesnap
-- srvbot
+## TODO:
+- resume anyway
+- expand rsync error
