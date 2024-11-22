@@ -1,7 +1,7 @@
 """Main file"""
 import logging
 # 1. std
-from typing import Optional
+from typing import Optional, Iterable
 import pathlib
 import calendar
 import datetime
@@ -21,7 +21,7 @@ def xly(src_d: pathlib.Path, dst_d: pathlib.Path, count: int):
     pth.dir_rotate(dst_d, count)
 
 
-def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[str] = None):
+def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[str] = None, opts: Iterable[str] = ('-axAXH', '--modify-window=1', '--del')):
     """Backup an NTFS folder.
     :param: src: windows vdisk root
     :param: dst: daily root
@@ -31,9 +31,8 @@ def backup_dir(src: pathlib.Path, dst: pathlib.Path, subj: str, prev: Optional[s
     :todo: rm xtra attrs (owner, rights etc: -a==)
     """
     logging.debug("Backup dir %s => %s", src, dst)
-    opts = ['-axAXH', '--modify-window=1', '--del']
     if prev:
-        opts.append(f"--link-dest=../../{prev}/{subj}")
+        opts = (*opts, f"--link-dest=../../{prev}/{subj}")
     rsync.rsync(src / subj, dst / subj, opts)
 
 
@@ -70,9 +69,9 @@ def dump_self(dst_f: pathlib.Path):
     sh.dump('-0', '-z', '-f', str(dst_f.with_suffix('gz')), '/')
 
 
-def rsync_local(dev: pathlib.Path, dst: pathlib.Path, src: pathlib.Path):
+def rsync_local(dev: pathlib.Path, dst: pathlib.Path, src: pathlib.Path, opts: Iterable[str] = ('-aAXH', '--del')):
     mnt.mount(dev, dst)
-    rsync.rsync(src, dst / src.name, ['-azAXH', '--del'])
+    rsync.rsync(src, dst / src.name, opts)
     mnt.umount(dst)
 
 

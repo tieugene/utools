@@ -1,7 +1,7 @@
 %global module ulib
 Name:           python-ulib
 Version:        0.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        GPLv3
 Summary:        Utility micro-library
 URL:            https://github.com/tieugene/utools/%{module}
@@ -120,6 +120,9 @@ Homesnap daemon.
 
 
 %changelog
+* Fri Nov 22 2024 TI_Eugene <tieugene@fedoraproject.org> - 0.0.2-2
+- bckp: added opts for rsync-powered functions
+
 * Thu Aug 15 2024 TI_Eugene <tieugene@fedoraproject.org> - 0.0.2-1
 - backup application added
 
