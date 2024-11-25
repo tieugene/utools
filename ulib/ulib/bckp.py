@@ -66,7 +66,7 @@ def backup_vdrive(src_f: pathlib.Path, dst_d: pathlib.Path):
 def dump_self(dst_f: pathlib.Path):
     # dump -0 -z -f $BACKUPDIR/$DAILY/$TODAY/vms_root.gz / > /dev/null
     logging.debug("Dump self")
-    sh.dump('-0', '-z', '-f', str(dst_f.with_suffix('gz')), '/')
+    sh.dump('-0', '-z', '-f', str(dst_f.with_suffix('.gz')), '/')
 
 
 def rsync_local(dev: pathlib.Path, dst: pathlib.Path, src: pathlib.Path, opts: Iterable[str] = ('-aAXH', '--del')):

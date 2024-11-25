@@ -120,6 +120,9 @@ Homesnap daemon.
 
 
 %changelog
+* Mon Nov 25 2024 TI_Eugene <tieugene@fedoraproject.org> - 0.0.2-3
+- bckp: fixed dump_self
+
 * Fri Nov 22 2024 TI_Eugene <tieugene@fedoraproject.org> - 0.0.2-2
 - bckp: added opts for rsync-powered functions
 
