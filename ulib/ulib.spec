@@ -1,7 +1,7 @@
 %global module ulib
 Name:           python-ulib
 Version:        0.0.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        GPLv3
 Summary:        Utility micro-library
 URL:            https://github.com/tieugene/utools/%{module}
